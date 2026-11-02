@@ -1,0 +1,2340 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="paper" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.4.14">
+<title>心跳放在哪：Query Loop 对照 Thread、Rollout 与 State</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-right: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin: 0 6px 0 auto; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-left: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; right: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { left: 50%; }
+.am-timeline--h li:last-child::before { right: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { left: 50%; }
+.am-tree-col:last-child::before { right: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }
+.am-tree-list ul { margin-left: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }
+.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 8px 4px auto;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-right: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */
+  .am-md th, .am-md td { min-width: 6em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+
+/* Change markers (only on pages that have one). Only the Changes view (.am-view-changes) draws change styling: colors, strike-through, faded items
+   and badges. Before and After look like a plain diagram, and the items that do not exist in the view are hidden.
+   The colors are the theme's --ok, --err and --warn, so every theme and mode works. A view hides items with visibility, so nothing moves. */
+.am-view-before [data-delta="added"], .am-view-after [data-delta="removed"] { visibility: hidden; }
+.am-view-before .am-delta-badge, .am-view-after .am-delta-badge { visibility: hidden; }
+/* A list label's badge is inline and would indent the label like a nesting level, so there it takes no space; the other badges are positioned and move nothing. */
+.am-view-before .am-tree-label > .am-delta-badge, .am-view-after .am-tree-label > .am-delta-badge { display: none; }
+
+.am-delta-badge--added { --badge: var(--ok, #1f9d4d); }
+.am-delta-badge--removed { --badge: var(--err, #c62828); }
+.am-delta-badge--changed { --badge: var(--warn, #a8620a); }
+
+/* flow */
+.am-view-changes .am-node[data-delta="added"] .am-node-shape { stroke: var(--ok, #1f9d4d); }
+.am-view-changes .am-node[data-delta="removed"] .am-node-shape { stroke: var(--err, #c62828); }
+.am-view-changes .am-node[data-delta="changed"] .am-node-shape { stroke: var(--warn, #a8620a); }
+.am-view-changes .am-node[data-delta="added"] > text { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-node[data-delta="removed"] > text { fill: var(--err, #c62828); }
+.am-view-changes [data-delta="added"] > .am-edge { stroke: var(--ok, #1f9d4d); }
+.am-view-changes [data-delta="removed"] > .am-edge { stroke: var(--err, #c62828); }
+.am-view-changes .am-arrow--added { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-arrow--removed { fill: var(--err, #c62828); }
+.am-view-changes [data-delta="added"] > .am-edge-label text { fill: var(--ok, #1f9d4d); }
+.am-view-changes [data-delta="removed"] > .am-edge-label text { fill: var(--err, #c62828); }
+.am-view-changes .am-cluster[data-delta="added"] { stroke: var(--ok, #1f9d4d); }
+.am-view-changes .am-cluster[data-delta="removed"] { stroke: var(--err, #c62828); }
+.am-view-changes .am-cluster-label[data-delta="added"] { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-cluster-label[data-delta="removed"] { fill: var(--err, #c62828); }
+.am-view-changes g[data-delta="removed"]:not(.am-delta-badge), .am-view-changes .am-cluster[data-delta="removed"], .am-view-changes .am-cluster-label[data-delta="removed"] { opacity: 0.55; }
+.am-view-changes .am-node[data-delta="removed"] > text, .am-view-changes g[data-delta="removed"] > .am-edge-label text, .am-view-changes .am-cluster-label[data-delta="removed"] { text-decoration: line-through; }
+.am-diagram .am-delta-badge circle { fill: var(--badge); stroke: var(--paper, #ffffff); stroke-width: 1.5; }
+.am-diagram .am-delta-badge text { fill: var(--paper, #ffffff); font: 700 11px var(--font-sans, sans-serif); text-decoration: none; }
+
+/* tree */
+.am-tree .am-delta-badge {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 15px; height: 15px; flex: none;
+  border-radius: 50%; background: var(--badge); color: var(--paper); font: 700 11px/1 var(--font-mono, monospace); text-decoration: none;
+}
+.am-tree-box[data-delta] { position: relative; }
+.am-tree-box > .am-delta-badge { position: absolute; top: -8px; right: -8px; }
+.am-tree-label > .am-delta-badge { margin-right: 6px; vertical-align: 1px; }
+.am-view-changes .am-tree-box[data-delta="added"] { border-color: var(--ok); }
+.am-view-changes .am-tree-box[data-delta="removed"] { border-color: var(--err); opacity: 0.55; text-decoration: line-through; }
+.am-view-changes .am-tree-box[data-delta="changed"] { border-color: var(--warn); }
+.am-view-changes .am-tree-list li[data-delta="added"] > .am-tree-label { color: var(--ok); }
+.am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-label { color: var(--err); text-decoration: line-through; }
+.am-view-changes .am-tree-list li[data-delta="changed"] > .am-tree-label { color: var(--warn); }
+.am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-label, .am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-sub { opacity: 0.55; }
+
+/* Connector lines in a view that hides siblings. A hidden node keeps its stretch of the line, so the line stays whole between the nodes that remain and
+   stops at the last one; the markup (data-line-before / data-line-after, see src/components/tree.js) names the stretches that differ from the usual look. */
+.am-view-before .am-tree-list li::after, .am-view-after .am-tree-list li::after,
+.am-view-before .am-tree-col::before, .am-view-after .am-tree-col::before { visibility: visible; }
+.am-view-before .am-tree-list li[data-line-before="full"]::after, .am-view-after .am-tree-list li[data-line-after="full"]::after { bottom: 0; height: auto; }
+.am-view-before .am-tree-list li[data-line-before="short"]::after, .am-view-after .am-tree-list li[data-line-after="short"]::after { bottom: auto; height: 0.95em; }
+.am-view-before .am-tree-list li[data-line-before="none"]::after, .am-view-after .am-tree-list li[data-line-after="none"]::after,
+.am-view-before .am-tree-col[data-line-before="none"]::before, .am-view-after .am-tree-col[data-line-after="none"]::before,
+.am-view-before .am-tree-root[data-line-before="none"]::after, .am-view-after .am-tree-root[data-line-after="none"]::after { display: none; }
+.am-view-before .am-tree-col[data-line-before="full"]::before, .am-view-after .am-tree-col[data-line-after="full"]::before { left: 0; right: 0; }
+.am-view-before .am-tree-col[data-line-before="start"]::before, .am-view-after .am-tree-col[data-line-after="start"]::before { left: 50%; right: 0; }
+.am-view-before .am-tree-col[data-line-before="end"]::before, .am-view-after .am-tree-col[data-line-after="end"]::before { left: 0; right: 50%; }
+
+/* the count row and the switch */
+.am-delta-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 10px; text-align: left; font: 12px/1.3 var(--font-mono, monospace); }
+.am-delta-count--added { color: var(--ok); }
+.am-delta-count--removed { color: var(--err); }
+.am-delta-count--changed { color: var(--warn); }
+.am-delta-switch { display: inline-flex; margin-left: auto; border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius); overflow: hidden; }
+.am-delta-switch[hidden] { display: none; }
+.am-delta-switch button { font: inherit; padding: 3px 10px; color: var(--ink-2); background: var(--paper); border: 0; border-left: 1px solid var(--line-2); cursor: pointer; }
+.am-delta-switch button:first-child { border-left: 0; }
+.am-delta-switch button[aria-pressed="true"] { color: var(--ink); background: var(--accent-bg); font-weight: 600; }
+.am-delta-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media print { .am-delta-switch { display: none !important; } }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="zh-CN" data-am-root-theme="paper" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">主题<select data-am="theme"><option value="blueprint">图纸</option><option value="shadcn">卡片</option><option value="paper" selected>纸张</option></select></label>
+<label class="am-pick">明暗<select data-am="mode"><option value="auto" selected>跟随系统</option><option value="light">亮</option><option value="dark">暗</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;回复&quot;,&quot;comment&quot;:&quot;评论&quot;,&quot;commentHint&quot;:&quot;对这个面板的意见&quot;,&quot;title&quot;:&quot;你的回复&quot;,&quot;hint&quot;:&quot;复制后粘贴到对话里。&quot;,&quot;copy&quot;:&quot;复制回复&quot;,&quot;close&quot;:&quot;关闭&quot;,&quot;suggested&quot;:&quot;建议&quot;,&quot;empty&quot;:&quot;先选择选项，或在面板上写评论。&quot;,&quot;decisions&quot;:&quot;决定&quot;,&quot;comments&quot;:&quot;评论&quot;,&quot;confirmed&quot;:&quot;确认了建议&quot;,&quot;untouched&quot;:&quot;未作答，保留建议&quot;,&quot;was&quot;:&quot;原为&quot;,&quot;typed&quot;:&quot;以 \&quot;&gt;\&quot; 开头的行是读者输入的文字。&quot;,&quot;done&quot;:&quot;已复制 ✓&quot;}">回复</button>
+<button class="am-btn" type="button" data-am="copy" data-done="已复制 ✓">复制源稿</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>心跳放在哪：Query Loop 对照 Thread、Rollout 与 State</h1><p class="am-sub">《Claude Code 和 Codex 的 Harness 设计哲学》第 3 章解读（已按官方文档和官方仓库核对）</p><div class="am-head-meta"><span><b>source</b>https://harness-books.agentway.dev/book2-comparing/chapter-03-loop-thread-and-rollout.html</span></div><div class="am-intro am-md"><div class="am-md"><p>原文：<a href="https://harness-books.agentway.dev/book2-comparing/chapter-03-loop-thread-and-rollout.html">第 3 章 心跳放在哪：Query Loop 对照 Thread、Rollout 与 State</a></p>
+<p>一句话结论：原文认为，Claude Code 的连续性主要由 query loop 承担，Codex 的连续性主要由 thread、rollout 和 state 基础设施承担。核对后，Codex 一侧有依据：它的 SDK 每次运行都靠 thread id 接上同一个线程。但原文低估了 Claude Code 的持久化：Claude Code 也把每条消息和工具结果写进本地会话文件，可以按会话 ID 恢复。</p>
+<p>核对依据：Claude Code 官方文档 code.claude.com/docs（2026-10-27 查阅）；Codex 官方仓库 openai/codex main 分支提交 ff2346f（2026-10-27）。与原文不符的地方标“事实核对”，逐条结果见附录。</p>
+</div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="目录"><a href="#panel-A">A · 开篇图：连续性对比</a><a href="#panel-B">B · 3.1 代理系统的核心是连续性</a><a href="#panel-C">C · 3.2 Claude Code：把连续性压进主循环</a><a href="#panel-D">D · 3.3 Codex：把连续性拆成线程、rollout 与状态桥</a><a href="#panel-E">E · 3.4 差别在于状态安放的位置</a><a href="#panel-F">F · 3.5 对恢复与可审计性的影响</a><a href="#panel-G">G · 3.6 对产品和团队接口的影响</a><a href="#panel-H">H · 3.7 本章结论</a><a href="#panel-I">I · 附录：事实核对</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>开篇图：连续性对比</h2><span class="am-panel-meta">原文章首的图，按事实重画</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文在章首放了一张对比图，标题是 “Loop-Resident State vs Recorded Thread”。图的意思是：Claude Code 把连续性放在 loop 状态里，Codex 把连续性做成一条有记录的线程。</p>
+<p>下图按事实重画。+ 表示按事实补上，− 表示原图有、但与事实不符。切换 Before 和 After，可以分别看原图结构和修正后的结构。</p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 986 538" width="986" height="538" role="img" aria-label="流程图：loop 状态 · 消息、toolUseContext、压缩计数、恢复计数、第 N 轮、第 N+1 轮、第 N+2 轮、本地会话文件 · JSONL、按会话 ID 恢复、Thread · id、turn 运行时" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am1-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am1-arrow-removed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--removed" d="M0,0 L10,5 L0,10 z"/></marker></defs><g><rect class="am-cluster" x="14" y="26" width="957.7" height="233" rx="4"/><text class="am-cluster-label" x="22" y="40">Claude Code 连续性在 loop 状态里</text><rect class="am-cluster" x="14" y="279" width="957.7" height="233" rx="4"/><text class="am-cluster-label" x="22" y="293">Codex 连续性是被记录的线程</text></g><g><g data-step="0"><path class="am-edge" d="M202.2,177 L243.9,195.3 Q285.6,213.5 329.4,213.5 L373.2,213.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="251.8" y="204.5" width="67.5" height="18" rx="3"/><text x="285.6" y="213.5" text-anchor="middle" dominant-baseline="central">读取和修改</text></g></g><g data-step="0"><path class="am-edge" d="M209.6,142.5 L247.6,142.5 Q285.6,142.5 325.8,142.5 L365.9,142.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="251.8" y="133.5" width="67.5" height="18" rx="3"/><text x="285.6" y="142.5" text-anchor="middle" dominant-baseline="central">读取和修改</text></g></g><g data-step="0"><path class="am-edge" d="M202.2,108 L243.9,89.8 Q285.6,71.5 325.8,71.5 L365.9,71.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="251.8" y="62.5" width="67.5" height="18" rx="3"/><text x="285.6" y="71.5" text-anchor="middle" dominant-baseline="central">读取和修改</text></g></g><g data-step="1" data-delta="added"><path class="am-edge" d="M443.8,213.5 L475.6,213.5 Q507.4,213.5 558.6,186.8 L609.7,160" marker-end="url(#am1-arrow-added)"/><g class="am-edge-label"><rect x="479.4" y="204.5" width="56" height="18" rx="3"/><text x="507.4" y="213.5" text-anchor="middle" dominant-baseline="central">逐条写入</text></g></g><g data-step="2" data-delta="added"><path class="am-edge" d="M451.1,142.5 L479.3,142.5 Q507.4,142.5 533.4,142.5 L559.4,142.5" marker-end="url(#am1-arrow-added)"/></g><g data-step="3" data-delta="added"><path class="am-edge" d="M451.1,71.5 L479.3,71.5 Q507.4,71.5 558.6,98.3 L609.7,125" marker-end="url(#am1-arrow-added)"/></g><g data-step="4" data-delta="added"><path class="am-edge am-edge--dashed" d="M727,142.5 L753,142.5 Q779,142.5 805.4,142.5 L831.8,142.5" marker-end="url(#am1-arrow-added)"/></g><g data-step="5"><path class="am-edge" d="M159.1,413 L222.4,443.9 Q285.6,474.8 333.5,443.9 L381.4,413" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="257.3" y="465.8" width="56.7" height="18" rx="3"/><text x="285.6" y="474.8" text-anchor="middle" dominant-baseline="central">开始 turn</text></g></g><g data-step="6"><path class="am-edge am-edge--dashed" d="M378.1,378 L331.9,351.4 Q285.6,324.8 224.5,351.4 L163.4,378" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="233.6" y="315.8" width="104.1" height="18" rx="3"/><text x="285.6" y="324.8" text-anchor="middle" dominant-baseline="central">下一轮用同一个 id</text></g></g><g data-step="7"><path class="am-edge" d="M432.9,413 L470.2,439.8 Q507.4,466.5 544.1,466.5 L580.9,466.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="490.9" y="457.5" width="33" height="18" rx="3"/><text x="507.4" y="466.5" text-anchor="middle" dominant-baseline="central">追加</text></g></g><g data-step="8"><path class="am-edge" d="M705.6,466.5 L742.3,466.5 Q779,466.5 805,466.5 L831,466.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="751" y="457.5" width="56" height="18" rx="3"/><text x="779" y="466.5" text-anchor="middle" dominant-baseline="central">筛选条目</text></g></g><g data-step="9"><path class="am-edge" d="M455.4,395.5 L481.4,395.5 Q507.4,395.5 544.1,395.5 L580.9,395.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="490.9" y="386.5" width="33" height="18" rx="3"/><text x="507.4" y="395.5" text-anchor="middle" dominant-baseline="central">写入</text></g></g><g data-step="10" data-delta="removed"><path class="am-edge" d="M432.9,378 L470.2,351.3 Q507.4,324.5 542.4,324.5 L577.4,324.5" marker-end="url(#am1-arrow-removed)"/><g class="am-edge-label"><rect x="490.9" y="315.5" width="33" height="18" rx="3"/><text x="507.4" y="324.5" text-anchor="middle" dominant-baseline="central">写入</text></g></g></g><g><g class="am-node am-node--rect" data-key="loop 状态 · 消息、toolUseContext、压缩计数、恢复计数" data-step="0"><rect class="am-node-shape" x="37" y="108" width="172.6" height="69" rx="3"/><text x="123.3" y="125.5" text-anchor="middle" dominant-baseline="central">loop 状态 · 消息、</text><text x="123.3" y="142.5" text-anchor="middle" dominant-baseline="central">toolUseContext、压缩计</text><text x="123.3" y="159.5" text-anchor="middle" dominant-baseline="central">数、恢复计数</text></g><g class="am-node am-node--rect" data-key="第 N 轮" data-step="0"><rect class="am-node-shape" x="373.2" y="196" width="70.6" height="35" rx="3"/><text x="408.5" y="213.5" text-anchor="middle" dominant-baseline="central">第 N 轮</text></g><g class="am-node am-node--rect" data-key="第 N+1 轮" data-step="0"><rect class="am-node-shape" x="365.9" y="125" width="85.2" height="35" rx="3"/><text x="408.5" y="142.5" text-anchor="middle" dominant-baseline="central">第 N+1 轮</text></g><g class="am-node am-node--rect" data-key="第 N+2 轮" data-step="0"><rect class="am-node-shape" x="365.9" y="54" width="85.2" height="35" rx="3"/><text x="408.5" y="71.5" text-anchor="middle" dominant-baseline="central">第 N+2 轮</text></g><g class="am-node am-node--rect" data-key="本地会话文件 · JSONL" data-step="1" data-delta="added"><rect class="am-node-shape" x="559.4" y="125" width="167.6" height="35" rx="3"/><text x="643.2" y="142.5" text-anchor="middle" dominant-baseline="central">本地会话文件 · JSONL</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(727,125)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="按会话 ID 恢复" data-step="4" data-delta="added"><rect class="am-node-shape" x="831.8" y="125" width="116.1" height="35" rx="3"/><text x="889.9" y="142.5" text-anchor="middle" dominant-baseline="central">按会话 ID 恢复</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(948,125)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="Thread · id" data-step="5"><rect class="am-node-shape" x="75" y="378" width="96.6" height="35" rx="3"/><text x="123.3" y="395.5" text-anchor="middle" dominant-baseline="central">Thread · id</text></g><g class="am-node am-node--rect" data-key="turn 运行时" data-step="5"><rect class="am-node-shape" x="361.6" y="378" width="93.8" height="35" rx="3"/><text x="408.5" y="395.5" text-anchor="middle" dominant-baseline="central">turn 运行时</text></g><g class="am-node am-node--rect" data-key="RolloutRecorder" data-step="7"><rect class="am-node-shape" x="580.9" y="449" width="124.7" height="35" rx="3"/><text x="643.2" y="466.5" text-anchor="middle" dominant-baseline="central">RolloutRecorder</text></g><g class="am-node am-node--rect" data-key="memories 扩展" data-step="8"><rect class="am-node-shape" x="831" y="449" width="117.7" height="35" rx="3"/><text x="889.9" y="466.5" text-anchor="middle" dominant-baseline="central">memories 扩展</text></g><g class="am-node am-node--rect" data-key="state_db_bridge" data-step="9"><rect class="am-node-shape" x="580.9" y="378" width="124.7" height="35" rx="3"/><text x="643.2" y="395.5" text-anchor="middle" dominant-baseline="central">state_db_bridge</text></g><g class="am-node am-node--rect" data-key="message_history" data-step="10" data-delta="removed"><rect class="am-node-shape" x="577.4" y="307" width="131.7" height="35" rx="3"/><text x="643.2" y="324.5" text-anchor="middle" dominant-baseline="central">message_history</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(709.1,307)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+6 新增</span> <span class="am-delta-count am-delta-count--removed">−2 删除</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-md"><p>原图给两边各配了一条注释：</p>
+<ul>
+<li>Claude Code：连续性就是“循环还在跑”，中断、压缩和恢复都原地修改 loop 状态。</li>
+<li>Codex：连续性就是“这个 thread id 有这些记录”，恢复和审计依据有索引的记录，而不是活着的循环。</li>
+</ul>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>Claude Code 一侧，原图只画了 loop 状态。文档写明会话逐条写入本地 JSONL 文件，可以按会话 ID 恢复（附录第 9、27 条）。所以“依据记录恢复”不是 Codex 独有（本页判断）。</li>
+<li>Codex 一侧，message_history 不在 core 里（附录第 12 条）。原图的 Memories pipeline 对应仓库里的 memories 扩展；它和 state_db 都有代码依据（附录第 23、24 条）。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>3.1 代理系统的核心是连续性</h2></header>
+<div class="am-panel-body"><div class="am-md"><p>把代理系统当成“多轮聊天”，会掩盖真正的架构难题。原文认为，代理系统真正难的是连续性，它要回答下面这些问题：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="连续性要回答的问题" data-step="0">连续性要回答的问题</div></div><ul class="am-tree-list"><li data-key="上一轮做了什么，这一轮怎么接" data-step="1"><span class="am-tree-label">上一轮做了什么，这一轮怎么接</span></li><li data-key="工具结果怎么回填" data-step="2"><span class="am-tree-label">工具结果怎么回填</span></li><li data-key="中断之后怎么收口" data-step="3"><span class="am-tree-label">中断之后怎么收口</span></li><li data-key="上下文过长时怎么整理" data-step="4"><span class="am-tree-label">上下文过长时怎么整理</span></li><li data-key="失败时重试，还是忠实汇报" data-step="5"><span class="am-tree-label">失败时重试，还是忠实汇报</span></li></ul></div>
+<div class="am-md"><p>这些问题决定一个系统是不是 agent，而不只是“支持工具调用的问答接口”。原文认为，两者在这里的差异，比任何功能对照都更有含金量。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>3.2 Claude Code：把连续性压进主循环</h2></header>
+<div class="am-panel-body"><div class="am-md"><p><strong>做什么</strong>：原文说，Claude Code 的主轴在 query() 和 queryLoop() 一带，连续性主要由 loop 维护。</p>
+<p><strong>怎么做</strong>：关键问题都压进循环状态里，真实的麻烦也在 loop 里处理。</p>
+</div>
+<div class="am-tree"><div class="am-tree-root"><div class="am-tree-box am-tree-box--root" data-key="queryLoop" data-step="0">queryLoop<small>原文描述的主循环</small></div></div><div class="am-tree-cols" style="--n: 2"><div class="am-tree-col"><div class="am-tree-box" data-key="循环状态" data-step="1">循环状态</div><ul class="am-tree-list"><li data-key="当前消息序列" data-step="2"><span class="am-tree-label">当前消息序列</span></li><li data-key="tool use context" data-step="3"><span class="am-tree-label">tool use context</span></li><li data-key="compact 跟踪" data-step="4"><span class="am-tree-label">compact 跟踪</span></li><li data-key="output token 恢复计数" data-step="5"><span class="am-tree-label">output token 恢复计数</span></li><li data-key="pending summary" data-step="6"><span class="am-tree-label">pending summary</span></li><li data-key="turn count" data-step="7"><span class="am-tree-label">turn count</span></li><li data-key="transition" data-step="8"><span class="am-tree-label">transition</span></li></ul></div><div class="am-tree-col"><div class="am-tree-box" data-key="在 loop 里处理的麻烦" data-step="9">在 loop 里处理的麻烦</div><ul class="am-tree-list"><li data-key="工具返回顺序" data-step="10"><span class="am-tree-label">工具返回顺序</span></li><li data-key="输出截断" data-step="11"><span class="am-tree-label">输出截断</span></li><li data-key="prompt too long" data-step="12"><span class="am-tree-label">prompt too long</span></li><li data-key="history snip" data-step="13"><span class="am-tree-label">history snip</span></li><li data-key="microcompact" data-step="14"><span class="am-tree-label">microcompact</span></li><li data-key="用户插话" data-step="15"><span class="am-tree-label">用户插话</span></li></ul></div></div></div>
+<div class="am-md"><p><strong>为什么这样设计</strong>：原文认为，Claude Code 对“代理如何活着”的回答是运行时性的。它的骨架像一台不断自我校正的会话发动机。它不是先建强外部状态模型、再驱动执行。真实的麻烦都发生在 loop 里，所以它把这些麻烦当作 loop 内部的合法状态，不回避。原文的评价是：有工程的粗粝感，不优雅，但通常更稳。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>query()、queryLoop() 和循环状态的各项无法核对，Claude Code 源码不公开（附录第 1 条）。</li>
+<li>文档能对上的有：输出超限报错、上下文超限时自动压缩、运行中排队发消息、按 Esc 中断（附录第 2 条）。工具返回顺序、history snip、microcompact，文档没写（附录第 3 条）。</li>
+<li>连续性并不只靠 loop：Claude Code 把每条消息、工具调用和结果写进本地 JSONL 会话文件，可以按会话 ID 恢复（附录第 9 条）。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>3.3 Codex：把连续性拆成线程、rollout 与状态桥</h2></header>
+<div class="am-panel-body"><div class="am-md"><p><strong>做什么</strong>：Codex 更“账本化”。在 <code>core/src/lib.rs</code> 里，连续性分摊到 codex_thread、thread_manager、rollout、state_db_bridge、state 几个模块。原文还列了 message_history，当前 core 里已经没有。</p>
+<p><strong>怎么做</strong>：在 TypeScript SDK 里，thread 是外部开发者能直接操作的一级概念。Thread 持有 id，可以调用 run() 或 runStreamed()。</p>
+<p>原文在这一节配了第二张图，画 Codex 线程一次 turn 的生命周期和记录去向。下图按当前源码重画：+ 表示补上，− 表示与代码不符，~ 表示节点有改动。</p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 954 851" width="954" height="851" role="img" aria-label="流程图：开始、输入 · 文本和本地图片、准备 · createOutputSchemaFile、normalizeInput、Thread · id 和线程选项、运行 turn · _exec.run、thread.started · 分配 _id、item.completed · 收集输出、turn.completed · usage" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am2-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am2-arrow-removed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--removed" d="M0,0 L10,5 L0,10 z"/></marker></defs><g><rect class="am-cluster" x="210.4" y="107" width="729.2" height="510" rx="4"/><text class="am-cluster-label" x="218.4" y="121">SDK（TypeScript）</text><rect class="am-cluster" x="49.6" y="663" width="864.2" height="162" rx="4"/><text class="am-cluster-label" x="57.6" y="677">持久化</text></g><g><g data-step="0"><path class="am-edge" d="M485.5,61 L485.5,72.5 Q485.5,84 485.5,95.5 Q485.5,107 485.5,118.5 L485.5,130" marker-end="url(#am2-arrow)"/></g><g data-step="1"><path class="am-edge" d="M485.5,165 L485.5,176.5 Q485.5,188 485.5,199.5 L485.5,211" marker-end="url(#am2-arrow)"/></g><g data-step="2"><path class="am-edge" d="M485.5,280 L485.5,296 Q485.5,312 485.5,328 L485.5,344" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="451.8" y="303" width="67.5" height="18" rx="3"/><text x="485.5" y="312" text-anchor="middle" dominant-baseline="central">新建或复用</text></g></g><g data-step="3"><path class="am-edge" d="M568.3,372.6 L712.1,391.8 Q855.8,411 709.5,430.6 L563.1,450.1" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="827.5" y="402" width="56.7" height="18" rx="3"/><text x="855.8" y="411" text-anchor="middle" dominant-baseline="central">turn 开始</text></g></g><g data-step="4"><path class="am-edge am-edge--dashed" d="M422.6,443 L365,427 Q307.4,411 365,395 L422.6,379" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="255.3" y="402" width="104.1" height="18" rx="3"/><text x="307.4" y="411" text-anchor="middle" dominant-baseline="central">下一轮用同一个 id</text></g></g><g data-step="5"><path class="am-edge" d="M563.1,471.8 L693.6,490.9 Q824.1,510 824.1,530.3 L824.1,550.5" marker-end="url(#am2-arrow)"/></g><g data-step="5"><path class="am-edge" d="M525.5,478 L562.1,494 Q598.7,510 598.7,526 L598.7,542" marker-end="url(#am2-arrow)"/></g><g data-step="5"><path class="am-edge" d="M451.7,478 L420.7,494 Q389.7,510 389.7,530.3 L389.7,550.5" marker-end="url(#am2-arrow)"/></g><g data-step="6" data-delta="added"><path class="am-edge" d="M421.7,478 L363.4,494 Q305.1,510 243.7,527.2 L182.4,544.4" marker-end="url(#am2-arrow-added)"/><g class="am-edge-label"><rect x="241.4" y="501" width="127.3" height="18" rx="3"/><text x="305.1" y="510" text-anchor="middle" dominant-baseline="central">启动，有 id 时 resume</text></g></g><g data-step="7" data-delta="added"><path class="am-edge" d="M123.4,594 L134.5,605.5 Q145.7,617 145.7,628.5 Q145.7,640 145.7,651.5 Q145.7,663 145.7,683.3 Q145.7,703.5 145.7,723.8 Q145.7,744 314.7,761.1 L483.8,778.2" marker-end="url(#am2-arrow-added)"/><g class="am-edge-label"><rect x="117.7" y="694.5" width="56" height="18" rx="3"/><text x="145.7" y="703.5" text-anchor="middle" dominant-baseline="central">写入记录</text></g></g><g data-step="8" data-delta="added"><path class="am-edge" d="M93.6,594 L91.6,605.5 Q89.6,617 89.6,628.5 Q89.6,640 89.6,651.5 Q89.6,663 208.5,679 L327.3,695.1" marker-end="url(#am2-arrow-added)"/></g><g data-step="9" data-delta="removed"><path class="am-edge" d="M824.1,585.5 L824.1,601.3 Q824.1,617 824.1,628.5 Q824.1,640 824.1,651.5 Q824.1,663 824.1,674.5 L824.1,686" marker-end="url(#am2-arrow-removed)"/></g><g data-step="10" data-delta="removed"><path class="am-edge" d="M619,594 L628,605.5 Q637,617 637,628.5 Q637,640 637,651.5 Q637,663 637,674.5 L637,686" marker-end="url(#am2-arrow-removed)"/></g><g data-step="11" data-delta="removed"><path class="am-edge" d="M562.6,594 L546.7,605.5 Q530.7,617 530.7,628.5 Q530.7,640 530.7,651.5 Q530.7,663 530.7,683.3 Q530.7,703.5 530.7,723.8 Q530.7,744 535.1,755.5 L539.5,767" marker-end="url(#am2-arrow-removed)"/></g><g data-step="12" data-delta="removed"><path class="am-edge" d="M389.7,585.5 L389.7,601.3 Q389.7,617 389.7,628.5 Q389.7,640 389.7,651.5 Q389.7,663 389.7,674.5 L389.7,686" marker-end="url(#am2-arrow-removed)"/></g><g data-step="13"><path class="am-edge" d="M824.1,721 L824.1,732.5 Q824.1,744 716.3,759.7 L608.5,775.4" marker-end="url(#am2-arrow)"/></g></g><g><g class="am-node am-node--round" data-key="开始" data-step="0"><rect class="am-node-shape" x="447.5" y="26" width="76" height="35" rx="17.5"/><text x="485.5" y="43.5" text-anchor="middle" dominant-baseline="central">开始</text></g><g class="am-node am-node--rect" data-key="输入 · 文本和本地图片" data-step="0"><rect class="am-node-shape" x="405.5" y="130" width="160.1" height="35" rx="3"/><text x="485.5" y="147.5" text-anchor="middle" dominant-baseline="central">输入 · 文本和本地图片</text></g><g class="am-node am-node--rect" data-key="准备 · createOutputSchemaFile、normalizeInput" data-step="1" data-delta="changed"><rect class="am-node-shape" x="395.4" y="211" width="180.4" height="69" rx="3"/><text x="485.5" y="228.5" text-anchor="middle" dominant-baseline="central">准备 ·</text><text x="485.5" y="245.5" text-anchor="middle" dominant-baseline="central">createOutputSchemaFile</text><text x="485.5" y="262.5" text-anchor="middle" dominant-baseline="central">、normalizeInput</text><g class="am-delta-badge am-delta-badge--changed" data-delta="changed" transform="translate(575.7,211)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">~</text></g></g><g class="am-node am-node--rect" data-key="Thread · id 和线程选项" data-step="2"><rect class="am-node-shape" x="402.8" y="344" width="165.5" height="35" rx="3"/><text x="485.5" y="361.5" text-anchor="middle" dominant-baseline="central">Thread · id 和线程选项</text></g><g class="am-node am-node--rect" data-key="运行 turn · _exec.run" data-step="3"><rect class="am-node-shape" x="408" y="443" width="155.1" height="35" rx="3"/><text x="485.5" y="460.5" text-anchor="middle" dominant-baseline="central">运行 turn · _exec.run</text></g><g class="am-node am-node--rect" data-key="thread.started · 分配 _id" data-step="5"><rect class="am-node-shape" x="736.7" y="550.5" width="174.9" height="35" rx="3"/><text x="824.1" y="568" text-anchor="middle" dominant-baseline="central">thread.started · 分配 _id</text></g><g class="am-node am-node--rect" data-key="item.completed · 收集输出" data-step="5"><rect class="am-node-shape" x="510.6" y="542" width="176.2" height="52" rx="3"/><text x="598.7" y="559.5" text-anchor="middle" dominant-baseline="central">item.completed · 收集输</text><text x="598.7" y="576.5" text-anchor="middle" dominant-baseline="central">出</text></g><g class="am-node am-node--rect" data-key="turn.completed · usage" data-step="5" data-delta="changed"><rect class="am-node-shape" x="304.9" y="550.5" width="169.7" height="35" rx="3"/><text x="389.7" y="568" text-anchor="middle" dominant-baseline="central">turn.completed · usage</text><g class="am-delta-badge am-delta-badge--changed" data-delta="changed" transform="translate(474.6,550.5)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">~</text></g></g><g class="am-node am-node--rect" data-key="codex exec 进程 · 进程内 app-server 和 core" data-step="6" data-delta="added"><rect class="am-node-shape" x="14" y="542" width="168.4" height="52" rx="3"/><text x="98.2" y="559.5" text-anchor="middle" dominant-baseline="central">codex exec 进程 · 进程</text><text x="98.2" y="576.5" text-anchor="middle" dominant-baseline="central">内 app-server 和 core</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(182.4,542)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="RolloutRecorder" data-step="7"><rect class="am-node-shape" x="483.8" y="767" width="124.7" height="35" rx="3"/><text x="546.1" y="784.5" text-anchor="middle" dominant-baseline="central">RolloutRecorder</text></g><g class="am-node am-node--rect" data-key="state_db_bridge" data-step="8"><rect class="am-node-shape" x="327.3" y="686" width="124.7" height="35" rx="3"/><text x="389.7" y="703.5" text-anchor="middle" dominant-baseline="central">state_db_bridge</text></g><g class="am-node am-node--rect" data-key="ThreadManager" data-step="9"><rect class="am-node-shape" x="763.2" y="686" width="121.9" height="35" rx="3"/><text x="824.1" y="703.5" text-anchor="middle" dominant-baseline="central">ThreadManager</text></g><g class="am-node am-node--rect" data-key="message_history" data-step="10" data-delta="removed"><rect class="am-node-shape" x="571.1" y="686" width="131.7" height="35" rx="3"/><text x="637" y="703.5" text-anchor="middle" dominant-baseline="central">message_history</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(702.8,686)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+4 新增</span> <span class="am-delta-count am-delta-count--removed">−5 删除</span> <span class="am-delta-count am-delta-count--changed">~2 修改</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-md"><ul>
+<li>线程选项包括 approval policy、working directory、sandbox mode、network access、additional directories，创建线程时设定。每次 turn 都把它们显式交给 exec。</li>
+<li>原图注释写：turn 范围内的条件随线程走，不随 prompt 走；线程是可寻址的连续性单位。这和代码一致（附录第 28 条）。</li>
+<li>thread 不是外围包装，而是执行语义真正经过的一层。</li>
+</ul>
+<p><strong>为什么这样设计</strong>：连续性不再只是“循环还在继续”，而是“一个线程被一套显式状态结构持续记录和约束”。rollout 的存在说明 Codex 在乎回放、索引、持久化和会话外可见性。原文认为，系统因此更接近执行记录器，而不是现场对话管理器。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>原文说这些条件是 turn 级参数。实际它们在 ThreadOptions 里，创建线程时设定；turn 级选项只有 output schema 和取消信号等（附录第 14 条）。</li>
+<li>SDK 每次 run 都启动一个新的 <code>codex exec</code> 进程，靠 <code>resume &lt;threadId&gt;</code> 接上同一线程。这支持原文“线程是一级概念”的论点（附录第 15 条）。</li>
+<li>原图把 SDK 事件直接连到持久化组件。实际 SDK 只解析事件，记录由 codex exec 进程内的 core 写入（附录第 25 条）。</li>
+<li>原文和原图都是先分离输入、再准备 schema 文件，当前代码相反；turn.completed 也只带 usage（附录第 13、26 条）。</li>
+<li>原图里 ThreadManager 到 RolloutRecorder 的连线无法核对，照原图保留。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>3.4 差别在于状态安放的位置</h2></header>
+<div class="am-panel-body"><div class="am-md"><p>Claude Code 当然有状态，Codex 当然有循环。差异不在有没有，而在主权在哪。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Claude Code</th>
+<th>Codex</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>状态主权交给</td>
+<td>query loop</td>
+<td>thread 和 rollout 结构</td>
+</tr>
+<tr>
+<td>怎样看连续性</td>
+<td>“会话怎么继续”是 runtime 的核心问题，许多事情在 loop 里直接解决</td>
+<td>连续性不是内部控制流的副产物，而是由线程和状态基础设施承接的显式事实</td>
+</tr>
+<tr>
+<td>在用户心智中的位置</td>
+<td>query loop 像发动机室，重要，但不一定是用户心智模型的中心</td>
+<td>Thread 在 TypeScript SDK 里已是产品概念，开发者直接围绕它思考 agent turn</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><p>Claude 的 Agent SDK 也有会话 ID，可以用 continue、resume、fork 接上之前的会话。差别在入口：Claude 的 SDK 入口是 query() 函数，会话是它的选项；Codex 的 SDK 入口是 Thread 对象（附录第 11 条）。</p>
+</div></div>
+<div class="am-md"><h3>不变式：连续性主权</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>系统</th>
+<th>原文的不变式</th>
+<th>核对</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Claude Code（原文注明来源 <code>src/query.ts</code>）</td>
+<td>loop 拥有消息序列、tool use context、compact 跟踪和 turn count</td>
+<td>无法核对（附录第 1 条）</td>
+</tr>
+<tr>
+<td></td>
+<td>每次 loop 迭代都重新计算“现在什么最重要”</td>
+<td>无法核对（附录第 4 条）</td>
+</tr>
+<tr>
+<td></td>
+<td>未闭合的 tool_use 必须在同一次 loop 迭代内闭合，或用合成结果兜底</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对（附录第 5 条）</span></td>
+</tr>
+<tr>
+<td>Codex（原文注明来源 <code>core/src/lib.rs</code>、<code>sdk/typescript/src/thread.ts</code>）</td>
+<td>thread.id 在各次 run 之间保持不变；rollout 记录每个 turn</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>基本成立（附录第 15 条）</span></td>
+</tr>
+<tr>
+<td></td>
+<td>turn 级的 approvalPolicy、sandboxMode、workingDirectory 在 exec.run() 的参数里显式给出</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>显式成立，但它们是线程级选项（附录第 14 条）</span></td>
+</tr>
+<tr>
+<td></td>
+<td>thread.started 事件先于任何工具调用发出</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>基本成立（附录第 16 条）</span></td>
+</tr>
+<tr>
+<td></td>
+<td>state_db_bridge 的持久化早于主循环退出</td>
+<td>无法核对（附录第 17 条）</td>
+</tr>
+</tbody></table></div>
+<h3>中断与 pending tool_use 的故障矩阵</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>事件</th>
+<th>前置状态</th>
+<th>触发</th>
+<th>Claude Code 下一步</th>
+<th>Codex 下一步</th>
+<th>核对</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>用户中断，工具还在执行</td>
+<td>tool_use 未闭合</td>
+<td>用户 abort</td>
+<td>在 loop 内合成 tool_result，闭账</td>
+<td>线程层 abort，在 rollout 里写 interrupted 事件</td>
+<td>Claude Code：取消工具调用有文档，合成结果无法核对（附录第 6 条）。Codex：基本成立，中止发生在 session 层（附录第 18 条）</td>
+</tr>
+<tr>
+<td>模型输出被截断</td>
+<td>达到 max_output_tokens</td>
+<td>上限触发</td>
+<td>提升上限，或追加一条 meta user 消息让它续写</td>
+<td>线程记录截断，由调用方重启 turn</td>
+<td>Claude Code：文档只写报错，并让用户回复 continue（附录第 7 条）。Codex：无法核对（附录第 19 条）</td>
+</tr>
+<tr>
+<td>prompt too long</td>
+<td>会话过胀</td>
+<td>prompt_too_long</td>
+<td>在 loop 内 collapse、reactive compact，或把错误报出来</td>
+<td>由 thread_manager 裁剪 history 再进入下一轮</td>
+<td>Claude Code：基本成立（附录第 8 条）。Codex：no 不成立，由 session 的自动压缩处理（附录第 20 条）</td>
+</tr>
+<tr>
+<td>进程重启</td>
+<td>会话中途崩溃</td>
+<td>crash 或 kill</td>
+<td>依赖外部 PR 或 Git 重建，loop 状态容易丢</td>
+<td>用 rollout 和 state_db_bridge 按 thread.id 重放</td>
+<td>Claude Code：no 不成立，会话写在本地文件里，可按会话 ID 恢复（附录第 9 条）。Codex：成立（附录第 21 条）</td>
+</tr>
+<tr>
+<td>恢复失败</td>
+<td>连续 compact 失败</td>
+<td>达到熔断阈值</td>
+<td>跳过 stop hook，忠实报错</td>
+<td>返回 state bridge 错误，保留 thread 记录</td>
+<td>Claude Code：基本成立（附录第 10 条）。Codex：无法核对（附录第 22 条）</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>3.5 对恢复与可审计性的影响</h2></header>
+<div class="am-panel-body"><div class="am-md"><p>状态安放的位置，直接影响恢复和审计。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Claude Code</th>
+<th>Codex</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>恢复强项</td>
+<td>离现场近：很多问题在 loop 内部发现和修复，不必先搬到更高一层的状态模型里再考虑回滚</td>
+<td>状态可追踪：线程有 ID，rollout 有记录，state bridge 提供更清楚的外部结构</td>
+</tr>
+<tr>
+<td>例子</td>
+<td>reactive compact、token 上限恢复、工具中断处理</td>
+<td>更容易回答“上一轮到底发生了什么”</td>
+</tr>
+<tr>
+<td>原文的概括</td>
+<td>现场救火队，擅长维持运行</td>
+<td>带档案系统的调度中心，擅长说清楚运行是怎样被维持的</td>
+</tr>
+</tbody></table></div>
+<p>原文还指出 Codex 的“档案意识”：<code>core/src/lib.rs</code> 不只暴露 CodexThread，还在根模块出口附近导出 ThreadManager 和 RolloutRecorder。原文认为，这等于承认连续性不是 loop 的副产品，而是基础设施本身。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>原文说 lib.rs 还导出 state_db_bridge 和 message_history。实际 state_db_bridge 是 crate 内部模块，只导出 StateDbHandle 和 init_state_db；message_history 不在 core 里（附录第 12 条）。</li>
+<li>原文没有提 Claude Code 的会话文件。Claude Code 同样逐条记录消息和工具结果，用于回退、恢复和分叉（附录第 9 条）。所以“说清楚上一轮发生了什么”不是 Codex 独有；差别在 Codex 把线程和 rollout 做成了对外接口（本页判断）。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>3.6 对产品和团队接口的影响</h2></header>
+<div class="am-panel-body"><div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>主权在 loop（Claude Code）</th>
+<th>主权在线程和状态结构（Codex）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>团队沿什么组织工作</td>
+<td>运行时问题</td>
+<td>接口与治理</td>
+</tr>
+<tr>
+<td>典型问题</td>
+<td>哪些错误需要恢复；哪些动作应当中断；compact 何时触发；工具结果怎样串回主对话</td>
+<td>thread 的生命周期；rollout 保留哪些事件；状态库放在哪；approval policy 怎样成为 turn 级选项</td>
+</tr>
+<tr>
+<td>路径</td>
+<td>先把 agent 做会，再嵌制度</td>
+<td>先立制度接口，再让 agent 在里面工作</td>
+</tr>
+</tbody></table></div>
+<p>这一节是原文的观点。其中一处事实要注意：Codex SDK 里的 approval policy 是线程级选项，不是 turn 级（附录第 14 条）。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>3.7 本章结论</h2><span class="am-panel-meta">原文结尾总结</span></header>
+<div class="am-panel-body"><div class="am-callout am-callout--info" role="note"><div class="am-callout-title">原文结论</div><div class="am-callout-body am-md"><p>Claude Code 的连续性更多由 query loop 承担，Codex 的连续性更多由 thread、rollout 与 state 基础设施承担。前者强调 runtime heartbeat，后者强调 persisted session substrate。</p>
+</div></div>
+<div class="am-md"><p><strong>证据</strong>（来自本章前文，按事实修正后）：</p>
+<ul>
+<li>Claude Code：输出超限、上下文超限、用户插话都在运行中处理（3.2）。它同样把会话写进本地文件，可以按会话 ID 恢复（3.2、3.4）。</li>
+<li>Codex：连续性分摊到 codex_thread、thread_manager、rollout、state_db_bridge 等模块。SDK 的入口是 Thread 对象，每次 run 都靠 thread id 接上同一线程（3.3）。</li>
+<li>故障矩阵：原文 10 格里，4 格成立或基本成立，2 格与事实不符。其余 4 格无法核对、只能部分核对，或文档未提（3.4）。</li>
+</ul>
+<p><strong>原文提炼的原则</strong>：这不是审美差异，而是系统权力分配。谁来拥有连续性，谁就定义了 harness 的中心。</p>
+<p><strong>核对结论</strong>（本页判断）：Codex 一侧的主线有依据。Claude Code 一侧，原文把它写成“loop 状态容易丢”，不符合文档。两者都持久化会话，差别更接近：Codex 把线程和 rollout 做成对外的一级接口；Claude Code 以 query() 为入口，会话是它的选项。</p>
+<p><strong>下一章</strong>：工具、沙箱、审批和执行策略。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-I">
+<header class="am-panel-head"><span class="am-panel-id">I</span><h2>附录：事实核对</h2><span class="am-panel-meta">本页补充</span></header>
+<div class="am-panel-body"><div class="am-md"><h3>逐条核对</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>原文的说法</th>
+<th>核对</th>
+<th>实际情况和依据</th>
+<th>正文</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Claude Code 的主轴是 query() 和 queryLoop()（<code>src/query.ts</code>），循环状态包含消息序列、tool use context、compact 跟踪、output token 恢复计数、pending summary、turn count、transition</td>
+<td>无法核对</td>
+<td>Claude Code 源码不公开</td>
+<td>3.2、3.4</td>
+</tr>
+<tr>
+<td>2</td>
+<td>输出截断、prompt too long、用户插话在 loop 里处理</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td><a href="https://code.claude.com/docs/en/errors">errors</a>：“Claude&#39;s response exceeded the ... output token maximum”；“Prompt is too long”，交互界面显示 “Context limit reached · /compact or /clear to continue”。<a href="https://code.claude.com/docs/en/interactive-mode">interactive-mode</a>：“Queue messages while Claude works”。按 <code>Esc</code> 会 “stop Claude immediately”</td>
+<td>3.2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>工具返回顺序、history snip、microcompact 在 loop 里处理</td>
+<td>无法核对</td>
+<td>文档没有描述这三项</td>
+<td>3.2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>每次 loop 迭代都重新计算“现在什么最重要”</td>
+<td>无法核对</td>
+<td>文档没有对应说法</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>5</td>
+<td>未闭合的 tool_use 必须闭合，或用合成结果兜底</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td><a href="https://code.claude.com/docs/en/errors">errors</a>：tool_use、tool_result、thinking 的顺序 “no longer matches what the API expects” 时报 400 错误，可用 /rewind 恢复。合成兜底文档没写</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>6</td>
+<td>用户中断时，在 loop 内合成 tool_result</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td><a href="https://code.claude.com/docs/en/how-claude-code-works">how-claude-code-works</a>：按 <code>Esc</code> 后 “The running tool call is canceled”。<a href="https://code.claude.com/docs/en/hooks">hooks</a>：Stop hook “Does not run if the stoppage occurred due to a user interrupt”。合成 tool_result 文档没写</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>7</td>
+<td>输出被截断时，提升上限或追加 meta user 消息续写</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>文档未提</span></td>
+<td>errors：回复被截断时报 “Claude&#39;s response exceeded the ... output token maximum”，建议用户回复 continue，或调整 <code>CLAUDE_CODE_MAX_OUTPUT_TOKENS</code>。文档没有提到自动提升上限或自动续写</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>8</td>
+<td>prompt too long 时在 loop 内 collapse、reactive compact，或报出错误</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>基本成立</span></td>
+<td>接近上限时自动压缩；压缩失败时报 “Prompt is too long · automatic compaction failed”。collapse 文档没写</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>9</td>
+<td>进程重启后依赖外部 PR 或 Git 重建，loop 状态容易丢</td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>不成立</span></td>
+<td>how-claude-code-works：“Each message, tool use, and result is written to a plaintext JSONL file under ~/.claude/projects/”；<code>claude --continue</code> 或 <code>--resume</code> “reopens it under the same session ID”。文件改动另有 checkpoint</td>
+<td>开篇图、3.2、3.4、3.5</td>
+</tr>
+<tr>
+<td>10</td>
+<td>连续 compact 失败时熔断，跳过 stop hook，忠实报错</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>基本成立</span></td>
+<td><a href="https://code.claude.com/docs/en/troubleshooting">troubleshooting</a>：出现 “Autocompact is thrashing” 时，Claude Code “stops retrying”。hooks：Stop hook 遇到 API 错误不运行，“API errors fire StopFailure instead”</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Thread 在 SDK 里是产品概念；Claude Code 的 query loop 不是用户心智的中心</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>需要限定</span></td>
+<td>Codex SDK 的入口是 Thread 对象，注释写 “One thread can have multiple consecutive turns”。<a href="https://code.claude.com/docs/en/agent-sdk/sessions">Agent SDK sessions</a>：Claude 的 SDK 入口是 query()，有会话 ID，可以 continue、resume、fork</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>core/src/lib.rs</code> 有 codex_thread、thread_manager、rollout、state_db_bridge、state、message_history，并导出 CodexThread、ThreadManager、RolloutRecorder、state_db_bridge、message_history</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分过时</span></td>
+<td>前五个模块都在；CodexThread、ThreadManager、RolloutRecorder 公开导出。state_db_bridge 是 crate 内部模块，只导出 StateDbHandle 和 init_state_db。core 里没有 message_history，仓库另有独立的 message-history crate</td>
+<td>开篇图、3.3、3.5</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Thread 持有 id，可以 run() 或 runStreamed()；收到 thread.started 后更新 id；先分离输入，再准备 schema 文件，再调用 <code>_exec.run()</code></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>基本成立</span></td>
+<td><code>sdk/typescript/src/thread.ts</code> 与原文一致，只是当前代码先准备 schema 文件，再分离输入</td>
+<td>3.3</td>
+</tr>
+<tr>
+<td>14</td>
+<td>approval policy、sandbox mode、working directory 等是 turn 级参数</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>不准确</span></td>
+<td>这些在 ThreadOptions 里，创建线程时设定。TurnOptions 只有 outputSchema、signal 和 cyberAccessProgram。每次 turn 都把线程选项显式传给 exec，这一点成立</td>
+<td>3.3、3.4、3.6</td>
+</tr>
+<tr>
+<td>15</td>
+<td>thread.id 在各次 run 之间保持不变；rollout 记录每个 turn</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>基本成立</span></td>
+<td>SDK 每次 run 启动 <code>codex exec --experimental-json</code>，有 thread id 时加 <code>resume &lt;threadId&gt;</code>。rollout 的持久化策略包含 TurnAborted 等事件</td>
+<td>3.3、3.4</td>
+</tr>
+<tr>
+<td>16</td>
+<td>thread.started 事件先于任何工具调用发出</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>基本成立</span></td>
+<td>exec 从会话配置完成事件（SessionConfigured）生成 thread.started</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>17</td>
+<td>state_db_bridge 的持久化早于主循环退出</td>
+<td>无法核对</td>
+<td>没有在源码里找到对应保证</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>18</td>
+<td>用户中断时线程层 abort，在 rollout 里写 interrupted 事件</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>基本成立</span></td>
+<td><code>core/src/session</code> 以 TurnAbortReason::Interrupted 中止任务；rollout 持久化策略包含 TurnAborted。中止发生在 session 层</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>19</td>
+<td>输出截断时线程记录截断，由调用方重启 turn</td>
+<td>无法核对</td>
+<td>core 里没有找到对应处理</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>20</td>
+<td>prompt too long 时由 thread_manager 裁剪 history</td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>不成立</span></td>
+<td>上下文超限由 session 的 turn 逻辑处理：开启自动摘要时运行压缩（<code>core/src/compact.rs</code>），阈值由 model_auto_compact_token_limit 配置；否则返回 ContextWindowExceeded 错误</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>21</td>
+<td>进程重启后，用 rollout 和 state_db_bridge 按 thread.id 重放</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>lib.rs 导出 find_thread_path_by_id_str 等按 id 查找 rollout 的函数；SDK 用 <code>resume &lt;threadId&gt;</code> 接上线程</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>22</td>
+<td>恢复失败时返回 state bridge 错误，保留 thread 记录</td>
+<td>无法核对</td>
+<td>没有在源码里找到对应路径</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>23</td>
+<td>原图：Codex 的 rollout 记录提炼给 Memories pipeline</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>仓库有独立的 memories 扩展（<code>ext/memories</code>）；rollout 的持久化策略里有 should_persist_response_item_for_memories，用来筛选给 memories 的条目</td>
+<td>开篇图</td>
+</tr>
+<tr>
+<td>24</td>
+<td>原图：turn 运行时写入 state_db_bridge</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>基本成立</span></td>
+<td><code>core/src/session</code> 和 <code>codex_thread.rs</code> 都用到 state_db；写入时机没有核对</td>
+<td>开篇图、3.3</td>
+</tr>
+<tr>
+<td>25</td>
+<td>原图：SDK 的 thread.started、item.completed、turn.completed 事件分别写入 ThreadManager、message_history、RolloutRecorder、state_db_bridge</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>需要修正</span></td>
+<td><code>thread.ts</code> 只解析 codex exec 输出的事件，不写任何记录。codex exec 用 InProcessAppServerClient 在进程内启动 app-server，记录由进程内的 core 写入。message_history 不在 core 里</td>
+<td>3.3</td>
+</tr>
+<tr>
+<td>26</td>
+<td>原图：turn.completed 带 usage 和摘要</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分不符</span></td>
+<td><code>events.ts</code> 里 TurnCompletedEvent 只有 usage 字段</td>
+<td>3.3</td>
+</tr>
+<tr>
+<td>27</td>
+<td>原图：Claude Code 的连续性在 loop 状态里，中断、压缩和恢复都原地修改 loop 状态</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>需要补充</span></td>
+<td>loop 状态的各项无法核对（第 1 条）。文档写明会话逐条写入本地 JSONL 文件，可以按会话 ID 恢复（第 9 条）</td>
+<td>开篇图</td>
+</tr>
+<tr>
+<td>28</td>
+<td>原图注释：turn 范围的条件随线程走，不随 prompt 走</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>与 SDK 的 ThreadOptions 一致。这条注释比正文“turn 级参数”的说法更准确（第 14 条）</td>
+<td>3.3</td>
+</tr>
+</tbody></table></div>
+<h3>核对范围与局限</h3>
+<ul>
+<li><p><strong>原文的图</strong>：原文有两张图，<a href="https://harness-books.agentway.dev/book2-comparing/diagrams/diag-02-continuity-comparison.png">连续性对比图</a>和 <a href="https://harness-books.agentway.dev/book2-comparing/diagrams/diag-06-codex-thread-state-detail.png">Codex 线程、turn 与状态细节图</a>。本页按事实重画，分别放在“开篇图”和 3.3 节，图上的说法列在第 23 到 28 条。</p>
+</li>
+<li><p><strong>Claude Code</strong>：依据官方文档 <a href="https://code.claude.com/docs/en/how-claude-code-works">how-claude-code-works</a>、<a href="https://code.claude.com/docs/en/errors">errors</a>、<a href="https://code.claude.com/docs/en/troubleshooting">troubleshooting</a>、<a href="https://code.claude.com/docs/en/interactive-mode">interactive-mode</a>、<a href="https://code.claude.com/docs/en/hooks">hooks</a>、<a href="https://code.claude.com/docs/en/agent-sdk/sessions">Agent SDK sessions</a>，2026-10-27 查阅。源码不公开，循环内部的机制都无法核对。</p>
+</li>
+<li><p><strong>Codex</strong>：依据官方仓库 openai/codex main 分支提交 ff2346f（2026-10-27），只检出了要看的文件。第 17、19、22 条只说明没找到，不代表不存在。</p>
+</li>
+<li><p><strong>观点</strong>：“粗粝但更稳”“现场救火队”“带档案系统的调度中心”、团队怎样组织工作，都是原文的观点，不核对。</p>
+</li>
+</ul>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="图表查看" data-expand="展开查看图表">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="关闭" aria-label="关闭">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.4.14 · 2026-10-27 15:28</footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+title: 心跳放在哪：Query Loop 对照 Thread、Rollout 与 State
+subtitle: 《Claude Code 和 Codex 的 Harness 设计哲学》第 3 章解读（已按官方文档和官方仓库核对）
+source: https://harness-books.agentway.dev/book2-comparing/chapter-03-loop-thread-and-rollout.html
+---
+原文：[第 3 章 心跳放在哪：Query Loop 对照 Thread、Rollout 与 State](https://harness-books.agentway.dev/book2-comparing/chapter-03-loop-thread-and-rollout.html)
+
+一句话结论：原文认为，Claude Code 的连续性主要由 query loop 承担，Codex 的连续性主要由 thread、rollout 和 state 基础设施承担。核对后，Codex 一侧有依据：它的 SDK 每次运行都靠 thread id 接上同一个线程。但原文低估了 Claude Code 的持久化：Claude Code 也把每条消息和工具结果写进本地会话文件，可以按会话 ID 恢复。
+
+核对依据：Claude Code 官方文档 code.claude.com/docs（2026-10-27 查阅）；Codex 官方仓库 openai/codex main 分支提交 ff2346f（2026-10-27）。与原文不符的地方标“事实核对”，逐条结果见附录。
+
+## 开篇图：连续性对比 {meta=&quot;原文章首的图，按事实重画&quot;}
+原文在章首放了一张对比图，标题是 “Loop-Resident State vs Recorded Thread”。图的意思是：Claude Code 把连续性放在 loop 状态里，Codex 把连续性做成一条有记录的线程。
+
+下图按事实重画。+ 表示按事实补上，− 表示原图有、但与事实不符。切换 Before 和 After，可以分别看原图结构和修正后的结构。
+
+```flow LR
+[loop 状态 · 消息、toolUseContext、压缩计数、恢复计数] -&gt; [第 N 轮] &amp; [第 N+1 轮] &amp; [第 N+2 轮]: 读取和修改
++ 第 N 轮 -&gt; [本地会话文件 · JSONL]: 逐条写入
++ 第 N+1 轮 -&gt; 本地会话文件 · JSONL
++ 第 N+2 轮 -&gt; 本地会话文件 · JSONL
++ 本地会话文件 · JSONL --&gt; [按会话 ID 恢复]
+[Thread · id] -&gt; [turn 运行时]: 开始 turn
+turn 运行时 --&gt; Thread · id: 下一轮用同一个 id
+turn 运行时 -&gt; [RolloutRecorder]: 追加
+RolloutRecorder -&gt; [memories 扩展]: 筛选条目
+turn 运行时 -&gt; [state_db_bridge]: 写入
+- turn 运行时 -&gt; [message_history]: 写入
+group Claude Code 连续性在 loop 状态里: loop 状态 · 消息、toolUseContext、压缩计数、恢复计数, 第 N 轮, 第 N+1 轮, 第 N+2 轮, 本地会话文件 · JSONL, 按会话 ID 恢复
+group Codex 连续性是被记录的线程: Thread · id, turn 运行时, RolloutRecorder, memories 扩展, state_db_bridge, message_history
+```
+
+原图给两边各配了一条注释：
+
+- Claude Code：连续性就是“循环还在跑”，中断、压缩和恢复都原地修改 loop 状态。
+- Codex：连续性就是“这个 thread id 有这些记录”，恢复和审计依据有索引的记录，而不是活着的循环。
+
+```callout warn 事实核对
+- Claude Code 一侧，原图只画了 loop 状态。文档写明会话逐条写入本地 JSONL 文件，可以按会话 ID 恢复（附录第 9、27 条）。所以“依据记录恢复”不是 Codex 独有（本页判断）。
+- Codex 一侧，message_history 不在 core 里（附录第 12 条）。原图的 Memories pipeline 对应仓库里的 memories 扩展；它和 state_db 都有代码依据（附录第 23、24 条）。
+```
+
+## 3.1 代理系统的核心是连续性
+把代理系统当成“多轮聊天”，会掩盖真正的架构难题。原文认为，代理系统真正难的是连续性，它要回答下面这些问题：
+
+```tree
+连续性要回答的问题
+  上一轮做了什么，这一轮怎么接
+  工具结果怎么回填
+  中断之后怎么收口
+  上下文过长时怎么整理
+  失败时重试，还是忠实汇报
+```
+
+这些问题决定一个系统是不是 agent，而不只是“支持工具调用的问答接口”。原文认为，两者在这里的差异，比任何功能对照都更有含金量。
+
+## 3.2 Claude Code：把连续性压进主循环
+**做什么**：原文说，Claude Code 的主轴在 query() 和 queryLoop() 一带，连续性主要由 loop 维护。
+
+**怎么做**：关键问题都压进循环状态里，真实的麻烦也在 loop 里处理。
+
+```tree
+queryLoop | 原文描述的主循环
+  循环状态
+    当前消息序列
+    tool use context
+    compact 跟踪
+    output token 恢复计数
+    pending summary
+    turn count
+    transition
+  在 loop 里处理的麻烦
+    工具返回顺序
+    输出截断
+    prompt too long
+    history snip
+    microcompact
+    用户插话
+```
+
+**为什么这样设计**：原文认为，Claude Code 对“代理如何活着”的回答是运行时性的。它的骨架像一台不断自我校正的会话发动机。它不是先建强外部状态模型、再驱动执行。真实的麻烦都发生在 loop 里，所以它把这些麻烦当作 loop 内部的合法状态，不回避。原文的评价是：有工程的粗粝感，不优雅，但通常更稳。
+
+```callout warn 事实核对
+- query()、queryLoop() 和循环状态的各项无法核对，Claude Code 源码不公开（附录第 1 条）。
+- 文档能对上的有：输出超限报错、上下文超限时自动压缩、运行中排队发消息、按 Esc 中断（附录第 2 条）。工具返回顺序、history snip、microcompact，文档没写（附录第 3 条）。
+- 连续性并不只靠 loop：Claude Code 把每条消息、工具调用和结果写进本地 JSONL 会话文件，可以按会话 ID 恢复（附录第 9 条）。
+```
+
+## 3.3 Codex：把连续性拆成线程、rollout 与状态桥
+**做什么**：Codex 更“账本化”。在 `core/src/lib.rs` 里，连续性分摊到 codex_thread、thread_manager、rollout、state_db_bridge、state 几个模块。原文还列了 message_history，当前 core 里已经没有。
+
+**怎么做**：在 TypeScript SDK 里，thread 是外部开发者能直接操作的一级概念。Thread 持有 id，可以调用 run() 或 runStreamed()。
+
+原文在这一节配了第二张图，画 Codex 线程一次 turn 的生命周期和记录去向。下图按当前源码重画：+ 表示补上，− 表示与代码不符，~ 表示节点有改动。
+
+```flow
+(开始) -&gt; [输入 · 文本和本地图片]
+输入 · 文本和本地图片 -&gt; [准备 · createOutputSchemaFile、normalizeInput]
+~ 准备 · createOutputSchemaFile、normalizeInput
+准备 · createOutputSchemaFile、normalizeInput -&gt; [Thread · id 和线程选项]: 新建或复用
+Thread · id 和线程选项 -&gt; [运行 turn · _exec.run]: turn 开始
+运行 turn · _exec.run --&gt; Thread · id 和线程选项: 下一轮用同一个 id
+运行 turn · _exec.run -&gt; [thread.started · 分配 _id] &amp; [item.completed · 收集输出] &amp; [turn.completed · usage]
+~ turn.completed · usage
++ 运行 turn · _exec.run -&gt; [codex exec 进程 · 进程内 app-server 和 core]: 启动，有 id 时 resume
++ codex exec 进程 · 进程内 app-server 和 core -&gt; [RolloutRecorder]: 写入记录
++ codex exec 进程 · 进程内 app-server 和 core -&gt; [state_db_bridge]
+- thread.started · 分配 _id -&gt; [ThreadManager]
+- item.completed · 收集输出 -&gt; [message_history]
+- item.completed · 收集输出 -&gt; RolloutRecorder
+- turn.completed · usage -&gt; state_db_bridge
+ThreadManager -&gt; RolloutRecorder
+group SDK（TypeScript）: 输入 · 文本和本地图片, 准备 · createOutputSchemaFile、normalizeInput, Thread · id 和线程选项, 运行 turn · _exec.run, thread.started · 分配 _id, item.completed · 收集输出, turn.completed · usage
+group 持久化: ThreadManager, RolloutRecorder, state_db_bridge, message_history
+```
+
+- 线程选项包括 approval policy、working directory、sandbox mode、network access、additional directories，创建线程时设定。每次 turn 都把它们显式交给 exec。
+- 原图注释写：turn 范围内的条件随线程走，不随 prompt 走；线程是可寻址的连续性单位。这和代码一致（附录第 28 条）。
+- thread 不是外围包装，而是执行语义真正经过的一层。
+
+**为什么这样设计**：连续性不再只是“循环还在继续”，而是“一个线程被一套显式状态结构持续记录和约束”。rollout 的存在说明 Codex 在乎回放、索引、持久化和会话外可见性。原文认为，系统因此更接近执行记录器，而不是现场对话管理器。
+
+```callout warn 事实核对
+- 原文说这些条件是 turn 级参数。实际它们在 ThreadOptions 里，创建线程时设定；turn 级选项只有 output schema 和取消信号等（附录第 14 条）。
+- SDK 每次 run 都启动一个新的 `codex exec` 进程，靠 `resume &lt;threadId&gt;` 接上同一线程。这支持原文“线程是一级概念”的论点（附录第 15 条）。
+- 原图把 SDK 事件直接连到持久化组件。实际 SDK 只解析事件，记录由 codex exec 进程内的 core 写入（附录第 25 条）。
+- 原文和原图都是先分离输入、再准备 schema 文件，当前代码相反；turn.completed 也只带 usage（附录第 13、26 条）。
+- 原图里 ThreadManager 到 RolloutRecorder 的连线无法核对，照原图保留。
+```
+
+## 3.4 差别在于状态安放的位置
+Claude Code 当然有状态，Codex 当然有循环。差异不在有没有，而在主权在哪。
+
+| | Claude Code | Codex |
+|---|---|---|
+| 状态主权交给 | query loop | thread 和 rollout 结构 |
+| 怎样看连续性 | “会话怎么继续”是 runtime 的核心问题，许多事情在 loop 里直接解决 | 连续性不是内部控制流的副产物，而是由线程和状态基础设施承接的显式事实 |
+| 在用户心智中的位置 | query loop 像发动机室，重要，但不一定是用户心智模型的中心 | Thread 在 TypeScript SDK 里已是产品概念，开发者直接围绕它思考 agent turn |
+
+```callout warn 事实核对
+Claude 的 Agent SDK 也有会话 ID，可以用 continue、resume、fork 接上之前的会话。差别在入口：Claude 的 SDK 入口是 query() 函数，会话是它的选项；Codex 的 SDK 入口是 Thread 对象（附录第 11 条）。
+```
+
+### 不变式：连续性主权
+
+| 系统 | 原文的不变式 | 核对 |
+|---|---|---|
+| Claude Code（原文注明来源 `src/query.ts`） | loop 拥有消息序列、tool use context、compact 跟踪和 turn count | 无法核对（附录第 1 条） |
+| | 每次 loop 迭代都重新计算“现在什么最重要” | 无法核对（附录第 4 条） |
+| | 未闭合的 tool_use 必须在同一次 loop 迭代内闭合，或用合成结果兜底 | warn 部分可核对（附录第 5 条） |
+| Codex（原文注明来源 `core/src/lib.rs`、`sdk/typescript/src/thread.ts`） | thread.id 在各次 run 之间保持不变；rollout 记录每个 turn | ok 基本成立（附录第 15 条） |
+| | turn 级的 approvalPolicy、sandboxMode、workingDirectory 在 exec.run() 的参数里显式给出 | warn 显式成立，但它们是线程级选项（附录第 14 条） |
+| | thread.started 事件先于任何工具调用发出 | ok 基本成立（附录第 16 条） |
+| | state_db_bridge 的持久化早于主循环退出 | 无法核对（附录第 17 条） |
+
+### 中断与 pending tool_use 的故障矩阵
+
+| 事件 | 前置状态 | 触发 | Claude Code 下一步 | Codex 下一步 | 核对 |
+|---|---|---|---|---|---|
+| 用户中断，工具还在执行 | tool_use 未闭合 | 用户 abort | 在 loop 内合成 tool_result，闭账 | 线程层 abort，在 rollout 里写 interrupted 事件 | Claude Code：取消工具调用有文档，合成结果无法核对（附录第 6 条）。Codex：基本成立，中止发生在 session 层（附录第 18 条） |
+| 模型输出被截断 | 达到 max_output_tokens | 上限触发 | 提升上限，或追加一条 meta user 消息让它续写 | 线程记录截断，由调用方重启 turn | Claude Code：文档只写报错，并让用户回复 continue（附录第 7 条）。Codex：无法核对（附录第 19 条） |
+| prompt too long | 会话过胀 | prompt_too_long | 在 loop 内 collapse、reactive compact，或把错误报出来 | 由 thread_manager 裁剪 history 再进入下一轮 | Claude Code：基本成立（附录第 8 条）。Codex：no 不成立，由 session 的自动压缩处理（附录第 20 条） |
+| 进程重启 | 会话中途崩溃 | crash 或 kill | 依赖外部 PR 或 Git 重建，loop 状态容易丢 | 用 rollout 和 state_db_bridge 按 thread.id 重放 | Claude Code：no 不成立，会话写在本地文件里，可按会话 ID 恢复（附录第 9 条）。Codex：成立（附录第 21 条） |
+| 恢复失败 | 连续 compact 失败 | 达到熔断阈值 | 跳过 stop hook，忠实报错 | 返回 state bridge 错误，保留 thread 记录 | Claude Code：基本成立（附录第 10 条）。Codex：无法核对（附录第 22 条） |
+
+## 3.5 对恢复与可审计性的影响
+状态安放的位置，直接影响恢复和审计。
+
+| | Claude Code | Codex |
+|---|---|---|
+| 恢复强项 | 离现场近：很多问题在 loop 内部发现和修复，不必先搬到更高一层的状态模型里再考虑回滚 | 状态可追踪：线程有 ID，rollout 有记录，state bridge 提供更清楚的外部结构 |
+| 例子 | reactive compact、token 上限恢复、工具中断处理 | 更容易回答“上一轮到底发生了什么” |
+| 原文的概括 | 现场救火队，擅长维持运行 | 带档案系统的调度中心，擅长说清楚运行是怎样被维持的 |
+
+原文还指出 Codex 的“档案意识”：`core/src/lib.rs` 不只暴露 CodexThread，还在根模块出口附近导出 ThreadManager 和 RolloutRecorder。原文认为，这等于承认连续性不是 loop 的副产品，而是基础设施本身。
+
+```callout warn 事实核对
+- 原文说 lib.rs 还导出 state_db_bridge 和 message_history。实际 state_db_bridge 是 crate 内部模块，只导出 StateDbHandle 和 init_state_db；message_history 不在 core 里（附录第 12 条）。
+- 原文没有提 Claude Code 的会话文件。Claude Code 同样逐条记录消息和工具结果，用于回退、恢复和分叉（附录第 9 条）。所以“说清楚上一轮发生了什么”不是 Codex 独有；差别在 Codex 把线程和 rollout 做成了对外接口（本页判断）。
+```
+
+## 3.6 对产品和团队接口的影响
+
+| | 主权在 loop（Claude Code） | 主权在线程和状态结构（Codex） |
+|---|---|---|
+| 团队沿什么组织工作 | 运行时问题 | 接口与治理 |
+| 典型问题 | 哪些错误需要恢复；哪些动作应当中断；compact 何时触发；工具结果怎样串回主对话 | thread 的生命周期；rollout 保留哪些事件；状态库放在哪；approval policy 怎样成为 turn 级选项 |
+| 路径 | 先把 agent 做会，再嵌制度 | 先立制度接口，再让 agent 在里面工作 |
+
+这一节是原文的观点。其中一处事实要注意：Codex SDK 里的 approval policy 是线程级选项，不是 turn 级（附录第 14 条）。
+
+## 3.7 本章结论 {meta=&quot;原文结尾总结&quot;}
+```callout info 原文结论
+Claude Code 的连续性更多由 query loop 承担，Codex 的连续性更多由 thread、rollout 与 state 基础设施承担。前者强调 runtime heartbeat，后者强调 persisted session substrate。
+```
+
+**证据**（来自本章前文，按事实修正后）：
+
+- Claude Code：输出超限、上下文超限、用户插话都在运行中处理（3.2）。它同样把会话写进本地文件，可以按会话 ID 恢复（3.2、3.4）。
+- Codex：连续性分摊到 codex_thread、thread_manager、rollout、state_db_bridge 等模块。SDK 的入口是 Thread 对象，每次 run 都靠 thread id 接上同一线程（3.3）。
+- 故障矩阵：原文 10 格里，4 格成立或基本成立，2 格与事实不符。其余 4 格无法核对、只能部分核对，或文档未提（3.4）。
+
+**原文提炼的原则**：这不是审美差异，而是系统权力分配。谁来拥有连续性，谁就定义了 harness 的中心。
+
+**核对结论**（本页判断）：Codex 一侧的主线有依据。Claude Code 一侧，原文把它写成“loop 状态容易丢”，不符合文档。两者都持久化会话，差别更接近：Codex 把线程和 rollout 做成对外的一级接口；Claude Code 以 query() 为入口，会话是它的选项。
+
+**下一章**：工具、沙箱、审批和执行策略。
+
+## 附录：事实核对 {meta=&quot;本页补充&quot;}
+### 逐条核对
+
+| # | 原文的说法 | 核对 | 实际情况和依据 | 正文 |
+|---|---|---|---|---|
+| 1 | Claude Code 的主轴是 query() 和 queryLoop()（`src/query.ts`），循环状态包含消息序列、tool use context、compact 跟踪、output token 恢复计数、pending summary、turn count、transition | 无法核对 | Claude Code 源码不公开 | 3.2、3.4 |
+| 2 | 输出截断、prompt too long、用户插话在 loop 里处理 | ok 成立 | [errors](https://code.claude.com/docs/en/errors)：“Claude&#39;s response exceeded the ... output token maximum”；“Prompt is too long”，交互界面显示 “Context limit reached · /compact or /clear to continue”。[interactive-mode](https://code.claude.com/docs/en/interactive-mode)：“Queue messages while Claude works”。按 `Esc` 会 “stop Claude immediately” | 3.2 |
+| 3 | 工具返回顺序、history snip、microcompact 在 loop 里处理 | 无法核对 | 文档没有描述这三项 | 3.2 |
+| 4 | 每次 loop 迭代都重新计算“现在什么最重要” | 无法核对 | 文档没有对应说法 | 3.4 |
+| 5 | 未闭合的 tool_use 必须闭合，或用合成结果兜底 | warn 部分可核对 | [errors](https://code.claude.com/docs/en/errors)：tool_use、tool_result、thinking 的顺序 “no longer matches what the API expects” 时报 400 错误，可用 /rewind 恢复。合成兜底文档没写 | 3.4 |
+| 6 | 用户中断时，在 loop 内合成 tool_result | warn 部分可核对 | [how-claude-code-works](https://code.claude.com/docs/en/how-claude-code-works)：按 `Esc` 后 “The running tool call is canceled”。[hooks](https://code.claude.com/docs/en/hooks)：Stop hook “Does not run if the stoppage occurred due to a user interrupt”。合成 tool_result 文档没写 | 3.4 |
+| 7 | 输出被截断时，提升上限或追加 meta user 消息续写 | warn 文档未提 | errors：回复被截断时报 “Claude&#39;s response exceeded the ... output token maximum”，建议用户回复 continue，或调整 `CLAUDE_CODE_MAX_OUTPUT_TOKENS`。文档没有提到自动提升上限或自动续写 | 3.4 |
+| 8 | prompt too long 时在 loop 内 collapse、reactive compact，或报出错误 | ok 基本成立 | 接近上限时自动压缩；压缩失败时报 “Prompt is too long · automatic compaction failed”。collapse 文档没写 | 3.4 |
+| 9 | 进程重启后依赖外部 PR 或 Git 重建，loop 状态容易丢 | no 不成立 | how-claude-code-works：“Each message, tool use, and result is written to a plaintext JSONL file under ~/.claude/projects/”；`claude --continue` 或 `--resume` “reopens it under the same session ID”。文件改动另有 checkpoint | 开篇图、3.2、3.4、3.5 |
+| 10 | 连续 compact 失败时熔断，跳过 stop hook，忠实报错 | ok 基本成立 | [troubleshooting](https://code.claude.com/docs/en/troubleshooting)：出现 “Autocompact is thrashing” 时，Claude Code “stops retrying”。hooks：Stop hook 遇到 API 错误不运行，“API errors fire StopFailure instead” | 3.4 |
+| 11 | Thread 在 SDK 里是产品概念；Claude Code 的 query loop 不是用户心智的中心 | warn 需要限定 | Codex SDK 的入口是 Thread 对象，注释写 “One thread can have multiple consecutive turns”。[Agent SDK sessions](https://code.claude.com/docs/en/agent-sdk/sessions)：Claude 的 SDK 入口是 query()，有会话 ID，可以 continue、resume、fork | 3.4 |
+| 12 | `core/src/lib.rs` 有 codex_thread、thread_manager、rollout、state_db_bridge、state、message_history，并导出 CodexThread、ThreadManager、RolloutRecorder、state_db_bridge、message_history | warn 部分过时 | 前五个模块都在；CodexThread、ThreadManager、RolloutRecorder 公开导出。state_db_bridge 是 crate 内部模块，只导出 StateDbHandle 和 init_state_db。core 里没有 message_history，仓库另有独立的 message-history crate | 开篇图、3.3、3.5 |
+| 13 | Thread 持有 id，可以 run() 或 runStreamed()；收到 thread.started 后更新 id；先分离输入，再准备 schema 文件，再调用 `_exec.run()` | ok 基本成立 | `sdk/typescript/src/thread.ts` 与原文一致，只是当前代码先准备 schema 文件，再分离输入 | 3.3 |
+| 14 | approval policy、sandbox mode、working directory 等是 turn 级参数 | warn 不准确 | 这些在 ThreadOptions 里，创建线程时设定。TurnOptions 只有 outputSchema、signal 和 cyberAccessProgram。每次 turn 都把线程选项显式传给 exec，这一点成立 | 3.3、3.4、3.6 |
+| 15 | thread.id 在各次 run 之间保持不变；rollout 记录每个 turn | ok 基本成立 | SDK 每次 run 启动 `codex exec --experimental-json`，有 thread id 时加 `resume &lt;threadId&gt;`。rollout 的持久化策略包含 TurnAborted 等事件 | 3.3、3.4 |
+| 16 | thread.started 事件先于任何工具调用发出 | ok 基本成立 | exec 从会话配置完成事件（SessionConfigured）生成 thread.started | 3.4 |
+| 17 | state_db_bridge 的持久化早于主循环退出 | 无法核对 | 没有在源码里找到对应保证 | 3.4 |
+| 18 | 用户中断时线程层 abort，在 rollout 里写 interrupted 事件 | ok 基本成立 | `core/src/session` 以 TurnAbortReason::Interrupted 中止任务；rollout 持久化策略包含 TurnAborted。中止发生在 session 层 | 3.4 |
+| 19 | 输出截断时线程记录截断，由调用方重启 turn | 无法核对 | core 里没有找到对应处理 | 3.4 |
+| 20 | prompt too long 时由 thread_manager 裁剪 history | no 不成立 | 上下文超限由 session 的 turn 逻辑处理：开启自动摘要时运行压缩（`core/src/compact.rs`），阈值由 model_auto_compact_token_limit 配置；否则返回 ContextWindowExceeded 错误 | 3.4 |
+| 21 | 进程重启后，用 rollout 和 state_db_bridge 按 thread.id 重放 | ok 成立 | lib.rs 导出 find_thread_path_by_id_str 等按 id 查找 rollout 的函数；SDK 用 `resume &lt;threadId&gt;` 接上线程 | 3.4 |
+| 22 | 恢复失败时返回 state bridge 错误，保留 thread 记录 | 无法核对 | 没有在源码里找到对应路径 | 3.4 |
+| 23 | 原图：Codex 的 rollout 记录提炼给 Memories pipeline | ok 成立 | 仓库有独立的 memories 扩展（`ext/memories`）；rollout 的持久化策略里有 should_persist_response_item_for_memories，用来筛选给 memories 的条目 | 开篇图 |
+| 24 | 原图：turn 运行时写入 state_db_bridge | ok 基本成立 | `core/src/session` 和 `codex_thread.rs` 都用到 state_db；写入时机没有核对 | 开篇图、3.3 |
+| 25 | 原图：SDK 的 thread.started、item.completed、turn.completed 事件分别写入 ThreadManager、message_history、RolloutRecorder、state_db_bridge | warn 需要修正 | `thread.ts` 只解析 codex exec 输出的事件，不写任何记录。codex exec 用 InProcessAppServerClient 在进程内启动 app-server，记录由进程内的 core 写入。message_history 不在 core 里 | 3.3 |
+| 26 | 原图：turn.completed 带 usage 和摘要 | warn 部分不符 | `events.ts` 里 TurnCompletedEvent 只有 usage 字段 | 3.3 |
+| 27 | 原图：Claude Code 的连续性在 loop 状态里，中断、压缩和恢复都原地修改 loop 状态 | warn 需要补充 | loop 状态的各项无法核对（第 1 条）。文档写明会话逐条写入本地 JSONL 文件，可以按会话 ID 恢复（第 9 条） | 开篇图 |
+| 28 | 原图注释：turn 范围的条件随线程走，不随 prompt 走 | ok 成立 | 与 SDK 的 ThreadOptions 一致。这条注释比正文“turn 级参数”的说法更准确（第 14 条） | 3.3 |
+
+### 核对范围与局限
+
+- **原文的图**：原文有两张图，[连续性对比图](https://harness-books.agentway.dev/book2-comparing/diagrams/diag-02-continuity-comparison.png)和 [Codex 线程、turn 与状态细节图](https://harness-books.agentway.dev/book2-comparing/diagrams/diag-06-codex-thread-state-detail.png)。本页按事实重画，分别放在“开篇图”和 3.3 节，图上的说法列在第 23 到 28 条。
+
+- **Claude Code**：依据官方文档 [how-claude-code-works](https://code.claude.com/docs/en/how-claude-code-works)、[errors](https://code.claude.com/docs/en/errors)、[troubleshooting](https://code.claude.com/docs/en/troubleshooting)、[interactive-mode](https://code.claude.com/docs/en/interactive-mode)、[hooks](https://code.claude.com/docs/en/hooks)、[Agent SDK sessions](https://code.claude.com/docs/en/agent-sdk/sessions)，2026-10-27 查阅。源码不公开，循环内部的机制都无法核对。
+- **Codex**：依据官方仓库 openai/codex main 分支提交 ff2346f（2026-10-27），只检出了要看的文件。第 17、19、22 条只说明没找到，不代表不存在。
+- **观点**：“粗粝但更稳”“现场救火队”“带档案系统的调度中心”、团队怎样组织工作，都是原文的观点，不核对。
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions and the panel comments.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }].
+// Comment text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+function replyText({ title, decisions, comments, ui }) {
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   → ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) {
+      out.push(`- **${c.panel} · ${c.title}**`, ...c.text.trim().split('\n').map((l) => `  > ${l}`));
+    }
+    out.push('', `_${ui.typed}_`);
+  }
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers and the comments
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  const keyOf = (ask) => ask.querySelector('legend')?.textContent.trim() ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: panel?.querySelector('.am-panel-head h2')?.textContent.trim() ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: ask.querySelector('legend')?.textContent.trim() ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const empty = !decisions.length && !comments.some((c) => c.text.trim());
+    const title = document.querySelector('.am-head h1')?.textContent.trim() ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, ui });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg')].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+
+// ── Change markers: the Before / Changes / After switch ─────────────
+// The switch starts hidden because it needs this script. It swaps the am-view-* class of its diagram; the delta styles show the colors and badges only in
+// the Changes view and hide the items that do not exist in the view.
+(() => {
+  const VIEWS = ['before', 'changes', 'after'];
+  const setView = (el, view) => {
+    el.classList.remove(...VIEWS.map((v) => `am-view-${v}`));
+    el.classList.add(`am-view-${view}`);
+  };
+  for (const bar of document.querySelectorAll('.am-delta-bar')) {
+    const view = bar.parentElement;
+    const group = bar.querySelector('.am-delta-switch');
+    if (!group) continue;
+    group.hidden = false;
+    group.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-view]');
+      if (!btn) return;
+      setView(view, btn.dataset.view);
+      for (const b of group.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b === btn));
+    });
+  }
+  // The expand button copies only the drawing into the viewer; the viewer shows the view the diagram is in.
+  document.addEventListener('click', (e) => {
+    const host = e.target.closest?.('.am-diagram-expand')?.parentElement;
+    const canvas = document.querySelector('.am-lightbox-canvas');
+    const view = host && VIEWS.find((v) => host.classList.contains(`am-view-${v}`));
+    if (view && canvas) setView(canvas, view);
+  });
+})();
+</script>
+</body>
+</html>

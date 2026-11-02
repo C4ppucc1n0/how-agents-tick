@@ -1,0 +1,2476 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="paper" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.4.14">
+<title>Ink TUI 渲染引擎（解读）</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-right: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin: 0 6px 0 auto; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-left: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; right: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { left: 50%; }
+.am-timeline--h li:last-child::before { right: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { left: 50%; }
+.am-tree-col:last-child::before { right: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }
+.am-tree-list ul { margin-left: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }
+.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 8px 4px auto;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-right: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */
+  .am-md th, .am-md td { min-width: 6em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="zh-CN" data-am-root-theme="paper" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">主题<select data-am="theme"><option value="blueprint">图纸</option><option value="shadcn">卡片</option><option value="paper" selected>纸张</option></select></label>
+<label class="am-pick">明暗<select data-am="mode"><option value="auto" selected>跟随系统</option><option value="light">亮</option><option value="dark">暗</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;回复&quot;,&quot;comment&quot;:&quot;评论&quot;,&quot;commentHint&quot;:&quot;对这个面板的意见&quot;,&quot;title&quot;:&quot;你的回复&quot;,&quot;hint&quot;:&quot;复制后粘贴到对话里。&quot;,&quot;copy&quot;:&quot;复制回复&quot;,&quot;close&quot;:&quot;关闭&quot;,&quot;suggested&quot;:&quot;建议&quot;,&quot;empty&quot;:&quot;先选择选项，或在面板上写评论。&quot;,&quot;decisions&quot;:&quot;决定&quot;,&quot;comments&quot;:&quot;评论&quot;,&quot;confirmed&quot;:&quot;确认了建议&quot;,&quot;untouched&quot;:&quot;未作答，保留建议&quot;,&quot;was&quot;:&quot;原为&quot;,&quot;typed&quot;:&quot;以 \&quot;&gt;\&quot; 开头的行是读者输入的文字。&quot;,&quot;done&quot;:&quot;已复制 ✓&quot;}">回复</button>
+<button class="am-btn" type="button" data-am="copy" data-done="已复制 ✓">复制源稿</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>Ink TUI 渲染引擎（解读）</h1><p class="am-sub">How Claude Code Works · 源码分析篇解读，按原文讲清逻辑，代码改用图和表讲</p><div class="am-head-meta"><span><b>source</b>https://jwangkun.github.io/how-claude-code-works/source/ink-tui</span></div><div class="am-intro am-md"><div class="am-md"><p>原文：<a href="https://jwangkun.github.io/how-claude-code-works/source/ink-tui">Ink TUI 渲染引擎</a></p>
+<p>一句话结论：原文说，Claude Code 用 Ink 在终端里搭出整套交互界面，消息列表、输入框、状态栏、对话框都是 React 组件。</p>
+<ul>
+<li><strong>Ink</strong>：一个自定义的 React reconciler。它把组件树映射成终端字符矩阵，只把变化的部分用 ANSI 转义码写进终端。</li>
+<li><strong>Claude Code 的组件树</strong>：顶层 <code>App.tsx</code> 只做两件事，提供三层 Context，包一层错误边界。实际界面由传进来的子组件决定。</li>
+<li><strong>启动过程</strong>：界面从设置屏幕，经过只读的信息屏幕，进入完整的交互式 REPL。</li>
+</ul>
+<p>本页按原文解读，没有核对源码或官方文档。原文查阅日期为 2026-10-30，站点标注的最后更新日期为 2026-05-26。</p>
+</div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">试点说明</div><div class="am-callout-body am-md"><p>这是 claude_src 目录的第二个试点页。原文有 4 张 Mermaid 图，本页按原位置重画。原文有 10 段代码，其中 2 段是字符画，本页按用途改成流程图、时序图、表格或树。每段代码的去向列在最后的附录里，审核用，定稿时可以删掉。</p>
+</div></div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="目录"><a href="#panel-A">A · 从组件到终端</a><a href="#panel-B">B · Ink 是什么</a><a href="#panel-C">C · Claude Code 的 React 渲染树</a><a href="#panel-D">D · main.tsx 里初始化 reconciler</a><a href="#panel-E">E · 组件架构</a><a href="#panel-F">F · REPL 屏幕的布局</a><a href="#panel-G">G · 启动过程中的界面状态</a><a href="#panel-H">H · 和标准 React 的深入对比</a><a href="#panel-I">I · Ink 渲染的性能特性</a><a href="#panel-J">J · 代码展示</a><a href="#panel-K">K · 小练习</a><a href="#panel-L">L · 附录：原文代码和图的去向</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>从组件到终端</h2><span class="am-panel-meta">本页归纳，据原文多节</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文分几节讲：Ink 的原理、Claude Code 的组件树、初始化、布局、启动状态、渲染性能。下图把这几节串成一条线，方便后文对照。</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 201 723" width="201" height="723" role="img" aria-label="流程图：main.tsx 或 replLauncher.tsx 调用 render、App（错误边界和三层 Context）、子组件（屏幕、消息通道、输入框）、React reconciler 算出新的虚拟 DOM、Ink 映射成终端字符矩阵、比较新旧字符矩阵，生成增量 ANSI 码、写入 stdout，终端更新" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M100.2,83 L100.2,99 Q100.2,115 100.2,131 L100.2,147" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="73.1" y="106" width="54.2" height="18" rx="3"/><text x="100.2" y="115" text-anchor="middle" dominant-baseline="central">C、D 节</text></g></g><g data-step="1"><path class="am-edge" d="M100.2,199 L100.2,215 Q100.2,231 100.2,247 L100.2,263" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="63.4" y="222" width="73.5" height="18" rx="3"/><text x="100.2" y="231" text-anchor="middle" dominant-baseline="central">E、F、G 节</text></g></g><g data-step="2"><path class="am-edge" d="M100.2,315 L100.2,331 Q100.2,347 100.2,363 L100.2,379" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="66.4" y="338" width="67.5" height="18" rx="3"/><text x="100.2" y="347" text-anchor="middle" dominant-baseline="central">状态变化时</text></g></g><g data-step="3"><path class="am-edge" d="M100.2,431 L100.2,442.5 Q100.2,454 100.2,465.5 L100.2,477" marker-end="url(#am1-arrow)"/></g><g data-step="4"><path class="am-edge" d="M100.2,512 L100.2,528 Q100.2,544 100.2,560 L100.2,576" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="85.9" y="535" width="28.6" height="18" rx="3"/><text x="100.2" y="544" text-anchor="middle" dominant-baseline="central">I 节</text></g></g><g data-step="5"><path class="am-edge" d="M100.2,628 L100.2,639.5 Q100.2,651 100.2,662.5 L100.2,674" marker-end="url(#am1-arrow)"/></g></g><g><g class="am-node am-node--round" data-key="main.tsx 或 replLauncher.tsx 调用 render" data-step="0"><rect class="am-node-shape" x="14" y="14" width="172.3" height="69" rx="34.5"/><text x="100.2" y="31.5" text-anchor="middle" dominant-baseline="central">main.tsx 或</text><text x="100.2" y="48.5" text-anchor="middle" dominant-baseline="central">replLauncher.tsx 调用</text><text x="100.2" y="65.5" text-anchor="middle" dominant-baseline="central">render</text></g><g class="am-node am-node--rect" data-key="App（错误边界和三层 Context）" data-step="0"><rect class="am-node-shape" x="22.5" y="147" width="155.4" height="52" rx="3"/><text x="100.2" y="164.5" text-anchor="middle" dominant-baseline="central">App（错误边界和三层</text><text x="100.2" y="181.5" text-anchor="middle" dominant-baseline="central">Context）</text></g><g class="am-node am-node--rect" data-key="子组件（屏幕、消息通道、输入框）" data-step="1"><rect class="am-node-shape" x="14.7" y="263" width="171" height="52" rx="3"/><text x="100.2" y="280.5" text-anchor="middle" dominant-baseline="central">子组件（屏幕、消息通道</text><text x="100.2" y="297.5" text-anchor="middle" dominant-baseline="central">、输入框）</text></g><g class="am-node am-node--rect" data-key="React reconciler 算出新的虚拟 DOM" data-step="2"><rect class="am-node-shape" x="15.2" y="379" width="170" height="52" rx="3"/><text x="100.2" y="396.5" text-anchor="middle" dominant-baseline="central">React reconciler 算出新</text><text x="100.2" y="413.5" text-anchor="middle" dominant-baseline="central">的虚拟 DOM</text></g><g class="am-node am-node--rect" data-key="Ink 映射成终端字符矩阵" data-step="3"><rect class="am-node-shape" x="16.4" y="477" width="167.6" height="35" rx="3"/><text x="100.2" y="494.5" text-anchor="middle" dominant-baseline="central">Ink 映射成终端字符矩阵</text></g><g class="am-node am-node--rect" data-key="比较新旧字符矩阵，生成增量 ANSI 码" data-step="4"><rect class="am-node-shape" x="14.7" y="576" width="171" height="52" rx="3"/><text x="100.2" y="593.5" text-anchor="middle" dominant-baseline="central">比较新旧字符矩阵，生成</text><text x="100.2" y="610.5" text-anchor="middle" dominant-baseline="central">增量 ANSI 码</text></g><g class="am-node am-node--round" data-key="写入 stdout，终端更新" data-step="5"><rect class="am-node-shape" x="14" y="674" width="172.3" height="35" rx="17.5"/><text x="100.2" y="691.5" text-anchor="middle" dominant-baseline="central">写入 stdout，终端更新</text></g></g></svg></figure></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>Ink 是什么</h2><span class="am-panel-meta">原文“Ink 是什么”</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，Ink 是 Vercel 开发的开源框架，让开发者用 React 组件描述终端界面。</p>
+<h3>核心原理</h3>
+<p>Ink 的核心是一个自定义的 React reconciler，基于 <code>react-reconciler</code> 库实现。reconciler 是 React 里负责把组件树变成实际输出的那一层。</p>
+<p>下图据原文的字符画重画：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 653 80" width="653" height="80" role="img" aria-label="流程图：React 组件树：Box 里套一个加粗的 Text、virtual DOM、终端输出：一个带边框的 Hello!" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M186,40 L218.9,40 Q251.7,40 284.6,40 L317.4,40" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="210" y="31" width="83.4" height="18" rx="3"/><text x="251.7" y="40" text-anchor="middle" dominant-baseline="central">Ink reconciler</text></g></g><g data-step="1"><path class="am-edge" d="M421.3,40 L432.8,40 Q444.3,40 455.8,40 L467.3,40" marker-end="url(#am2-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="React 组件树：Box 里套一个加粗的 Text" data-step="0"><rect class="am-node-shape" x="14" y="14" width="172" height="52" rx="3"/><text x="100" y="31.5" text-anchor="middle" dominant-baseline="central">React 组件树：Box 里套</text><text x="100" y="48.5" text-anchor="middle" dominant-baseline="central">一个加粗的 Text</text></g><g class="am-node am-node--rect" data-key="virtual DOM" data-step="0"><rect class="am-node-shape" x="317.4" y="22.5" width="103.9" height="35" rx="3"/><text x="369.4" y="40" text-anchor="middle" dominant-baseline="central">virtual DOM</text></g><g class="am-node am-node--rect" data-key="终端输出：一个带边框的 Hello!" data-step="1"><rect class="am-node-shape" x="467.3" y="14" width="171" height="52" rx="3"/><text x="552.8" y="31.5" text-anchor="middle" dominant-baseline="central">终端输出：一个带边框的</text><text x="552.8" y="48.5" text-anchor="middle" dominant-baseline="central">Hello!</text></g></g></svg></figure>
+<div class="am-md"><h3>基本元素</h3>
+<p>原文把 Ink 的基本元素和 HTML 做了对照：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>Ink 组件</th>
+<th>作用</th>
+<th>类似 HTML</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&lt;Box&gt;</code></td>
+<td>布局容器（flexbox）</td>
+<td><code>&lt;div&gt;</code></td>
+</tr>
+<tr>
+<td><code>&lt;Text&gt;</code></td>
+<td>文本，支持颜色和样式</td>
+<td><code>&lt;span&gt;</code></td>
+</tr>
+<tr>
+<td><code>&lt;Newline&gt;</code></td>
+<td>换行</td>
+<td><code>&lt;br&gt;</code></td>
+</tr>
+<tr>
+<td><code>&lt;Spacer&gt;</code></td>
+<td>弹性空白</td>
+<td>flex: 1</td>
+</tr>
+<tr>
+<td><code>&lt;Transform&gt;</code></td>
+<td>文本变换</td>
+<td>CSS text-transform</td>
+</tr>
+<tr>
+<td><code>&lt;Static&gt;</code></td>
+<td>静态子节点</td>
+<td>ReactDOM.hydrate</td>
+</tr>
+</tbody></table></div>
+<h3>和 Web 上的 React 有什么不同</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>标准 React（Web）</th>
+<th>Ink（终端）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>渲染目标</td>
+<td>DOM（浏览器）</td>
+<td>终端字符矩阵</td>
+</tr>
+<tr>
+<td>布局</td>
+<td>CSS（像素级）</td>
+<td>flexbox（字符级）</td>
+</tr>
+<tr>
+<td>颜色</td>
+<td>CSS 颜色</td>
+<td>ANSI 转义码</td>
+</tr>
+<tr>
+<td>交互</td>
+<td>鼠标、触摸</td>
+<td>键盘输入</td>
+</tr>
+<tr>
+<td>滚动</td>
+<td>CSS overflow</td>
+<td>终端原生滚动</td>
+</tr>
+<tr>
+<td>动画</td>
+<td>CSS transitions</td>
+<td>帧刷新（setTimeout）</td>
+</tr>
+<tr>
+<td>组件库</td>
+<td>极其丰富</td>
+<td>有限的自定义组件</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>Claude Code 的 React 渲染树</h2><span class="am-panel-meta">原文“Claude Code 的 React 渲染树”</span></header>
+<div class="am-panel-body"><div class="am-md"><p>Claude Code 在终端里维护一棵 React 组件树，顶层组件是 <code>App.tsx</code>。</p>
+<p>下图按原文的图重画：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 725 732" width="725" height="732" role="img" aria-label="流程图：App.tsx 顶层组件、BootstrapBoundary 错误边界、FpsMetricsProvider FPS 监控、StatsProvider 统计上下文、AppStateProvider 应用状态、Box 主布局（flexDirection=column）、REPL 交互式循环、Channel 消息通道" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M386.9,49 L386.9,60.5 Q386.9,72 386.9,83.5 L386.9,95" marker-end="url(#am3-arrow)"/></g><g data-step="1"><path class="am-edge" d="M386.9,147 L386.9,158.5 Q386.9,170 386.9,181.5 L386.9,193" marker-end="url(#am3-arrow)"/></g><g data-step="2"><path class="am-edge" d="M386.9,245 L386.9,256.5 Q386.9,268 386.9,279.5 L386.9,291" marker-end="url(#am3-arrow)"/></g><g data-step="3"><path class="am-edge" d="M386.9,343 L386.9,354.5 Q386.9,366 386.9,377.5 L386.9,389" marker-end="url(#am3-arrow)"/></g><g data-step="4"><path class="am-edge" d="M386.9,441 L386.9,452.5 Q386.9,464 386.9,475.5 L386.9,487" marker-end="url(#am3-arrow)"/></g><g data-step="5"><path class="am-edge" d="M473.1,529.4 L558.7,545.7 Q644.2,562 644.2,577.8 L644.2,593.5" marker-end="url(#am3-arrow)"/></g><g data-step="5"><path class="am-edge" d="M433.8,539 L454.6,550.5 Q475.4,562 475.4,577.8 L475.4,593.5" marker-end="url(#am3-arrow)"/></g><g data-step="5"><path class="am-edge" d="M339.9,539 L319.1,550.5 Q298.3,562 298.3,577.8 L298.3,593.5" marker-end="url(#am3-arrow)"/></g><g data-step="5"><path class="am-edge" d="M300.6,527.8 L200.8,544.9 Q100.9,562 100.9,573.5 L100.9,585" marker-end="url(#am3-arrow)"/></g><g data-step="6"><path class="am-edge" d="M514.5,628.5 L549.7,644.3 Q584.9,660 584.9,671.5 L584.9,683" marker-end="url(#am3-arrow)"/></g><g data-step="6"><path class="am-edge" d="M475.4,628.5 L475.4,644.3 Q475.4,660 475.4,671.5 L475.4,683" marker-end="url(#am3-arrow)"/></g><g data-step="6"><path class="am-edge" d="M434,628.5 L396.7,644.3 Q359.4,660 359.4,671.5 L359.4,683" marker-end="url(#am3-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="App.tsx 顶层组件" data-step="0"><rect class="am-node-shape" x="321.8" y="14" width="130.2" height="35" rx="3"/><text x="386.9" y="31.5" text-anchor="middle" dominant-baseline="central">App.tsx 顶层组件</text></g><g class="am-node am-node--rect" data-key="BootstrapBoundary 错误边界" data-step="0"><rect class="am-node-shape" x="300.7" y="95" width="172.3" height="52" rx="3"/><text x="386.9" y="112.5" text-anchor="middle" dominant-baseline="central">BootstrapBoundary 错误</text><text x="386.9" y="129.5" text-anchor="middle" dominant-baseline="central">边界</text></g><g class="am-node am-node--rect" data-key="FpsMetricsProvider FPS 监控" data-step="1"><rect class="am-node-shape" x="298" y="193" width="177.8" height="52" rx="3"/><text x="386.9" y="210.5" text-anchor="middle" dominant-baseline="central">FpsMetricsProvider FPS</text><text x="386.9" y="227.5" text-anchor="middle" dominant-baseline="central">监控</text></g><g class="am-node am-node--rect" data-key="StatsProvider 统计上下文" data-step="2"><rect class="am-node-shape" x="303.8" y="291" width="166.1" height="52" rx="3"/><text x="386.9" y="308.5" text-anchor="middle" dominant-baseline="central">StatsProvider 统计上下</text><text x="386.9" y="325.5" text-anchor="middle" dominant-baseline="central">文</text></g><g class="am-node am-node--rect" data-key="AppStateProvider 应用状态" data-step="3"><rect class="am-node-shape" x="298.6" y="389" width="176.5" height="52" rx="3"/><text x="386.9" y="406.5" text-anchor="middle" dominant-baseline="central">AppStateProvider 应用状</text><text x="386.9" y="423.5" text-anchor="middle" dominant-baseline="central">态</text></g><g class="am-node am-node--rect" data-key="Box 主布局（flexDirection=column）" data-step="4"><rect class="am-node-shape" x="300.6" y="487" width="172.6" height="52" rx="3"/><text x="386.9" y="504.5" text-anchor="middle" dominant-baseline="central">Box 主布局（</text><text x="386.9" y="521.5" text-anchor="middle" dominant-baseline="central">flexDirection=column）</text></g><g class="am-node am-node--rect" data-key="REPL 交互式循环" data-step="5"><rect class="am-node-shape" x="578.1" y="593.5" width="132.3" height="35" rx="3"/><text x="644.2" y="611" text-anchor="middle" dominant-baseline="central">REPL 交互式循环</text></g><g class="am-node am-node--rect" data-key="Channel 消息通道" data-step="5"><rect class="am-node-shape" x="408.8" y="593.5" width="133.3" height="35" rx="3"/><text x="475.4" y="611" text-anchor="middle" dominant-baseline="central">Channel 消息通道</text></g><g class="am-node am-node--rect" data-key="InfoScreen 信息展示" data-step="5"><rect class="am-node-shape" x="223.9" y="593.5" width="148.9" height="35" rx="3"/><text x="298.3" y="611" text-anchor="middle" dominant-baseline="central">InfoScreen 信息展示</text></g><g class="am-node am-node--rect" data-key="SetupScreen 启动和设置界面" data-step="5"><rect class="am-node-shape" x="14" y="585" width="173.9" height="52" rx="3"/><text x="100.9" y="602.5" text-anchor="middle" dominant-baseline="central">SetupScreen 启动和设置</text><text x="100.9" y="619.5" text-anchor="middle" dominant-baseline="central">界面</text></g><g class="am-node am-node--rect" data-key="状态栏" data-step="6"><rect class="am-node-shape" x="551.4" y="683" width="67" height="35" rx="3"/><text x="584.9" y="700.5" text-anchor="middle" dominant-baseline="central">状态栏</text></g><g class="am-node am-node--rect" data-key="用户输入" data-step="6"><rect class="am-node-shape" x="435.4" y="683" width="80" height="35" rx="3"/><text x="475.4" y="700.5" text-anchor="middle" dominant-baseline="central">用户输入</text></g><g class="am-node am-node--rect" data-key="消息列表" data-step="6"><rect class="am-node-shape" x="319.4" y="683" width="80" height="35" rx="3"/><text x="359.4" y="700.5" text-anchor="middle" dominant-baseline="central">消息列表</text></g></g></svg></figure>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">原文的图与正文对不上</div><div class="am-callout-body am-md"><p>这张图把“用户输入”和“状态栏”画在 Channel 下面。E 节的图把输入组件和消息通道分成两组；F 节的布局里，状态栏、消息列表、输入栏是并列的三块；J 节的代码里，<code>&lt;StatusBar /&gt;</code>、<code>&lt;Channel /&gt;</code>、<code>&lt;Prompt /&gt;</code> 也是并列的。</p>
+</div></div>
+<div class="am-md"><h3>App.tsx：三层 Context 和一层错误边界</h3>
+<p>原文说 <code>App.tsx</code> 共 96 行，只做两件事：</p>
+<ul>
+<li>提供三层 Context：<code>FpsMetricsProvider</code>、<code>StatsProvider</code>、<code>AppStateProvider</code>。</li>
+<li>用 <code>BootstrapBoundary</code> 包住整棵树，捕获 React 渲染时的错误。</li>
+</ul>
+<p>下表据原文 <code>App.tsx</code> 的代码整理，从外到内排列：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>层</th>
+<th>组件</th>
+<th>接收的参数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>BootstrapBoundary</code></td>
+<td>—</td>
+<td>捕获渲染错误</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>FpsMetricsProvider</code></td>
+<td><code>getFpsMetrics</code></td>
+<td>FPS 监控</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>StatsProvider</code></td>
+<td><code>store</code>（即 <code>stats</code>）</td>
+<td>统计上下文</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>AppStateProvider</code></td>
+<td><code>initialState</code>、<code>onChangeAppState</code></td>
+<td>应用状态</td>
+</tr>
+<tr>
+<td>最内层</td>
+<td><code>children</code></td>
+<td>由 <code>replLauncher.tsx</code> 注入</td>
+<td>实际的界面内容</td>
+</tr>
+</tbody></table></div>
+<h3>BootstrapBoundary：出错时显示最小界面</h3>
+<p>下图据原文 <code>BootstrapBoundary</code> 的代码绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 411 477" width="411" height="477" role="img" aria-label="流程图：子组件渲染时抛出错误、getDerivedStateFromError 把错误存进 state、state 里有错误？、渲染、照常渲染 children、显示最小可读界面、红字：Failed to initialize restored app bootstrap.、灰字：错误信息" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am4-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M161.8,49 L161.8,60.5 Q161.8,72 161.8,83.5 L161.8,95" marker-end="url(#am4-arrow)"/></g><g data-step="1"><path class="am-edge" d="M161.8,147 L161.8,158.5 Q161.8,170 188.2,186.1 L214.6,202.1" marker-end="url(#am4-arrow)"/></g><g data-step="2"><path class="am-edge" d="M329.4,138.5 L329.4,154.3 Q329.4,170 303,186.1 L276.6,202.1" marker-end="url(#am4-arrow)"/></g><g data-step="3"><path class="am-edge" d="M273.4,240.8 L301.6,260.9 Q329.8,281 329.8,297 L329.8,313" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="319" y="272" width="21.5" height="18" rx="3"/><text x="329.8" y="281" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="4"><path class="am-edge" d="M217.8,240.8 L189.6,260.9 Q161.4,281 161.4,297 L161.4,313" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="150.7" y="272" width="21.5" height="18" rx="3"/><text x="161.4" y="281" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="5"><path class="am-edge" d="M199.4,348 L224.3,359.5 Q249.3,371 249.3,382.5 L249.3,394" marker-end="url(#am4-arrow)"/></g><g data-step="6"><path class="am-edge" d="M123.4,348 L98.5,359.5 Q73.5,371 73.5,391 L73.5,411" marker-end="url(#am4-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="子组件渲染时抛出错误" data-step="0"><rect class="am-node-shape" x="82.8" y="14" width="158" height="35" rx="3"/><text x="161.8" y="31.5" text-anchor="middle" dominant-baseline="central">子组件渲染时抛出错误</text></g><g class="am-node am-node--rect" data-key="getDerivedStateFromError 把错误存进 state" data-step="0"><rect class="am-node-shape" x="68.3" y="95" width="187.1" height="52" rx="3"/><text x="161.8" y="112.5" text-anchor="middle" dominant-baseline="central">getDerivedStateFromError</text><text x="161.8" y="129.5" text-anchor="middle" dominant-baseline="central">把错误存进 state</text></g><g class="am-node am-node--diamond" data-key="state 里有错误？" data-step="1"><polygon class="am-node-shape" points="245.6,193 340.9,221 245.6,249 150.3,221"/><text x="245.6" y="221" text-anchor="middle" dominant-baseline="central">state 里有错误？</text></g><g class="am-node am-node--round" data-key="渲染" data-step="2"><rect class="am-node-shape" x="291.4" y="103.5" width="76" height="35" rx="17.5"/><text x="329.4" y="121" text-anchor="middle" dominant-baseline="central">渲染</text></g><g class="am-node am-node--rect" data-key="照常渲染 children" data-step="3"><rect class="am-node-shape" x="263.4" y="313" width="132.8" height="35" rx="3"/><text x="329.8" y="330.5" text-anchor="middle" dominant-baseline="central">照常渲染 children</text></g><g class="am-node am-node--rect" data-key="显示最小可读界面" data-step="4"><rect class="am-node-shape" x="95.4" y="313" width="132" height="35" rx="3"/><text x="161.4" y="330.5" text-anchor="middle" dominant-baseline="central">显示最小可读界面</text></g><g class="am-node am-node--rect" data-key="红字：Failed to initialize restored app bootstrap." data-step="5"><rect class="am-node-shape" x="169" y="394" width="160.6" height="69" rx="3"/><text x="249.3" y="411.5" text-anchor="middle" dominant-baseline="central">红字：Failed to</text><text x="249.3" y="428.5" text-anchor="middle" dominant-baseline="central">initialize restored app</text><text x="249.3" y="445.5" text-anchor="middle" dominant-baseline="central">bootstrap.</text></g><g class="am-node am-node--rect" data-key="灰字：错误信息" data-step="6"><rect class="am-node-shape" x="14" y="411" width="119" height="35" rx="3"/><text x="73.5" y="428.5" text-anchor="middle" dominant-baseline="central">灰字：错误信息</text></g></g></svg></figure></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>main.tsx 里初始化 reconciler</h2><span class="am-panel-meta">原文“main.tsx 中的 React reconciler 初始化”</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，Ink reconciler 在 <code>main.tsx</code> 的 action handler 里初始化。下图据原文的伪代码和“关键流程”绘制：</p>
+</div>
+<figure class="am-diagram am-seq"><svg viewBox="0 0 672 402" width="672" height="402" role="img" aria-label="时序图：handleMainAction、render()、终端" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am5-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><line class="am-lifeline" x1="122.3" y1="42" x2="122.3" y2="398"/><g data-key="handleMainAction"><rect class="am-actor" x="53.6" y="8" width="137.5" height="34" rx="2"/><text x="122.3" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">handleMainAction</text></g><line class="am-lifeline" x1="361.7" y1="42" x2="361.7" y2="398"/><g data-key="render()"><rect class="am-actor" x="319.7" y="8" width="84" height="34" rx="2"/><text x="361.7" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">render()</text></g><line class="am-lifeline" x1="617.2" y1="42" x2="617.2" y2="398"/><g data-key="终端"><rect class="am-actor" x="575.2" y="8" width="84" height="34" rx="2"/><text x="617.2" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">终端</text></g><g data-step="0"><text x="162.3" y="68" dominant-baseline="central">init() 和 setup()</text><path class="am-edge" d="M122.3,64 H152.3 V84 H124.3" marker-end="url(#am5-arrow)"/></g><g data-step="1"><text x="242" y="118" text-anchor="middle">传入组件树：App 包着 IntroScreen、</text><text x="242" y="134" text-anchor="middle">Channel、Prompt</text><path class="am-edge" d="M122.3,144 L359.7,144" marker-end="url(#am5-arrow)"/></g><g data-step="2"><text x="401.7" y="172" dominant-baseline="central">创建 reconciler 实例</text><path class="am-edge" d="M361.7,168 H391.7 V188 H363.7" marker-end="url(#am5-arrow)"/></g><g data-step="3"><text x="489.4" y="222" text-anchor="middle">组件树映射成字符矩阵</text><path class="am-edge" d="M361.7,232 L615.2,232" marker-end="url(#am5-arrow)"/></g><g data-step="4"><text x="489.4" y="262" text-anchor="middle">之后每次变化，用 ANSI 转义码增量更新</text><path class="am-edge" d="M361.7,272 L615.2,272" marker-end="url(#am5-arrow)"/></g><g data-step="5"><text x="242" y="302" text-anchor="middle">返回 waitUntilExit</text><path class="am-edge am-edge--dashed" d="M361.7,312 L124.3,312" marker-end="url(#am5-arrow)"/></g><g data-step="6"><rect class="am-note" x="12" y="336" width="220.6" height="44" rx="2"/><text x="122.3" y="350" text-anchor="middle" dominant-baseline="central" font-size="12">await waitUntilExit()，REPL 退出时</text><text x="122.3" y="366" text-anchor="middle" dominant-baseline="central" font-size="12">Promise resolve</text></g></svg></figure>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">原文前后说法不同</div><div class="am-callout-body am-md"><ul>
+<li>C 节说 App 的子组件由 <code>replLauncher.tsx</code> 注入；这里 <code>main.tsx</code> 自己调用 <code>render()</code> 并传入子组件。原文把这段标为伪代码。</li>
+<li>这里传入 <code>IntroScreen</code>、<code>Channel</code>、<code>Prompt</code>。C 节的图和 J 节的代码各是另一套。三处对照见 J 节。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>组件架构</h2><span class="am-panel-meta">原文“组件架构”</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文按职责把主要 UI 组件分成五组。下图按原文的图重画成树：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="App.tsx 顶层容器" data-step="0">App.tsx 顶层容器</div></div><ul class="am-tree-list"><li data-key="屏幕组件" data-step="1"><span class="am-tree-label">屏幕组件</span><ul><li data-key="Setup Screen" data-step="2"><span class="am-tree-label">Setup Screen</span><span class="am-tree-sub">首次设置</span></li><li data-key="Info Screen" data-step="3"><span class="am-tree-label">Info Screen</span><span class="am-tree-sub">启动信息</span></li><li data-key="REPL" data-step="4"><span class="am-tree-label">REPL</span><span class="am-tree-sub">交互循环</span></li></ul></li><li data-key="消息通道" data-step="5"><span class="am-tree-label">消息通道</span><ul><li data-key="消息列表" data-step="6"><span class="am-tree-label">消息列表</span><span class="am-tree-sub">滚动显示</span></li><li data-key="AgentProgressLine" data-step="7"><span class="am-tree-label">AgentProgressLine</span><span class="am-tree-sub">执行进度</span></li><li data-key="BashModeProgress" data-step="8"><span class="am-tree-label">BashModeProgress</span><span class="am-tree-sub">Bash 执行</span></li><li data-key="成本显示" data-step="9"><span class="am-tree-label">成本显示</span></li></ul></li><li data-key="输入组件" data-step="10"><span class="am-tree-label">输入组件</span><ul><li data-key="用户输入框" data-step="11"><span class="am-tree-label">用户输入框</span></li><li data-key="按键绑定" data-step="12"><span class="am-tree-label">按键绑定</span></li><li data-key="自动完成建议" data-step="13"><span class="am-tree-label">自动完成建议</span></li></ul></li><li data-key="对话框" data-step="14"><span class="am-tree-label">对话框</span><ul><li data-key="远程控制" data-step="15"><span class="am-tree-label">远程控制</span></li><li data-key="配置编辑" data-step="16"><span class="am-tree-label">配置编辑</span></li><li data-key="OAuth 授权" data-step="17"><span class="am-tree-label">OAuth 授权</span></li></ul></li></ul></div>
+<div class="am-md"><p>原图从 App 连向四个分组，本页画成树。原图里 App 和 <code>&lt;Box&gt;</code>（Flexbox 布局）同属“布局组件”一组，<code>&lt;Box&gt;</code> 没有连线，树里没有画。</p>
+<h3>主要组件清单</h3>
+<p>原文列了 16 个组件。下表按职责分类（本页归纳），类别里保留原文的条目和说明。文件名都和组件同名（<code>.tsx</code>），例外是 <code>Channel</code>（内部组件）和 <code>EffortIndicator</code>（<code>.ts</code>）。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>类别</th>
+<th>组件</th>
+<th>原文写的职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>容器和通道</td>
+<td><code>App</code></td>
+<td>顶层容器，Context 提供者</td>
+</tr>
+<tr>
+<td>容器和通道</td>
+<td><code>Channel</code></td>
+<td>消息显示通道</td>
+</tr>
+<tr>
+<td>进度和状态</td>
+<td><code>AgentProgressLine</code></td>
+<td>Agent 执行进度动画</td>
+</tr>
+<tr>
+<td>进度和状态</td>
+<td><code>BashModeProgress</code></td>
+<td>终端命令执行进度</td>
+</tr>
+<tr>
+<td>进度和状态</td>
+<td><code>CoordinatorAgentStatus</code></td>
+<td>多 Agent 状态</td>
+</tr>
+<tr>
+<td>进度和状态</td>
+<td><code>AwsAuthStatusBox</code></td>
+<td>AWS 认证状态</td>
+</tr>
+<tr>
+<td>进度和状态</td>
+<td><code>EffortIndicator</code></td>
+<td>努力程度指示器</td>
+</tr>
+<tr>
+<td>进度和状态</td>
+<td><code>DiagnosticsDisplay</code></td>
+<td>诊断信息</td>
+</tr>
+<tr>
+<td>对话框和通知</td>
+<td><code>BridgeDialog</code></td>
+<td>远程控制对话框</td>
+</tr>
+<tr>
+<td>对话框和通知</td>
+<td><code>CostThresholdDialog</code></td>
+<td>成本阈值警告</td>
+</tr>
+<tr>
+<td>对话框和通知</td>
+<td><code>AutoUpdater</code></td>
+<td>自动更新通知</td>
+</tr>
+<tr>
+<td>上下文</td>
+<td><code>ContextSuggestions</code></td>
+<td>上下文建议</td>
+</tr>
+<tr>
+<td>上下文</td>
+<td><code>ContextVisualization</code></td>
+<td>上下文可视化</td>
+</tr>
+<tr>
+<td>上下文</td>
+<td><code>CompactSummary</code></td>
+<td>紧凑摘要</td>
+</tr>
+<tr>
+<td>提示和调试</td>
+<td><code>ConfigurableShortcutHint</code></td>
+<td>快捷键提示</td>
+</tr>
+<tr>
+<td>提示和调试</td>
+<td><code>DevBar</code></td>
+<td>开发者调试栏</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>REPL 屏幕的布局</h2><span class="am-panel-meta">原文“REPL Screen 的布局”</span></header>
+<div class="am-panel-body"><div class="am-md"><p>REPL 屏幕从上到下分三块。下图按原文的图重画：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 694 276" width="694" height="276" role="img" aria-label="流程图：Box flexDirection=column、Box 输入栏、Box flexGrow=1 overflow=hidden、状态栏（顶部）、消息列表：Agent 回复、工具结果、快捷键提示、用户输入框、提示符" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am6-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M313.1,54.4 L408.6,71.7 Q504.2,89 504.2,104.8 L504.2,120.5" marker-end="url(#am6-arrow)"/></g><g data-step="1"><path class="am-edge" d="M233.3,66 L233.3,77.5 Q233.3,89 233.3,100.5 L233.3,112" marker-end="url(#am6-arrow)"/></g><g data-step="2"><path class="am-edge" d="M153.5,64.5 L113.5,76.7 Q73.5,89 73.5,104.8 L73.5,120.5" marker-end="url(#am6-arrow)"/></g><g data-step="3"><path class="am-edge" d="M233.3,164 L233.3,175.5 Q233.3,187 233.3,198.5 L233.3,210" marker-end="url(#am6-arrow)"/></g><g data-step="4"><path class="am-edge" d="M550.3,155.5 L591.7,171.3 Q633.2,187 633.2,202.8 L633.2,218.5" marker-end="url(#am6-arrow)"/></g><g data-step="4"><path class="am-edge" d="M504.2,155.5 L504.2,171.3 Q504.2,187 504.2,202.8 L504.2,218.5" marker-end="url(#am6-arrow)"/></g><g data-step="4"><path class="am-edge" d="M462.8,155.5 L425.5,171.3 Q388.2,187 388.2,202.8 L388.2,218.5" marker-end="url(#am6-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="Box flexDirection=column" data-step="0"><rect class="am-node-shape" x="153.5" y="14" width="159.6" height="52" rx="3"/><text x="233.3" y="31.5" text-anchor="middle" dominant-baseline="central">Box</text><text x="233.3" y="48.5" text-anchor="middle" dominant-baseline="central">flexDirection=column</text></g><g class="am-node am-node--rect" data-key="Box 输入栏" data-step="0"><rect class="am-node-shape" x="457" y="120.5" width="94.3" height="35" rx="3"/><text x="504.2" y="138" text-anchor="middle" dominant-baseline="central">Box 输入栏</text></g><g class="am-node am-node--rect" data-key="Box flexGrow=1 overflow=hidden" data-step="1"><rect class="am-node-shape" x="169" y="112" width="128.6" height="52" rx="3"/><text x="233.3" y="129.5" text-anchor="middle" dominant-baseline="central">Box flexGrow=1</text><text x="233.3" y="146.5" text-anchor="middle" dominant-baseline="central">overflow=hidden</text></g><g class="am-node am-node--rect" data-key="状态栏（顶部）" data-step="2"><rect class="am-node-shape" x="14" y="120.5" width="119" height="35" rx="3"/><text x="73.5" y="138" text-anchor="middle" dominant-baseline="central">状态栏（顶部）</text></g><g class="am-node am-node--rect" data-key="消息列表：Agent 回复、工具结果" data-step="3"><rect class="am-node-shape" x="147.9" y="210" width="170.7" height="52" rx="3"/><text x="233.3" y="227.5" text-anchor="middle" dominant-baseline="central">消息列表：Agent 回复、</text><text x="233.3" y="244.5" text-anchor="middle" dominant-baseline="central">工具结果</text></g><g class="am-node am-node--rect" data-key="快捷键提示" data-step="4"><rect class="am-node-shape" x="586.7" y="218.5" width="93" height="35" rx="3"/><text x="633.2" y="236" text-anchor="middle" dominant-baseline="central">快捷键提示</text></g><g class="am-node am-node--rect" data-key="用户输入框" data-step="4"><rect class="am-node-shape" x="457.7" y="218.5" width="93" height="35" rx="3"/><text x="504.2" y="236" text-anchor="middle" dominant-baseline="central">用户输入框</text></g><g class="am-node am-node--rect" data-key="提示符" data-step="4"><rect class="am-node-shape" x="354.7" y="218.5" width="67" height="35" rx="3"/><text x="388.2" y="236" text-anchor="middle" dominant-baseline="central">提示符</text></g></g></svg></figure>
+<div class="am-md"><p>中间那块设了 <code>flexGrow=1</code>，会占满剩下的高度；<code>overflow=hidden</code> 表示超出的部分不显示。</p>
+<p>原文还用字符画示意了实际的终端效果。下表据那张字符画整理：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>区域</th>
+<th>字符画里显示的内容</th>
+<th>对应上图的节点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>顶部</td>
+<td>左边 “● Claude Code v1.0.0”，右边 “模式: Agent”</td>
+<td>状态栏</td>
+</tr>
+<tr>
+<td>中部</td>
+<td>回复 “Hello! 我能帮你做什么？”，下面一个 Tool Result 框，写着“文件内容已读取”</td>
+<td>消息列表</td>
+</tr>
+<tr>
+<td>底部</td>
+<td>左边提示符 “&gt; _”，右边 “/help”</td>
+<td>输入栏</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>启动过程中的界面状态</h2><span class="am-panel-meta">原文“启动过程中的 TUI 状态”</span></header>
+<div class="am-panel-body"><div class="am-md"><p>Claude Code 启动时，界面依次经过设置屏幕、只读的信息屏幕、交互式 REPL。</p>
+<p>下图按原文的图重画。原图是状态图，本页画成流程图，状态和转移照原图：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 343 639" width="343" height="639" role="img" aria-label="流程图：开始、SetupScreens、Checking、LoginPrompt、ConfigPrompt、InfoOnly、InteractiveREPL、结束" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am7-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M132,49 L132,60.5 Q132,72 132,83.5 L132,95" marker-end="url(#am7-arrow)"/></g><g data-step="1"><path class="am-edge" d="M132,130 L132,146 Q132,162 132,178 L132,194" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="104" y="153" width="56" height="18" rx="3"/><text x="132" y="162" text-anchor="middle" dominant-baseline="central">检查完成</text></g></g><g data-step="2"><path class="am-edge" d="M174.3,226.1 L225,243.5 Q275.8,261 275.8,277 L275.8,293" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="247.8" y="252" width="56" height="18" rx="3"/><text x="275.8" y="261" text-anchor="middle" dominant-baseline="central">需要登录</text></g></g><g data-step="3"><path class="am-edge" d="M132,229 L132,245 Q132,261 132,277 L132,293" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="104" y="252" width="56" height="18" rx="3"/><text x="132" y="261" text-anchor="middle" dominant-baseline="central">需要配置</text></g></g><g data-step="4"><path class="am-edge" d="M96.4,229 L64,245 Q31.5,261 31.5,285.8 Q31.5,310.5 31.5,335.3 Q31.5,360 64,376 L96.4,392" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="15" y="301.5" width="33" height="18" rx="3"/><text x="31.5" y="310.5" text-anchor="middle" dominant-baseline="central">就绪</text></g></g><g data-step="5"><path class="am-edge" d="M275.8,328 L275.8,344 Q275.8,360 224.1,377.8 L172.3,395.6" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="247.8" y="351" width="56" height="18" rx="3"/><text x="275.8" y="360" text-anchor="middle" dominant-baseline="central">登录完成</text></g></g><g data-step="6"><path class="am-edge" d="M132,328 L132,344 Q132,360 132,376 L132,392" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="104" y="351" width="56" height="18" rx="3"/><text x="132" y="360" text-anchor="middle" dominant-baseline="central">配置完成</text></g></g><g data-step="7"><path class="am-edge" d="M132,427 L132,443 Q132,459 132,475 L132,491" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="104" y="450" width="56" height="18" rx="3"/><text x="132" y="459" text-anchor="middle" dominant-baseline="central">用户输入</text></g></g><g data-step="8"><path class="am-edge" d="M132,526 L132,542 Q132,558 132,574 L132,590" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="115.5" y="549" width="33" height="18" rx="3"/><text x="132" y="558" text-anchor="middle" dominant-baseline="central">退出</text></g></g></g><g><g class="am-node am-node--round" data-key="开始" data-step="0"><rect class="am-node-shape" x="93.9" y="14" width="76" height="35" rx="17.5"/><text x="132" y="31.5" text-anchor="middle" dominant-baseline="central">开始</text></g><g class="am-node am-node--rect" data-key="SetupScreens" data-step="0"><rect class="am-node-shape" x="75.8" y="95" width="112.2" height="35" rx="3"/><text x="132" y="112.5" text-anchor="middle" dominant-baseline="central">SetupScreens</text></g><g class="am-node am-node--rect" data-key="Checking" data-step="1"><rect class="am-node-shape" x="89.6" y="194" width="84.7" height="35" rx="3"/><text x="132" y="211.5" text-anchor="middle" dominant-baseline="central">Checking</text></g><g class="am-node am-node--rect" data-key="LoginPrompt" data-step="2"><rect class="am-node-shape" x="222.9" y="293" width="105.7" height="35" rx="3"/><text x="275.8" y="310.5" text-anchor="middle" dominant-baseline="central">LoginPrompt</text></g><g class="am-node am-node--rect" data-key="ConfigPrompt" data-step="3"><rect class="am-node-shape" x="77" y="293" width="109.9" height="35" rx="3"/><text x="132" y="310.5" text-anchor="middle" dominant-baseline="central">ConfigPrompt</text></g><g class="am-node am-node--rect" data-key="InfoOnly" data-step="4"><rect class="am-node-shape" x="91.6" y="392" width="80.8" height="35" rx="3"/><text x="132" y="409.5" text-anchor="middle" dominant-baseline="central">InfoOnly</text></g><g class="am-node am-node--rect" data-key="InteractiveREPL" data-step="7"><rect class="am-node-shape" x="68" y="491" width="127.8" height="35" rx="3"/><text x="132" y="508.5" text-anchor="middle" dominant-baseline="central">InteractiveREPL</text></g><g class="am-node am-node--round" data-key="结束" data-step="8"><rect class="am-node-shape" x="93.9" y="590" width="76" height="35" rx="17.5"/><text x="132" y="607.5" text-anchor="middle" dominant-baseline="central">结束</text></g></g></svg></figure>
+<div class="am-md"><p>原文列了三个主要状态下界面的差别：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>状态</th>
+<th>可见组件</th>
+<th>交互能力</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SetupScreens</td>
+<td>安装向导、登录提示</td>
+<td>有限</td>
+</tr>
+<tr>
+<td>InfoOnly</td>
+<td>启动信息摘要、最近操作</td>
+<td>只读</td>
+</tr>
+<tr>
+<td>InteractiveREPL</td>
+<td>完整 REPL 布局</td>
+<td>完全交互</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>和标准 React 的深入对比</h2><span class="am-panel-meta">原文“Ink 与标准 React 的深入对比”</span></header>
+<div class="am-panel-body"><div class="am-md"><p>B 节已经给了一张总的对比表。这一节从渲染、事件、生命周期三方面展开。</p>
+<h3>渲染</h3>
+<p>原文用同一个“蓝底白字 Hello”分别写了 Web 版和 Ink 版。下表据这两段代码整理：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>方面</th>
+<th>标准 React（Web）</th>
+<th>Ink（终端）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>容器</td>
+<td><code>&lt;div&gt;</code>，用 CSS 设 flex、内边距 10px、蓝色背景</td>
+<td><code>&lt;Box&gt;</code>，用属性设水平内边距 1、蓝色背景</td>
+</tr>
+<tr>
+<td>文字</td>
+<td><code>&lt;span&gt;</code>，用 CSS 设白色、加粗</td>
+<td><code>&lt;Text&gt;</code>，用属性设白色、加粗</td>
+</tr>
+<tr>
+<td>渲染结果</td>
+<td>像素级精确，支持复杂的 CSS 样式</td>
+<td>字符级精确，颜色靠 ANSI 转义码</td>
+</tr>
+</tbody></table></div>
+<h3>事件</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>事件</th>
+<th>标准 React</th>
+<th>Ink</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>点击</td>
+<td><code>onClick</code></td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>不支持</span></td>
+</tr>
+<tr>
+<td>键盘</td>
+<td><code>onKeyDown</code></td>
+<td><code>onKey</code>（自定义）</td>
+</tr>
+<tr>
+<td>鼠标</td>
+<td><code>onMouseMove</code></td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>不支持</span></td>
+</tr>
+<tr>
+<td>输入</td>
+<td><code>onChange</code></td>
+<td><code>onInput</code> / <code>onSubmit</code></td>
+</tr>
+<tr>
+<td>Focus</td>
+<td><code>onFocus</code> / <code>onBlur</code></td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>有限支持</span></td>
+</tr>
+</tbody></table></div>
+<h3>生命周期</h3>
+<p>Ink 组件的生命周期和标准 React 相同，同样用 <code>useEffect</code>、<code>useState</code> 这些 hook。差别在比较什么：浏览器端比较 DOM，Ink 的 reconciler 比较字符矩阵。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-I">
+<header class="am-panel-head"><span class="am-panel-id">I</span><h2>Ink 渲染的性能特性</h2><span class="am-panel-meta">原文“Ink 渲染的性能特性”</span></header>
+<div class="am-panel-body"><div class="am-md"><p>终端是字符矩阵，不是像素平面。原文列了 Ink 渲染的四个特性：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>做什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>完整帧重绘</td>
+<td>每次状态变化，都算出新的虚拟终端状态，再用 ANSI 码增量更新</td>
+</tr>
+<tr>
+<td>批处理</td>
+<td>靠 React 的批处理，短时间内连着几个 <code>setState</code> 只写一次终端</td>
+</tr>
+<tr>
+<td>阈值控制</td>
+<td>有最小更新间隔，默认 16ms（约 60fps），避免重绘太频繁</td>
+</tr>
+<tr>
+<td>增量输出</td>
+<td>只把变化的部分用 ANSI 码写进终端，不是全部重绘</td>
+</tr>
+</tbody></table></div>
+<p>第一条叫“完整帧重绘”，第四条说“不是全部重绘”。按第一条自己的说明，两条讲的是同一件事：每次都算出完整一帧，但只把变化部分写进终端。</p>
+<p>下图据原文渲染循环的概念代码绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 202 455" width="202" height="455" role="img" aria-label="流程图：1. React reconciler 计算新的虚拟 DOM、2. Ink 把虚拟 DOM 映射成终端字符矩阵、3. 比较新旧字符矩阵，生成增量 ANSI 码、4. 增量 ANSI 码写入 stdout、5. 终端显示更新后的界面" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am8-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M100.7,66 L100.7,77.5 Q100.7,89 100.7,100.5 L100.7,112" marker-end="url(#am8-arrow)"/></g><g data-step="1"><path class="am-edge" d="M100.7,164 L100.7,175.5 Q100.7,187 100.7,198.5 L100.7,210" marker-end="url(#am8-arrow)"/></g><g data-step="2"><path class="am-edge" d="M100.7,262 L100.7,273.5 Q100.7,285 100.7,296.5 L100.7,308" marker-end="url(#am8-arrow)"/></g><g data-step="3"><path class="am-edge" d="M100.7,360 L100.7,371.5 Q100.7,383 100.7,394.5 L100.7,406" marker-end="url(#am8-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="1. React reconciler 计算新的虚拟 DOM" data-step="0"><rect class="am-node-shape" x="14.5" y="14" width="172.3" height="52" rx="3"/><text x="100.7" y="31.5" text-anchor="middle" dominant-baseline="central">1. React reconciler 计算</text><text x="100.7" y="48.5" text-anchor="middle" dominant-baseline="central">新的虚拟 DOM</text></g><g class="am-node am-node--rect" data-key="2. Ink 把虚拟 DOM 映射成终端字符矩阵" data-step="0"><rect class="am-node-shape" x="14.5" y="112" width="172.3" height="52" rx="3"/><text x="100.7" y="129.5" text-anchor="middle" dominant-baseline="central">2. Ink 把虚拟 DOM 映射</text><text x="100.7" y="146.5" text-anchor="middle" dominant-baseline="central">成终端字符矩阵</text></g><g class="am-node am-node--rect" data-key="3. 比较新旧字符矩阵，生成增量 ANSI 码" data-step="1"><rect class="am-node-shape" x="14" y="210" width="173.3" height="52" rx="3"/><text x="100.7" y="227.5" text-anchor="middle" dominant-baseline="central">3. 比较新旧字符矩阵，生</text><text x="100.7" y="244.5" text-anchor="middle" dominant-baseline="central">成增量 ANSI 码</text></g><g class="am-node am-node--rect" data-key="4. 增量 ANSI 码写入 stdout" data-step="2"><rect class="am-node-shape" x="27.3" y="308" width="146.8" height="52" rx="3"/><text x="100.7" y="325.5" text-anchor="middle" dominant-baseline="central">4. 增量 ANSI 码写入</text><text x="100.7" y="342.5" text-anchor="middle" dominant-baseline="central">stdout</text></g><g class="am-node am-node--rect" data-key="5. 终端显示更新后的界面" data-step="3"><rect class="am-node-shape" x="14" y="406" width="173.3" height="35" rx="3"/><text x="100.7" y="423.5" text-anchor="middle" dominant-baseline="central">5. 终端显示更新后的界面</text></g></g></svg></figure></div>
+</section>
+<section class="am-panel" id="panel-J">
+<header class="am-panel-head"><span class="am-panel-id">J</span><h2>代码展示</h2><span class="am-panel-meta">原文“代码展示”</span></header>
+<div class="am-panel-body"><div class="am-md"><h3>Ink 的自定义 reconciler</h3>
+<p>原文给了 <code>src/ink.ts</code> 里 reconciler 初始化的概念写法，标明是简化版。下表据这段代码整理：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>reconciler 方法</th>
+<th>做什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>createInstance</code></td>
+<td>按组件类型和属性，新建一个终端节点（<code>InkNode</code>）</td>
+</tr>
+<tr>
+<td><code>appendChild</code></td>
+<td>把子节点挂到父节点下</td>
+</tr>
+<tr>
+<td><code>commitUpdate</code></td>
+<td>把更新应用到节点上，然后从根节点重绘终端（<code>renderToTerminal</code>）</td>
+</tr>
+<tr>
+<td>其他方法</td>
+<td>原文代码省略</td>
+</tr>
+</tbody></table></div>
+<p>这段代码里，每次提交更新都直接重绘。I 节说的批处理和 16ms 最小间隔，代码里没有体现。原文标明这是概念写法。</p>
+<h3>REPL 启动器</h3>
+<p><code>replLauncher.tsx</code> 的 <code>launchRepl</code> 调用 <code>render()</code>，返回 <code>rerender</code> 和 <code>waitUntilExit</code>。下图据原文的代码，画出它渲染的组件树：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="App" data-step="0">App<small>参数来自 config.appProps</small></div></div><ul class="am-tree-list"><li data-key="Box" data-step="1"><span class="am-tree-label">Box</span><span class="am-tree-sub">纵向排列，高度 100%</span><ul><li data-key="StatusBar" data-step="2"><span class="am-tree-label">StatusBar</span></li><li data-key="Channel" data-step="3"><span class="am-tree-label">Channel</span></li><li data-key="Prompt" data-step="4"><span class="am-tree-label">Prompt</span></li></ul></li></ul></div>
+<div class="am-md"><h3>App 的子组件：三处写法对照</h3>
+<p>原文有三处写到 App 下面那层 Box 里放什么，写法各不相同：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>出处</th>
+<th>Box 里的子组件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>C 节的图（渲染树）</td>
+<td>SetupScreen、InfoScreen、Channel、REPL；Channel 下再挂消息列表、用户输入、状态栏</td>
+</tr>
+<tr>
+<td>D 节的伪代码（<code>main.tsx</code>）</td>
+<td>IntroScreen、Channel、Prompt</td>
+</tr>
+<tr>
+<td>本节的代码（<code>replLauncher.tsx</code>）</td>
+<td>StatusBar、Channel、Prompt</td>
+</tr>
+</tbody></table></div>
+<p>三处都有 <code>Channel</code>。原文没有说明哪一处对应实际运行时的结构。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-K">
+<header class="am-panel-head"><span class="am-panel-id">K</span><h2>小练习</h2><span class="am-panel-meta">原文“小练习”</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文最后留了四道练习：</p>
+<ul>
+<li><strong>调试渲染树</strong>：在 <code>App.tsx</code> 里加一行 <code>console.log</code>，输出当前渲染的组件层级，启动 Claude Code 观察结构。</li>
+<li><strong>自定义终端组件</strong>：用 Ink 写一个显示百分比的 <code>ProgressBar</code>，配合 <code>BashTool</code> 的执行过程展示。</li>
+<li><strong>理解渲染性能</strong>：在 reconciler 里记录耗时，分析每次状态变化带来的重绘开销。</li>
+<li><strong>定制状态栏</strong>：读状态栏的实现代码，加上自定义信息，例如当前工作目录或 Git 分支名。</li>
+</ul>
+</div></div>
+</section>
+<section class="am-panel" id="panel-L">
+<header class="am-panel-head"><span class="am-panel-id">L</span><h2>附录：原文代码和图的去向</h2><span class="am-panel-meta">试点审核用</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文 10 段代码和 4 张图，本页的处理方式：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>原文位置</th>
+<th>原文内容</th>
+<th>本页处理</th>
+<th>本页位置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>核心原理</td>
+<td>组件树 → reconciler → 终端的字符画</td>
+<td>流程图</td>
+<td>B</td>
+</tr>
+<tr>
+<td>2</td>
+<td>App.tsx 详解</td>
+<td><code>App</code> 组件</td>
+<td>从外到内的分层表</td>
+<td>C</td>
+</tr>
+<tr>
+<td>3</td>
+<td>错误边界</td>
+<td><code>BootstrapBoundary</code></td>
+<td>流程图</td>
+<td>C</td>
+</tr>
+<tr>
+<td>4</td>
+<td>main.tsx 初始化</td>
+<td><code>handleMainAction</code> 伪代码</td>
+<td>时序图</td>
+<td>D</td>
+</tr>
+<tr>
+<td>5</td>
+<td>REPL 布局</td>
+<td>终端效果字符画</td>
+<td>区域对照表</td>
+<td>F</td>
+</tr>
+<tr>
+<td>6</td>
+<td>渲染差异</td>
+<td>Web 版 div / span</td>
+<td>和第 7 段合成一张对照表</td>
+<td>H</td>
+</tr>
+<tr>
+<td>7</td>
+<td>渲染差异</td>
+<td>Ink 版 Box / Text</td>
+<td>同上</td>
+<td>H</td>
+</tr>
+<tr>
+<td>8</td>
+<td>性能特性</td>
+<td>渲染循环概念代码</td>
+<td>流程图</td>
+<td>I</td>
+</tr>
+<tr>
+<td>9</td>
+<td>代码展示</td>
+<td>自定义 reconciler</td>
+<td>方法表</td>
+<td>J</td>
+</tr>
+<tr>
+<td>10</td>
+<td>代码展示</td>
+<td><code>launchRepl</code></td>
+<td>组件树</td>
+<td>J</td>
+</tr>
+<tr>
+<td>图 1</td>
+<td>渲染树</td>
+<td>App 到各屏幕的组件树</td>
+<td>重画，指出与正文不一致处</td>
+<td>C</td>
+</tr>
+<tr>
+<td>图 2</td>
+<td>组件架构</td>
+<td>五组 UI 组件</td>
+<td>重画成树，<code>&lt;Box&gt;</code> 没画</td>
+<td>E</td>
+</tr>
+<tr>
+<td>图 3</td>
+<td>REPL 布局</td>
+<td>三块布局</td>
+<td>重画</td>
+<td>F</td>
+</tr>
+<tr>
+<td>图 4</td>
+<td>启动状态</td>
+<td>状态图</td>
+<td>重画成流程图</td>
+<td>G</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="图表查看" data-expand="展开查看图表">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="关闭" aria-label="关闭">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.4.14 · 2026-10-30 15:25</footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+title: Ink TUI 渲染引擎（解读）
+subtitle: How Claude Code Works · 源码分析篇解读，按原文讲清逻辑，代码改用图和表讲
+source: https://jwangkun.github.io/how-claude-code-works/source/ink-tui
+---
+原文：[Ink TUI 渲染引擎](https://jwangkun.github.io/how-claude-code-works/source/ink-tui)
+
+一句话结论：原文说，Claude Code 用 Ink 在终端里搭出整套交互界面，消息列表、输入框、状态栏、对话框都是 React 组件。
+
+- **Ink**：一个自定义的 React reconciler。它把组件树映射成终端字符矩阵，只把变化的部分用 ANSI 转义码写进终端。
+- **Claude Code 的组件树**：顶层 `App.tsx` 只做两件事，提供三层 Context，包一层错误边界。实际界面由传进来的子组件决定。
+- **启动过程**：界面从设置屏幕，经过只读的信息屏幕，进入完整的交互式 REPL。
+
+本页按原文解读，没有核对源码或官方文档。原文查阅日期为 2026-10-30，站点标注的最后更新日期为 2026-05-26。
+
+```callout info 试点说明
+这是 claude_src 目录的第二个试点页。原文有 4 张 Mermaid 图，本页按原位置重画。原文有 10 段代码，其中 2 段是字符画，本页按用途改成流程图、时序图、表格或树。每段代码的去向列在最后的附录里，审核用，定稿时可以删掉。
+```
+
+## A 从组件到终端 {meta=&quot;本页归纳，据原文多节&quot;}
+
+原文分几节讲：Ink 的原理、Claude Code 的组件树、初始化、布局、启动状态、渲染性能。下图把这几节串成一条线，方便后文对照。
+
+```flow
+(main.tsx 或 replLauncher.tsx 调用 render) -&gt; [App（错误边界和三层 Context）]: C、D 节
+App（错误边界和三层 Context） -&gt; [子组件（屏幕、消息通道、输入框）]: E、F、G 节
+子组件（屏幕、消息通道、输入框） -&gt; [React reconciler 算出新的虚拟 DOM]: 状态变化时
+React reconciler 算出新的虚拟 DOM -&gt; [Ink 映射成终端字符矩阵]
+Ink 映射成终端字符矩阵 -&gt; [比较新旧字符矩阵，生成增量 ANSI 码]: I 节
+比较新旧字符矩阵，生成增量 ANSI 码 -&gt; (写入 stdout，终端更新)
+```
+
+## B Ink 是什么 {meta=&quot;原文“Ink 是什么”&quot;}
+
+原文说，Ink 是 Vercel 开发的开源框架，让开发者用 React 组件描述终端界面。
+
+### 核心原理
+
+Ink 的核心是一个自定义的 React reconciler，基于 `react-reconciler` 库实现。reconciler 是 React 里负责把组件树变成实际输出的那一层。
+
+下图据原文的字符画重画：
+
+```flow LR
+[React 组件树：Box 里套一个加粗的 Text] -&gt; [virtual DOM]: Ink reconciler
+virtual DOM -&gt; [终端输出：一个带边框的 Hello!]
+```
+
+### 基本元素
+
+原文把 Ink 的基本元素和 HTML 做了对照：
+
+| Ink 组件 | 作用 | 类似 HTML |
+|---|---|---|
+| `&lt;Box&gt;` | 布局容器（flexbox） | `&lt;div&gt;` |
+| `&lt;Text&gt;` | 文本，支持颜色和样式 | `&lt;span&gt;` |
+| `&lt;Newline&gt;` | 换行 | `&lt;br&gt;` |
+| `&lt;Spacer&gt;` | 弹性空白 | flex: 1 |
+| `&lt;Transform&gt;` | 文本变换 | CSS text-transform |
+| `&lt;Static&gt;` | 静态子节点 | ReactDOM.hydrate |
+
+### 和 Web 上的 React 有什么不同
+
+| 维度 | 标准 React（Web） | Ink（终端） |
+|---|---|---|
+| 渲染目标 | DOM（浏览器） | 终端字符矩阵 |
+| 布局 | CSS（像素级） | flexbox（字符级） |
+| 颜色 | CSS 颜色 | ANSI 转义码 |
+| 交互 | 鼠标、触摸 | 键盘输入 |
+| 滚动 | CSS overflow | 终端原生滚动 |
+| 动画 | CSS transitions | 帧刷新（setTimeout） |
+| 组件库 | 极其丰富 | 有限的自定义组件 |
+
+## C Claude Code 的 React 渲染树 {meta=&quot;原文“Claude Code 的 React 渲染树”&quot;}
+
+Claude Code 在终端里维护一棵 React 组件树，顶层组件是 `App.tsx`。
+
+下图按原文的图重画：
+
+```flow
+[App.tsx 顶层组件] -&gt; [BootstrapBoundary 错误边界]
+BootstrapBoundary 错误边界 -&gt; [FpsMetricsProvider FPS 监控]
+FpsMetricsProvider FPS 监控 -&gt; [StatsProvider 统计上下文]
+StatsProvider 统计上下文 -&gt; [AppStateProvider 应用状态]
+AppStateProvider 应用状态 -&gt; [Box 主布局（flexDirection=column）]
+Box 主布局（flexDirection=column） -&gt; [REPL 交互式循环] &amp; [Channel 消息通道] &amp; [InfoScreen 信息展示] &amp; [SetupScreen 启动和设置界面]
+Channel 消息通道 -&gt; [状态栏] &amp; [用户输入] &amp; [消息列表]
+```
+
+```callout warn 原文的图与正文对不上
+这张图把“用户输入”和“状态栏”画在 Channel 下面。E 节的图把输入组件和消息通道分成两组；F 节的布局里，状态栏、消息列表、输入栏是并列的三块；J 节的代码里，`&lt;StatusBar /&gt;`、`&lt;Channel /&gt;`、`&lt;Prompt /&gt;` 也是并列的。
+```
+
+### App.tsx：三层 Context 和一层错误边界
+
+原文说 `App.tsx` 共 96 行，只做两件事：
+
+- 提供三层 Context：`FpsMetricsProvider`、`StatsProvider`、`AppStateProvider`。
+- 用 `BootstrapBoundary` 包住整棵树，捕获 React 渲染时的错误。
+
+下表据原文 `App.tsx` 的代码整理，从外到内排列：
+
+| 层 | 组件 | 接收的参数 | 作用 |
+|---|---|---|---|
+| 1 | `BootstrapBoundary` | — | 捕获渲染错误 |
+| 2 | `FpsMetricsProvider` | `getFpsMetrics` | FPS 监控 |
+| 3 | `StatsProvider` | `store`（即 `stats`） | 统计上下文 |
+| 4 | `AppStateProvider` | `initialState`、`onChangeAppState` | 应用状态 |
+| 最内层 | `children` | 由 `replLauncher.tsx` 注入 | 实际的界面内容 |
+
+### BootstrapBoundary：出错时显示最小界面
+
+下图据原文 `BootstrapBoundary` 的代码绘制：
+
+```flow
+[子组件渲染时抛出错误] -&gt; [getDerivedStateFromError 把错误存进 state]
+getDerivedStateFromError 把错误存进 state -&gt; {state 里有错误？}
+(渲染) -&gt; state 里有错误？
+state 里有错误？ -&gt; [照常渲染 children]: 否
+state 里有错误？ -&gt; [显示最小可读界面]: 是
+显示最小可读界面 -&gt; [红字：Failed to initialize restored app bootstrap.]
+显示最小可读界面 -&gt; [灰字：错误信息]
+```
+
+## D main.tsx 里初始化 reconciler {meta=&quot;原文“main.tsx 中的 React reconciler 初始化”&quot;}
+
+原文说，Ink reconciler 在 `main.tsx` 的 action handler 里初始化。下图据原文的伪代码和“关键流程”绘制：
+
+```sequence
+participants: handleMainAction, render(), 终端
+handleMainAction -&gt; handleMainAction: init() 和 setup()
+handleMainAction -&gt; render(): 传入组件树：App 包着 IntroScreen、Channel、Prompt
+render() -&gt; render(): 创建 reconciler 实例
+render() -&gt; 终端: 组件树映射成字符矩阵
+render() -&gt; 终端: 之后每次变化，用 ANSI 转义码增量更新
+render() --&gt; handleMainAction: 返回 waitUntilExit
+note handleMainAction: await waitUntilExit()，REPL 退出时 Promise resolve
+```
+
+```callout warn 原文前后说法不同
+- C 节说 App 的子组件由 `replLauncher.tsx` 注入；这里 `main.tsx` 自己调用 `render()` 并传入子组件。原文把这段标为伪代码。
+- 这里传入 `IntroScreen`、`Channel`、`Prompt`。C 节的图和 J 节的代码各是另一套。三处对照见 J 节。
+```
+
+## E 组件架构 {meta=&quot;原文“组件架构”&quot;}
+
+原文按职责把主要 UI 组件分成五组。下图按原文的图重画成树：
+
+```tree list
+App.tsx 顶层容器
+  屏幕组件
+    Setup Screen | 首次设置
+    Info Screen | 启动信息
+    REPL | 交互循环
+  消息通道
+    消息列表 | 滚动显示
+    AgentProgressLine | 执行进度
+    BashModeProgress | Bash 执行
+    成本显示
+  输入组件
+    用户输入框
+    按键绑定
+    自动完成建议
+  对话框
+    远程控制
+    配置编辑
+    OAuth 授权
+```
+
+原图从 App 连向四个分组，本页画成树。原图里 App 和 `&lt;Box&gt;`（Flexbox 布局）同属“布局组件”一组，`&lt;Box&gt;` 没有连线，树里没有画。
+
+### 主要组件清单
+
+原文列了 16 个组件。下表按职责分类（本页归纳），类别里保留原文的条目和说明。文件名都和组件同名（`.tsx`），例外是 `Channel`（内部组件）和 `EffortIndicator`（`.ts`）。
+
+| 类别 | 组件 | 原文写的职责 |
+|---|---|---|
+| 容器和通道 | `App` | 顶层容器，Context 提供者 |
+| 容器和通道 | `Channel` | 消息显示通道 |
+| 进度和状态 | `AgentProgressLine` | Agent 执行进度动画 |
+| 进度和状态 | `BashModeProgress` | 终端命令执行进度 |
+| 进度和状态 | `CoordinatorAgentStatus` | 多 Agent 状态 |
+| 进度和状态 | `AwsAuthStatusBox` | AWS 认证状态 |
+| 进度和状态 | `EffortIndicator` | 努力程度指示器 |
+| 进度和状态 | `DiagnosticsDisplay` | 诊断信息 |
+| 对话框和通知 | `BridgeDialog` | 远程控制对话框 |
+| 对话框和通知 | `CostThresholdDialog` | 成本阈值警告 |
+| 对话框和通知 | `AutoUpdater` | 自动更新通知 |
+| 上下文 | `ContextSuggestions` | 上下文建议 |
+| 上下文 | `ContextVisualization` | 上下文可视化 |
+| 上下文 | `CompactSummary` | 紧凑摘要 |
+| 提示和调试 | `ConfigurableShortcutHint` | 快捷键提示 |
+| 提示和调试 | `DevBar` | 开发者调试栏 |
+
+## F REPL 屏幕的布局 {meta=&quot;原文“REPL Screen 的布局”&quot;}
+
+REPL 屏幕从上到下分三块。下图按原文的图重画：
+
+```flow
+[Box flexDirection=column] -&gt; [Box 输入栏]
+Box flexDirection=column -&gt; [Box flexGrow=1 overflow=hidden]
+Box flexDirection=column -&gt; [状态栏（顶部）]
+Box flexGrow=1 overflow=hidden -&gt; [消息列表：Agent 回复、工具结果]
+Box 输入栏 -&gt; [快捷键提示] &amp; [用户输入框] &amp; [提示符]
+```
+
+中间那块设了 `flexGrow=1`，会占满剩下的高度；`overflow=hidden` 表示超出的部分不显示。
+
+原文还用字符画示意了实际的终端效果。下表据那张字符画整理：
+
+| 区域 | 字符画里显示的内容 | 对应上图的节点 |
+|---|---|---|
+| 顶部 | 左边 “● Claude Code v1.0.0”，右边 “模式: Agent” | 状态栏 |
+| 中部 | 回复 “Hello! 我能帮你做什么？”，下面一个 Tool Result 框，写着“文件内容已读取” | 消息列表 |
+| 底部 | 左边提示符 “&gt; _”，右边 “/help” | 输入栏 |
+
+## G 启动过程中的界面状态 {meta=&quot;原文“启动过程中的 TUI 状态”&quot;}
+
+Claude Code 启动时，界面依次经过设置屏幕、只读的信息屏幕、交互式 REPL。
+
+下图按原文的图重画。原图是状态图，本页画成流程图，状态和转移照原图：
+
+```flow
+(开始) -&gt; [SetupScreens]
+SetupScreens -&gt; [Checking]: 检查完成
+Checking -&gt; [LoginPrompt]: 需要登录
+Checking -&gt; [ConfigPrompt]: 需要配置
+Checking -&gt; [InfoOnly]: 就绪
+LoginPrompt -&gt; InfoOnly: 登录完成
+ConfigPrompt -&gt; InfoOnly: 配置完成
+InfoOnly -&gt; [InteractiveREPL]: 用户输入
+InteractiveREPL -&gt; (结束): 退出
+```
+
+原文列了三个主要状态下界面的差别：
+
+| 状态 | 可见组件 | 交互能力 |
+|---|---|---|
+| SetupScreens | 安装向导、登录提示 | 有限 |
+| InfoOnly | 启动信息摘要、最近操作 | 只读 |
+| InteractiveREPL | 完整 REPL 布局 | 完全交互 |
+
+## H 和标准 React 的深入对比 {meta=&quot;原文“Ink 与标准 React 的深入对比”&quot;}
+
+B 节已经给了一张总的对比表。这一节从渲染、事件、生命周期三方面展开。
+
+### 渲染
+
+原文用同一个“蓝底白字 Hello”分别写了 Web 版和 Ink 版。下表据这两段代码整理：
+
+| 方面 | 标准 React（Web） | Ink（终端） |
+|---|---|---|
+| 容器 | `&lt;div&gt;`，用 CSS 设 flex、内边距 10px、蓝色背景 | `&lt;Box&gt;`，用属性设水平内边距 1、蓝色背景 |
+| 文字 | `&lt;span&gt;`，用 CSS 设白色、加粗 | `&lt;Text&gt;`，用属性设白色、加粗 |
+| 渲染结果 | 像素级精确，支持复杂的 CSS 样式 | 字符级精确，颜色靠 ANSI 转义码 |
+
+### 事件
+
+| 事件 | 标准 React | Ink |
+|---|---|---|
+| 点击 | `onClick` | no 不支持 |
+| 键盘 | `onKeyDown` | `onKey`（自定义） |
+| 鼠标 | `onMouseMove` | no 不支持 |
+| 输入 | `onChange` | `onInput` / `onSubmit` |
+| Focus | `onFocus` / `onBlur` | warn 有限支持 |
+
+### 生命周期
+
+Ink 组件的生命周期和标准 React 相同，同样用 `useEffect`、`useState` 这些 hook。差别在比较什么：浏览器端比较 DOM，Ink 的 reconciler 比较字符矩阵。
+
+## I Ink 渲染的性能特性 {meta=&quot;原文“Ink 渲染的性能特性”&quot;}
+
+终端是字符矩阵，不是像素平面。原文列了 Ink 渲染的四个特性：
+
+| 特性 | 做什么 |
+|---|---|
+| 完整帧重绘 | 每次状态变化，都算出新的虚拟终端状态，再用 ANSI 码增量更新 |
+| 批处理 | 靠 React 的批处理，短时间内连着几个 `setState` 只写一次终端 |
+| 阈值控制 | 有最小更新间隔，默认 16ms（约 60fps），避免重绘太频繁 |
+| 增量输出 | 只把变化的部分用 ANSI 码写进终端，不是全部重绘 |
+
+第一条叫“完整帧重绘”，第四条说“不是全部重绘”。按第一条自己的说明，两条讲的是同一件事：每次都算出完整一帧，但只把变化部分写进终端。
+
+下图据原文渲染循环的概念代码绘制：
+
+```flow
+[1. React reconciler 计算新的虚拟 DOM] -&gt; [2. Ink 把虚拟 DOM 映射成终端字符矩阵]
+2. Ink 把虚拟 DOM 映射成终端字符矩阵 -&gt; [3. 比较新旧字符矩阵，生成增量 ANSI 码]
+3. 比较新旧字符矩阵，生成增量 ANSI 码 -&gt; [4. 增量 ANSI 码写入 stdout]
+4. 增量 ANSI 码写入 stdout -&gt; [5. 终端显示更新后的界面]
+```
+
+## J 代码展示 {meta=&quot;原文“代码展示”&quot;}
+
+### Ink 的自定义 reconciler
+
+原文给了 `src/ink.ts` 里 reconciler 初始化的概念写法，标明是简化版。下表据这段代码整理：
+
+| reconciler 方法 | 做什么 |
+|---|---|
+| `createInstance` | 按组件类型和属性，新建一个终端节点（`InkNode`） |
+| `appendChild` | 把子节点挂到父节点下 |
+| `commitUpdate` | 把更新应用到节点上，然后从根节点重绘终端（`renderToTerminal`） |
+| 其他方法 | 原文代码省略 |
+
+这段代码里，每次提交更新都直接重绘。I 节说的批处理和 16ms 最小间隔，代码里没有体现。原文标明这是概念写法。
+
+### REPL 启动器
+
+`replLauncher.tsx` 的 `launchRepl` 调用 `render()`，返回 `rerender` 和 `waitUntilExit`。下图据原文的代码，画出它渲染的组件树：
+
+```tree list
+App | 参数来自 config.appProps
+  Box | 纵向排列，高度 100%
+    StatusBar
+    Channel
+    Prompt
+```
+
+### App 的子组件：三处写法对照
+
+原文有三处写到 App 下面那层 Box 里放什么，写法各不相同：
+
+| 出处 | Box 里的子组件 |
+|---|---|
+| C 节的图（渲染树） | SetupScreen、InfoScreen、Channel、REPL；Channel 下再挂消息列表、用户输入、状态栏 |
+| D 节的伪代码（`main.tsx`） | IntroScreen、Channel、Prompt |
+| 本节的代码（`replLauncher.tsx`） | StatusBar、Channel、Prompt |
+
+三处都有 `Channel`。原文没有说明哪一处对应实际运行时的结构。
+
+## K 小练习 {meta=&quot;原文“小练习”&quot;}
+
+原文最后留了四道练习：
+
+- **调试渲染树**：在 `App.tsx` 里加一行 `console.log`，输出当前渲染的组件层级，启动 Claude Code 观察结构。
+- **自定义终端组件**：用 Ink 写一个显示百分比的 `ProgressBar`，配合 `BashTool` 的执行过程展示。
+- **理解渲染性能**：在 reconciler 里记录耗时，分析每次状态变化带来的重绘开销。
+- **定制状态栏**：读状态栏的实现代码，加上自定义信息，例如当前工作目录或 Git 分支名。
+
+## 附录：原文代码和图的去向 {meta=&quot;试点审核用&quot;}
+
+原文 10 段代码和 4 张图，本页的处理方式：
+
+| # | 原文位置 | 原文内容 | 本页处理 | 本页位置 |
+|---|---|---|---|---|
+| 1 | 核心原理 | 组件树 → reconciler → 终端的字符画 | 流程图 | B |
+| 2 | App.tsx 详解 | `App` 组件 | 从外到内的分层表 | C |
+| 3 | 错误边界 | `BootstrapBoundary` | 流程图 | C |
+| 4 | main.tsx 初始化 | `handleMainAction` 伪代码 | 时序图 | D |
+| 5 | REPL 布局 | 终端效果字符画 | 区域对照表 | F |
+| 6 | 渲染差异 | Web 版 div / span | 和第 7 段合成一张对照表 | H |
+| 7 | 渲染差异 | Ink 版 Box / Text | 同上 | H |
+| 8 | 性能特性 | 渲染循环概念代码 | 流程图 | I |
+| 9 | 代码展示 | 自定义 reconciler | 方法表 | J |
+| 10 | 代码展示 | `launchRepl` | 组件树 | J |
+| 图 1 | 渲染树 | App 到各屏幕的组件树 | 重画，指出与正文不一致处 | C |
+| 图 2 | 组件架构 | 五组 UI 组件 | 重画成树，`&lt;Box&gt;` 没画 | E |
+| 图 3 | REPL 布局 | 三块布局 | 重画 | F |
+| 图 4 | 启动状态 | 状态图 | 重画成流程图 | G |
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions and the panel comments.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }].
+// Comment text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+function replyText({ title, decisions, comments, ui }) {
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   → ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) {
+      out.push(`- **${c.panel} · ${c.title}**`, ...c.text.trim().split('\n').map((l) => `  > ${l}`));
+    }
+    out.push('', `_${ui.typed}_`);
+  }
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers and the comments
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  const keyOf = (ask) => ask.querySelector('legend')?.textContent.trim() ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: panel?.querySelector('.am-panel-head h2')?.textContent.trim() ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: ask.querySelector('legend')?.textContent.trim() ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const empty = !decisions.length && !comments.some((c) => c.text.trim());
+    const title = document.querySelector('.am-head h1')?.textContent.trim() ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, ui });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg')].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+</script>
+</body>
+</html>

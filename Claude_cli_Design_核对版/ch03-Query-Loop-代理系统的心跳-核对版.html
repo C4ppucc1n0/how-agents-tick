@@ -1,0 +1,2570 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="paper" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.4.14">
+<title>Query Loop：代理系统的心跳（核对试点版）</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-right: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin: 0 6px 0 auto; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-left: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; right: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { left: 50%; }
+.am-timeline--h li:last-child::before { right: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { left: 50%; }
+.am-tree-col:last-child::before { right: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }
+.am-tree-list ul { margin-left: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }
+.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 8px 4px auto;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-right: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */
+  .am-md th, .am-md td { min-width: 6em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+
+/* Change markers (only on pages that have one). Only the Changes view (.am-view-changes) draws change styling: colors, strike-through, faded items
+   and badges. Before and After look like a plain diagram, and the items that do not exist in the view are hidden.
+   The colors are the theme's --ok, --err and --warn, so every theme and mode works. A view hides items with visibility, so nothing moves. */
+.am-view-before [data-delta="added"], .am-view-after [data-delta="removed"] { visibility: hidden; }
+.am-view-before .am-delta-badge, .am-view-after .am-delta-badge { visibility: hidden; }
+/* A list label's badge is inline and would indent the label like a nesting level, so there it takes no space; the other badges are positioned and move nothing. */
+.am-view-before .am-tree-label > .am-delta-badge, .am-view-after .am-tree-label > .am-delta-badge { display: none; }
+
+.am-delta-badge--added { --badge: var(--ok, #1f9d4d); }
+.am-delta-badge--removed { --badge: var(--err, #c62828); }
+.am-delta-badge--changed { --badge: var(--warn, #a8620a); }
+
+/* flow */
+.am-view-changes .am-node[data-delta="added"] .am-node-shape { stroke: var(--ok, #1f9d4d); }
+.am-view-changes .am-node[data-delta="removed"] .am-node-shape { stroke: var(--err, #c62828); }
+.am-view-changes .am-node[data-delta="changed"] .am-node-shape { stroke: var(--warn, #a8620a); }
+.am-view-changes .am-node[data-delta="added"] > text { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-node[data-delta="removed"] > text { fill: var(--err, #c62828); }
+.am-view-changes [data-delta="added"] > .am-edge { stroke: var(--ok, #1f9d4d); }
+.am-view-changes [data-delta="removed"] > .am-edge { stroke: var(--err, #c62828); }
+.am-view-changes .am-arrow--added { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-arrow--removed { fill: var(--err, #c62828); }
+.am-view-changes [data-delta="added"] > .am-edge-label text { fill: var(--ok, #1f9d4d); }
+.am-view-changes [data-delta="removed"] > .am-edge-label text { fill: var(--err, #c62828); }
+.am-view-changes .am-cluster[data-delta="added"] { stroke: var(--ok, #1f9d4d); }
+.am-view-changes .am-cluster[data-delta="removed"] { stroke: var(--err, #c62828); }
+.am-view-changes .am-cluster-label[data-delta="added"] { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-cluster-label[data-delta="removed"] { fill: var(--err, #c62828); }
+.am-view-changes g[data-delta="removed"]:not(.am-delta-badge), .am-view-changes .am-cluster[data-delta="removed"], .am-view-changes .am-cluster-label[data-delta="removed"] { opacity: 0.55; }
+.am-view-changes .am-node[data-delta="removed"] > text, .am-view-changes g[data-delta="removed"] > .am-edge-label text, .am-view-changes .am-cluster-label[data-delta="removed"] { text-decoration: line-through; }
+.am-diagram .am-delta-badge circle { fill: var(--badge); stroke: var(--paper, #ffffff); stroke-width: 1.5; }
+.am-diagram .am-delta-badge text { fill: var(--paper, #ffffff); font: 700 11px var(--font-sans, sans-serif); text-decoration: none; }
+
+/* tree */
+.am-tree .am-delta-badge {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 15px; height: 15px; flex: none;
+  border-radius: 50%; background: var(--badge); color: var(--paper); font: 700 11px/1 var(--font-mono, monospace); text-decoration: none;
+}
+.am-tree-box[data-delta] { position: relative; }
+.am-tree-box > .am-delta-badge { position: absolute; top: -8px; right: -8px; }
+.am-tree-label > .am-delta-badge { margin-right: 6px; vertical-align: 1px; }
+.am-view-changes .am-tree-box[data-delta="added"] { border-color: var(--ok); }
+.am-view-changes .am-tree-box[data-delta="removed"] { border-color: var(--err); opacity: 0.55; text-decoration: line-through; }
+.am-view-changes .am-tree-box[data-delta="changed"] { border-color: var(--warn); }
+.am-view-changes .am-tree-list li[data-delta="added"] > .am-tree-label { color: var(--ok); }
+.am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-label { color: var(--err); text-decoration: line-through; }
+.am-view-changes .am-tree-list li[data-delta="changed"] > .am-tree-label { color: var(--warn); }
+.am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-label, .am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-sub { opacity: 0.55; }
+
+/* Connector lines in a view that hides siblings. A hidden node keeps its stretch of the line, so the line stays whole between the nodes that remain and
+   stops at the last one; the markup (data-line-before / data-line-after, see src/components/tree.js) names the stretches that differ from the usual look. */
+.am-view-before .am-tree-list li::after, .am-view-after .am-tree-list li::after,
+.am-view-before .am-tree-col::before, .am-view-after .am-tree-col::before { visibility: visible; }
+.am-view-before .am-tree-list li[data-line-before="full"]::after, .am-view-after .am-tree-list li[data-line-after="full"]::after { bottom: 0; height: auto; }
+.am-view-before .am-tree-list li[data-line-before="short"]::after, .am-view-after .am-tree-list li[data-line-after="short"]::after { bottom: auto; height: 0.95em; }
+.am-view-before .am-tree-list li[data-line-before="none"]::after, .am-view-after .am-tree-list li[data-line-after="none"]::after,
+.am-view-before .am-tree-col[data-line-before="none"]::before, .am-view-after .am-tree-col[data-line-after="none"]::before,
+.am-view-before .am-tree-root[data-line-before="none"]::after, .am-view-after .am-tree-root[data-line-after="none"]::after { display: none; }
+.am-view-before .am-tree-col[data-line-before="full"]::before, .am-view-after .am-tree-col[data-line-after="full"]::before { left: 0; right: 0; }
+.am-view-before .am-tree-col[data-line-before="start"]::before, .am-view-after .am-tree-col[data-line-after="start"]::before { left: 50%; right: 0; }
+.am-view-before .am-tree-col[data-line-before="end"]::before, .am-view-after .am-tree-col[data-line-after="end"]::before { left: 0; right: 50%; }
+
+/* the count row and the switch */
+.am-delta-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 10px; text-align: left; font: 12px/1.3 var(--font-mono, monospace); }
+.am-delta-count--added { color: var(--ok); }
+.am-delta-count--removed { color: var(--err); }
+.am-delta-count--changed { color: var(--warn); }
+.am-delta-switch { display: inline-flex; margin-left: auto; border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius); overflow: hidden; }
+.am-delta-switch[hidden] { display: none; }
+.am-delta-switch button { font: inherit; padding: 3px 10px; color: var(--ink-2); background: var(--paper); border: 0; border-left: 1px solid var(--line-2); cursor: pointer; }
+.am-delta-switch button:first-child { border-left: 0; }
+.am-delta-switch button[aria-pressed="true"] { color: var(--ink); background: var(--accent-bg); font-weight: 600; }
+.am-delta-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media print { .am-delta-switch { display: none !important; } }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="zh-CN" data-am-root-theme="paper" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">主题<select data-am="theme"><option value="blueprint">图纸</option><option value="shadcn">卡片</option><option value="paper" selected>纸张</option></select></label>
+<label class="am-pick">明暗<select data-am="mode"><option value="auto" selected>跟随系统</option><option value="light">亮</option><option value="dark">暗</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;回复&quot;,&quot;comment&quot;:&quot;评论&quot;,&quot;commentHint&quot;:&quot;对这个面板的意见&quot;,&quot;title&quot;:&quot;你的回复&quot;,&quot;hint&quot;:&quot;复制后粘贴到对话里。&quot;,&quot;copy&quot;:&quot;复制回复&quot;,&quot;close&quot;:&quot;关闭&quot;,&quot;suggested&quot;:&quot;建议&quot;,&quot;empty&quot;:&quot;先选择选项，或在面板上写评论。&quot;,&quot;decisions&quot;:&quot;决定&quot;,&quot;comments&quot;:&quot;评论&quot;,&quot;confirmed&quot;:&quot;确认了建议&quot;,&quot;untouched&quot;:&quot;未作答，保留建议&quot;,&quot;was&quot;:&quot;原为&quot;,&quot;typed&quot;:&quot;以 \&quot;&gt;\&quot; 开头的行是读者输入的文字。&quot;,&quot;done&quot;:&quot;已复制 ✓&quot;}">回复</button>
+<button class="am-btn" type="button" data-am="copy" data-done="已复制 ✓">复制源稿</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>Query Loop：代理系统的心跳（核对试点版）</h1><p class="am-sub">《Harness Engineering：Claude Code 设计指南》第 3 章解读，已按官方文档、本机观察和实测核对</p><div class="am-head-meta"><span><b>source</b>https://harness-books.agentway.dev/book1-claude-code/chapter-03-query-loop-heartbeat.html</span></div><div class="am-intro am-md"><div class="am-md"><p>原文：<a href="https://harness-books.agentway.dev/book1-claude-code/chapter-03-query-loop-heartbeat.html">第 3 章 Query Loop：代理系统的心跳</a></p>
+<p>一句话结论：原文认为，代理系统的核心能力是维持可恢复的执行循环，在 Claude Code 里就是 queryLoop()。</p>
+<p>核对后，论点成立。流式调用、提前执行工具、中断补齐 tool_result 都有观察或实测依据。截断后自动续写、Stop hook 阻塞后再来一轮，也在 v2.1.312 上实测到了。prompt 太长时先压缩、救不回来才报错，API 错误先重试；这两点用第 6 章的故障注入实测到了。函数名、状态字段和治理步骤的顺序无法核对。</p>
+<p>有两处与现状不符：停止条件矩阵说“API 错误直接返回，不重试”，实际上 Claude Code 会先自动重试瞬时错误；不变式说“试过 reactive compact 后不再压缩”，现在压缩后仍太长会再压一次。</p>
+<p>核对依据：Claude Code 官方文档 code.claude.com/docs（2026-10-29 查阅；故障注入实测做于 2026-10-30）；anthropics/claude-code 仓库的 CHANGELOG（最新条目 2.1.312）；本机 Claude Code 2.1.312 的实测和本机会话记录。依据分四种标签：文档、观察、实测（v2.1.312）、旁证（CHANGELOG）。逐条结果见附录。</p>
+</div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">试点说明</div><div class="am-callout-body am-md"><p>本页是第 3 章的核对试点版，原页面保留不动。与原页面相比，本页多了三样东西：重画原文三张图、每节加“事实核对”、最后加附录。实现层的说法（函数名、状态字段）标“无法核对”；行为层的说法先用观察和实测核对。</p>
+</div></div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="目录"><a href="#panel-A">A · 一个代理系统是否成熟，先看它有没有循环</a><a href="#panel-B">B · 状态属于主业务</a><a href="#panel-C">C · Query loop 的第一职责是治理输入</a><a href="#panel-D">D · 调用模型只是循环的一段</a><a href="#panel-E">E · 心跳必须能处理中断</a><a href="#panel-F">F · 心跳还必须能恢复</a><a href="#panel-G">G · 停止条件不能只有一个</a><a href="#panel-H">H · QueryEngine：循环属于会话生命周期</a><a href="#panel-I">I · 从源码提炼的第三个原则</a><a href="#panel-J">J · 附录：事实核对</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>一个代理系统是否成熟，先看它有没有循环</h2><span class="am-panel-meta">原文 3.1</span></header>
+<div class="am-panel-body"><div class="am-md"><p>把会写代码的模型当成加强版问答接口，是最常见的错误。系统一旦开始调用工具、跨轮执行、处理中断、保存状态、压缩上下文，“一问一答”就失效了。原文说，Claude Code 从结构上承认：代理依赖一段持续的、有状态的执行过程。</p>
+<p>原文的依据是源码：<code>query()</code> 只是一层壳，核心是 <code>queryLoop()</code>。它维护一套跨迭代的状态，先做调用前的治理，再进入流式阶段。模型返回后，它再决定执行工具、恢复、压缩、继续下一轮，还是终止。</p>
+<p>原文用 lifecycle（生命周期）概括这一点。一个系统能否称为 agent，不在于它会不会说，而在于几轮之后它还知不知道自己在做什么。</p>
+<h3>原文的图：一次迭代的结构</h3>
+<p>原文在这里放了一张图，标题是 “Query Loop Core - One Iteration Of The While Loop”。图的意思是：循环状态跨迭代保留，喂给每次迭代。一次迭代依次是调用前治理、模型流、工具执行、应用结果、决定下一步。下图按事实重画。+ 表示按事实补上，− 表示原图有、但与事实不符。切换 Before 和 After，可以分别看原图结构和修正后的结构。</p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 729 1249" width="729" height="1249" role="img" aria-label="流程图：本轮开始、循环状态 · messages、toolUseContext、压缩计数、transition、调用前治理 · budget、hooks、snip、microcompact、模型流 · 文本、tool_use、usage、决定下一步、工具执行 · 规划、执行、合并 tool_result、应用结果、要压缩或重试?" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am1-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am1-arrow-removed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--removed" d="M0,0 L10,5 L0,10 z"/></marker></defs><g><rect class="am-cluster" x="14" y="240" width="700.9" height="545" rx="4"/><text class="am-cluster-label" x="22" y="254">一次迭代</text></g><g><g data-step="0"><path class="am-edge" d="M278.5,61 L278.5,72.5 Q278.5,84 278.5,95.5 L278.5,107" marker-end="url(#am1-arrow)"/></g><g data-step="1"><path class="am-edge" d="M278.5,176 L278.5,192 Q278.5,208 278.5,224 Q278.5,240 278.5,251.5 L278.5,263" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="239" y="199" width="79" height="18" rx="3"/><text x="278.5" y="208" text-anchor="middle" dominant-baseline="central">每次迭代读入</text></g></g><g data-step="2"><path class="am-edge" d="M359.3,318.2 L448.8,341.1 Q538.4,364 538.4,380 L538.4,396" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="516.1" y="355" width="44.5" height="18" rx="3"/><text x="538.4" y="364" text-anchor="middle" dominant-baseline="central">预算够</text></g></g><g data-step="3"><path class="am-edge" d="M315.8,332 L333.1,348 Q350.4,364 350.4,393 Q350.4,422 350.4,451 Q350.4,480 350.4,509 Q350.4,538 350.4,567 Q350.4,596 350.4,620.8 Q350.4,645.5 350.4,670.3 Q350.4,695 392.6,711 L434.9,727" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="302" y="529" width="96.7" height="18" rx="3"/><text x="350.4" y="538" text-anchor="middle" dominant-baseline="central">hook 或防护拦截</text></g></g><g data-step="4"><path class="am-edge" d="M566.2,448 L583.3,464 Q600.4,480 600.4,496 L600.4,512" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="559.2" y="471" width="82.5" height="18" rx="3"/><text x="600.4" y="480" text-anchor="middle" dominant-baseline="central">发出 tool_use</text></g></g><g data-step="5"><path class="am-edge" d="M501.8,448 L479.3,464 Q456.8,480 456.8,509 Q456.8,538 456.8,567 Q456.8,596 483.2,612 L509.6,628" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="428.8" y="529" width="56" height="18" rx="3"/><text x="456.8" y="538" text-anchor="middle" dominant-baseline="central">只有文本</text></g></g><g data-step="6"><path class="am-edge" d="M600.4,564 L600.4,580 Q600.4,596 580.3,612 L560.3,628" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="566.6" y="587" width="67.5" height="18" rx="3"/><text x="600.4" y="596" text-anchor="middle" dominant-baseline="central">结果已合并</text></g></g><g data-step="7"><path class="am-edge" d="M538.4,663 L538.4,679 Q538.4,695 519.9,711 L501.4,727" marker-end="url(#am1-arrow)"/></g><g data-step="8"><path class="am-edge" d="M481.1,762 L481.1,773.5 Q481.1,785 481.1,801 Q481.1,817 469.7,835.4 L458.3,853.8" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="453.1" y="808" width="56" height="18" rx="3"/><text x="481.1" y="817" text-anchor="middle" dominant-baseline="central">迭代结束</text></g></g><g data-step="9"><path class="am-edge am-edge--dashed" d="M403.4,862.3 L340.9,839.7 Q278.5,817 278.5,801 Q278.5,785 278.5,764.8 Q278.5,744.5 278.5,719.8 Q278.5,695 278.5,670.3 Q278.5,645.5 278.5,620.8 Q278.5,596 278.5,567 Q278.5,538 278.5,509 Q278.5,480 278.5,451 Q278.5,422 278.5,393 Q278.5,364 278.5,348 L278.5,332" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="244.7" y="587" width="67.5" height="18" rx="3"/><text x="278.5" y="596" text-anchor="middle" dominant-baseline="central">压缩或重试</text></g></g><g data-step="10"><path class="am-edge" d="M443.9,905 L443.9,921 Q443.9,937 425,957 L406.2,977" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="427.4" y="928" width="33" height="18" rx="3"/><text x="443.9" y="937" text-anchor="middle" dominant-baseline="central">稳定</text></g></g><g data-step="11"><path class="am-edge am-edge--dashed" d="M349.5,985.2 L272.1,961.1 Q194.6,937 194.6,907 Q194.6,877 194.6,847 Q194.6,817 194.6,801 Q194.6,785 194.6,764.8 Q194.6,744.5 194.6,719.8 Q194.6,695 194.6,670.3 Q194.6,645.5 194.6,620.8 Q194.6,596 194.6,567 Q194.6,538 194.6,509 Q194.6,480 194.6,451 Q194.6,422 194.6,393 Q194.6,364 214.8,348 L235,332" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="183.9" y="636.5" width="21.5" height="18" rx="3"/><text x="194.6" y="645.5" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="12" data-delta="removed"><path class="am-edge" d="M394,1022.2 L398.7,1039.6 Q403.3,1057 403.3,1081.8 Q403.3,1106.5 403.3,1131.3 Q403.3,1156 383,1172 L362.8,1188" marker-end="url(#am1-arrow-removed)"/><g class="am-edge-label"><rect x="392.5" y="1097.5" width="21.5" height="18" rx="3"/><text x="403.3" y="1106.5" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="13" data-delta="added"><path class="am-edge" d="M347.3,1007.9 L256.6,1032.4 Q165.9,1057 153.9,1073 L142,1089" marker-end="url(#am1-arrow-added)"/><g class="am-edge-label"><rect x="155.1" y="1048" width="21.5" height="18" rx="3"/><text x="165.9" y="1057" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="14" data-delta="added"><path class="am-edge am-edge--dashed" d="M119.8,1089 L111.5,1073 Q103.3,1057 103.3,1027 Q103.3,997 103.3,967 Q103.3,937 103.3,907 Q103.3,877 103.3,847 Q103.3,817 103.3,801 Q103.3,785 103.3,764.8 Q103.3,744.5 103.3,719.8 Q103.3,695 103.3,670.3 Q103.3,645.5 103.3,620.8 Q103.3,596 103.3,567 Q103.3,538 103.3,509 Q103.3,480 103.3,451 Q103.3,422 103.3,393 Q103.3,364 150.4,346.1 L197.6,328.2" marker-end="url(#am1-arrow-added)"/><g class="am-edge-label"><rect x="35" y="686" width="136.5" height="18" rx="3"/><text x="103.3" y="695" text-anchor="middle" dominant-baseline="central">阻塞，带着原因再来一轮</text></g></g><g data-step="15" data-delta="added"><path class="am-edge" d="M128.9,1124 L128.9,1140 Q128.9,1156 214.8,1176.1 L300.7,1196.1" marker-end="url(#am1-arrow-added)"/><g class="am-edge-label"><rect x="112.4" y="1147" width="33" height="18" rx="3"/><text x="128.9" y="1156" text-anchor="middle" dominant-baseline="central">通过</text></g></g></g><g><g class="am-node am-node--round" data-key="本轮开始" data-step="0"><rect class="am-node-shape" x="232.5" y="26" width="92" height="35" rx="17.5"/><text x="278.5" y="43.5" text-anchor="middle" dominant-baseline="central">本轮开始</text></g><g class="am-node am-node--rect" data-key="循环状态 · messages、toolUseContext、压缩计数、transition" data-step="0"><rect class="am-node-shape" x="192.2" y="107" width="172.6" height="69" rx="3"/><text x="278.5" y="124.5" text-anchor="middle" dominant-baseline="central">循环状态 · messages、</text><text x="278.5" y="141.5" text-anchor="middle" dominant-baseline="central">toolUseContext、压缩计</text><text x="278.5" y="158.5" text-anchor="middle" dominant-baseline="central">数、transition</text></g><g class="am-node am-node--rect" data-key="调用前治理 · budget、hooks、snip、microcompact" data-step="1"><rect class="am-node-shape" x="197.6" y="263" width="161.6" height="69" rx="3"/><text x="278.5" y="280.5" text-anchor="middle" dominant-baseline="central">调用前治理 · budget、</text><text x="278.5" y="297.5" text-anchor="middle" dominant-baseline="central">hooks、snip、</text><text x="278.5" y="314.5" text-anchor="middle" dominant-baseline="central">microcompact</text></g><g class="am-node am-node--rect" data-key="模型流 · 文本、tool_use、usage" data-step="2"><rect class="am-node-shape" x="451.9" y="396" width="173.1" height="52" rx="3"/><text x="538.4" y="413.5" text-anchor="middle" dominant-baseline="central">模型流 · 文本、tool_use</text><text x="538.4" y="430.5" text-anchor="middle" dominant-baseline="central">、usage</text></g><g class="am-node am-node--rect" data-key="决定下一步" data-step="3"><rect class="am-node-shape" x="434.6" y="727" width="93" height="35" rx="3"/><text x="481.1" y="744.5" text-anchor="middle" dominant-baseline="central">决定下一步</text></g><g class="am-node am-node--rect" data-key="工具执行 · 规划、执行、合并 tool_result" data-step="4"><rect class="am-node-shape" x="513.8" y="512" width="173.1" height="52" rx="3"/><text x="600.4" y="529.5" text-anchor="middle" dominant-baseline="central">工具执行 · 规划、执行、</text><text x="600.4" y="546.5" text-anchor="middle" dominant-baseline="central">合并 tool_result</text></g><g class="am-node am-node--rect" data-key="应用结果" data-step="5"><rect class="am-node-shape" x="498.4" y="628" width="80" height="35" rx="3"/><text x="538.4" y="645.5" text-anchor="middle" dominant-baseline="central">应用结果</text></g><g class="am-node am-node--diamond" data-key="要压缩或重试?" data-step="8"><polygon class="am-node-shape" points="443.9,849 528.8,877 443.9,905 358.9,877"/><text x="443.9" y="877" text-anchor="middle" dominant-baseline="central">要压缩或重试?</text></g><g class="am-node am-node--diamond" data-key="还要继续?" data-step="10"><polygon class="am-node-shape" points="387.4,969 452.9,997 387.4,1025 321.9,997"/><text x="387.4" y="997" text-anchor="middle" dominant-baseline="central">还要继续?</text></g><g class="am-node am-node--rect" data-key="结束本轮" data-step="12"><rect class="am-node-shape" x="300.7" y="1188" width="80" height="35" rx="3"/><text x="340.7" y="1205.5" text-anchor="middle" dominant-baseline="central">结束本轮</text></g><g class="am-node am-node--rect" data-key="Stop hooks" data-step="13" data-delta="added"><rect class="am-node-shape" x="81" y="1089" width="95.9" height="35" rx="3"/><text x="128.9" y="1106.5" text-anchor="middle" dominant-baseline="central">Stop hooks</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(176.8,1089)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+4 新增</span> <span class="am-delta-count am-delta-count--removed">−1 删除</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>query()</code>、<code>queryLoop()</code> 和原图的节点名无法核对：源码不公开，文档里也没有这些名字。</li>
+<li>循环本身有依据。文档说 agentic loop 分 gather context、take action、verify results 三个阶段，用户 “can interrupt at any point”。实测：一条提示产生了 3 次 API 请求，依次是调用工具、回答、被 Stop hook 阻塞后补答。</li>
+<li>原图从“不需要继续”直接画到“结束本轮”。实测中，回答结束后先运行 Stop hook，hook 阻塞时会再来一轮。重画时补上了这一段（附录第 3、21 条）。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>状态属于主业务</h2><span class="am-panel-meta">原文 3.2</span></header>
+<div class="am-panel-body"><div class="am-md"><p>很多系统把状态当成包袱，认为无状态更优雅。但代理系统一进入真实工作流，状态就会自然出现。忽视状态并不能消除它，只会让它以更难管理的方式回来。</p>
+<p>原文说，Claude Code 把 query loop 的可变状态明确定义为 9 项（下面的分类是本页归纳）：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root"><div class="am-tree-box am-tree-box--root" data-key="State" data-step="0">State</div></div><div class="am-tree-cols" style="--n: 3"><div class="am-tree-col"><div class="am-tree-box" data-key="对话与工具" data-step="1">对话与工具<small>messages、toolUseContext</small></div></div><div class="am-tree-col"><div class="am-tree-box" data-key="压缩与恢复" data-step="2">压缩与恢复<small>autoCompactTracking、maxOutputTokensRecoveryCount、hasAttemptedReactiveCompact</small></div></div><div class="am-tree-col"><div class="am-tree-box" data-key="轮次与流转" data-step="3">轮次与流转<small>turnCount、transition、stopHookActive、pendingToolUseSummary</small></div></div></div></div>
+<div class="am-md"><p>每次 query loop 启动时，这些状态被整体装配成一个 State 对象，之后在每个 continue 分支里整体更新。恢复、压缩、预算、hook、轮次计数没有散落在局部变量里，因为它们共同决定“本轮结束后，下一轮如何继续”。脚本只关心这一步有没有跑完；代理系统还要关心，这一步失败后，下一步能不能接住前面留下的状态。</p>
+<h3>循环必须守住的三条不变式</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>不变式</th>
+<th>含义</th>
+<th>核对</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>状态单调</td>
+<td>turnCount 只增不减</td>
+<td>无法核对</td>
+<td>源码不公开</td>
+</tr>
+<tr>
+<td>账本对齐</td>
+<td>每个发出的 tool_use 都有对应的 tool_result</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>观察：本机 104 个会话记录共 8490 次工具调用，只有 2 次没有结果。这 2 次都是文件里最后一次调用</td>
+</tr>
+<tr>
+<td>防自回环</td>
+<td>试过 reactive compact 之后，不再继续压缩</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>与现状不完全相符</span></td>
+<td>旁证：2.1.284 起，压缩后仍太长会再压一次。文档：连续几次压缩都无效时，停止并报错</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>9 个字段名和“整体装配、整体更新”无法核对：源码不公开。</li>
+<li>有一项状态能从外部看到。文档说，Stop hook 的输入里有 <code>stop_hook_active</code>，Claude Code 因 Stop hook 而继续时它为 true。实测中，第一次 Stop 调用为 false，hook 阻塞后的第二次为 true。这说明“stop hook 是否已经生效”确实跨迭代保存。</li>
+<li>防自回环：原文说试过一次就不再压缩。现状是，压缩后的请求仍太长时，Claude Code 会再压一次，保留更少的近期对话（CHANGELOG 2.1.284）。自动压缩连续几次后上下文立刻又满，Claude Code 会停止并报 thrashing 错误（文档）。防止无限压缩这个目的成立，但“只压一次”与现状不符。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>Query loop 的第一职责是治理输入</h2><span class="am-panel-meta">原文 3.3</span></header>
+<div class="am-panel-body"><div class="am-md"><p>从外面看，代理系统的核心动作像是“调用模型”。但在工程上，更重要的常常是调用模型之前的那一串整理工作。原文说，queryLoop() 在进入模型流之前，按顺序做这些事：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 1799 160" width="1799" height="160" role="img" aria-label="流程图：本轮开始、预取 memory、预取 skill discovery、截取 compact boundary 之后的消息、应用 tool result budget、history snip、microcompact、context collapse" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g><rect class="am-cluster" x="152" y="34.5" width="346.4" height="91" rx="4"/><text class="am-cluster-label" x="160" y="48.5">预取</text><rect class="am-cluster" x="544.4" y="26" width="569.6" height="108" rx="4"/><text class="am-cluster-label" x="552.4" y="40">裁剪</text><rect class="am-cluster" x="1160" y="34.5" width="486.2" height="91" rx="4"/><text class="am-cluster-label" x="1168" y="48.5">压缩</text></g><g><g data-step="0"><path class="am-edge" d="M106,80 L117.5,80 Q129,80 140.5,80 Q152,80 163.5,80 L175,80" marker-end="url(#am2-arrow)"/></g><g data-step="0"><path class="am-edge" d="M281.3,80 L292.8,80 Q304.3,80 315.8,80 L327.3,80" marker-end="url(#am2-arrow)"/></g><g data-step="0"><path class="am-edge" d="M475.4,80 L486.9,80 Q498.4,80 509.9,80 Q521.4,80 532.9,80 Q544.4,80 555.9,80 L567.4,80" marker-end="url(#am2-arrow)"/></g><g data-step="0"><path class="am-edge" d="M736,80 L747.5,80 Q759,80 770.5,80 L782,80" marker-end="url(#am2-arrow)"/></g><g data-step="0"><path class="am-edge" d="M945.5,80 L957,80 Q968.5,80 980,80 L991.5,80" marker-end="url(#am2-arrow)"/></g><g data-step="0"><path class="am-edge" d="M1091,80 L1102.5,80 Q1114,80 1125.5,80 Q1137,80 1148.5,80 Q1160,80 1171.5,80 L1183,80" marker-end="url(#am2-arrow)"/></g><g data-step="0"><path class="am-edge" d="M1296.8,80 L1308.3,80 Q1319.8,80 1331.3,80 L1342.8,80" marker-end="url(#am2-arrow)"/></g><g data-step="0"><path class="am-edge" d="M1471.4,80 L1482.9,80 Q1494.4,80 1505.9,80 L1517.4,80" marker-end="url(#am2-arrow)"/></g><g data-step="0"><path class="am-edge" d="M1623.2,80 L1634.7,80 Q1646.2,80 1657.7,80 Q1669.2,80 1680.7,80 L1692.2,80" marker-end="url(#am2-arrow)"/></g></g><g><g class="am-node am-node--round" data-key="本轮开始" data-step="0"><rect class="am-node-shape" x="14" y="62.5" width="92" height="35" rx="17.5"/><text x="60" y="80" text-anchor="middle" dominant-baseline="central">本轮开始</text></g><g class="am-node am-node--rect" data-key="预取 memory" data-step="0"><rect class="am-node-shape" x="175" y="62.5" width="106.3" height="35" rx="3"/><text x="228.1" y="80" text-anchor="middle" dominant-baseline="central">预取 memory</text></g><g class="am-node am-node--rect" data-key="预取 skill discovery" data-step="0"><rect class="am-node-shape" x="327.3" y="62.5" width="148.1" height="35" rx="3"/><text x="401.3" y="80" text-anchor="middle" dominant-baseline="central">预取 skill discovery</text></g><g class="am-node am-node--rect" data-key="截取 compact boundary 之后的消息" data-step="0"><rect class="am-node-shape" x="567.4" y="54" width="168.7" height="52" rx="3"/><text x="651.7" y="71.5" text-anchor="middle" dominant-baseline="central">截取 compact boundary</text><text x="651.7" y="88.5" text-anchor="middle" dominant-baseline="central">之后的消息</text></g><g class="am-node am-node--rect" data-key="应用 tool result budget" data-step="0"><rect class="am-node-shape" x="782" y="62.5" width="163.5" height="35" rx="3"/><text x="863.8" y="80" text-anchor="middle" dominant-baseline="central">应用 tool result budget</text></g><g class="am-node am-node--rect" data-key="history snip" data-step="0"><rect class="am-node-shape" x="991.5" y="62.5" width="99.5" height="35" rx="3"/><text x="1041.3" y="80" text-anchor="middle" dominant-baseline="central">history snip</text></g><g class="am-node am-node--rect" data-key="microcompact" data-step="0"><rect class="am-node-shape" x="1183" y="62.5" width="113.8" height="35" rx="3"/><text x="1239.9" y="80" text-anchor="middle" dominant-baseline="central">microcompact</text></g><g class="am-node am-node--rect" data-key="context collapse" data-step="0"><rect class="am-node-shape" x="1342.8" y="62.5" width="128.6" height="35" rx="3"/><text x="1407.1" y="80" text-anchor="middle" dominant-baseline="central">context collapse</text></g><g class="am-node am-node--rect am-node--hi" data-key="autocompact" data-step="0"><rect class="am-node-shape" x="1517.4" y="62.5" width="105.7" height="35" rx="3"/><text x="1570.3" y="80" text-anchor="middle" dominant-baseline="central">autocompact</text></g><g class="am-node am-node--round" data-key="调用模型" data-step="0"><rect class="am-node-shape" x="1692.2" y="62.5" width="92" height="35" rx="17.5"/><text x="1738.2" y="80" text-anchor="middle" dominant-baseline="central">调用模型</text></g></g></svg></figure>
+<div class="am-md"><p>（分组是本页归纳，顺序与原文一致。autocompact 排在最后，是最后才尝试的手段。）</p>
+<p>原文认为，这串顺序本身就是一种架构声明：Claude Code 把上下文治理放在模型推理之前。它不把“从混乱中整理秩序”的责任交给模型，而是由运行时先整理好，再把更干净的输入交给模型。很多系统的做法相反：先把大量上下文塞进去，再指望模型自己判断什么重要。这看似省事，实际上是把运行时该承担的责任转嫁给了概率分布。</p>
+<h3>逐步核对</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>核对</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>预取 memory</td>
+<td>无法核对</td>
+<td>文档只写 MEMORY.md 在会话开始时加载前 200 行或 25KB，没有按相关性预取的说法。本机会话记录里也没有这类附件</td>
+</tr>
+<tr>
+<td>预取 skill discovery</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>观察：会话记录里有 115 条 skill_listing 附件，在请求前注入技能清单。“discovery 预取”这一步本身无法核对</td>
+</tr>
+<tr>
+<td>截取 compact boundary 之后的消息</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测：手动压缩后，下一次请求以压缩摘要开头，之前的工具调用不再发送。会话记录保留旧消息，并写入一条 compact_boundary</td>
+</tr>
+<tr>
+<td>应用 tool result budget</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>文档：Bash 结果超过约 30,000 字符时，只给存档文件的路径和前 2,000 字符预览。是否在调用模型前统一处理，无法核对</td>
+</tr>
+<tr>
+<td>history snip、microcompact、context collapse</td>
+<td>无法核对</td>
+<td>文档和 CHANGELOG 都查不到。实测请求里的 context_management 只有一条 thinking 设置，没有清理工具结果的设置</td>
+</tr>
+<tr>
+<td>autocompact</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>文档：接近上限时自动压缩，阈值随模型而定</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>八个步骤的顺序无法核对：源码不公开，从外部也看不到先后。</li>
+<li>原文的论点是“运行时先整理上下文，再交给模型”。这一点有依据：压缩边界截取、工具结果上限、自动压缩都在模型看到输入之前生效。但“这串顺序是架构声明”依赖的顺序本身无法核对，其中 snip、microcompact、collapse 三步在公开渠道里查不到。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>调用模型只是循环的一段</h2><span class="am-panel-meta">原文 3.4</span></header>
+<div class="am-panel-body"><div class="am-md"><p>治理完成后才进入模型调用。原文指出一个细节：系统用 <code>for await</code> 流式消费模型输出，而不是同步拿回一个完整结果。所以模型输出在 Claude Code 里是一串事件，可能是 assistant 文本、tool_use block、usage 更新、stop reason 或 API 错误。系统把 assistant message 存起来，提取 tool_use，判断是否需要 follow-up，还可能边流边把工具送给 StreamingToolExecutor。</p>
+</div>
+<figure class="am-diagram am-seq"><svg viewBox="0 0 574 370" width="574" height="370" role="img" aria-label="时序图：模型、queryLoop、StreamingToolExecutor" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><line class="am-lifeline" x1="54" y1="42" x2="54" y2="366"/><g data-key="模型"><rect class="am-actor" x="12" y="8" width="84" height="34" rx="2"/><text x="54" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">模型</text></g><line class="am-lifeline" x1="170" y1="42" x2="170" y2="366"/><g data-key="queryLoop"><rect class="am-actor" x="124" y="8" width="92" height="34" rx="2"/><text x="170" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">queryLoop</text></g><line class="am-lifeline" x1="475.8" y1="42" x2="475.8" y2="366"/><g data-key="StreamingToolExecutor"><rect class="am-actor" x="390.4" y="8" width="170.7" height="34" rx="2"/><text x="475.8" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">StreamingToolExecutor</text></g><g data-step="0"><text x="112" y="70" text-anchor="middle">assistant 文本</text><path class="am-edge" d="M54,80 L168,80" marker-end="url(#am3-arrow)"/></g><g data-step="1"><text x="112" y="110" text-anchor="middle">tool_use block</text><path class="am-edge" d="M54,120 L168,120" marker-end="url(#am3-arrow)"/></g><g data-step="2"><text x="322.9" y="150" text-anchor="middle">边流边送出工具（可选）</text><path class="am-edge" d="M170,160 L473.8,160" marker-end="url(#am3-arrow)"/></g><g data-step="3"><text x="112" y="190" text-anchor="middle">usage 更新</text><path class="am-edge" d="M54,200 L168,200" marker-end="url(#am3-arrow)"/></g><g data-step="4"><text x="112" y="230" text-anchor="middle">stop reason</text><path class="am-edge" d="M54,240 L168,240" marker-end="url(#am3-arrow)"/></g><g data-step="5"><text x="210" y="268" dominant-baseline="central">保存 assistant message，判断是否需要</text><text x="210" y="284" dominant-baseline="central">follow-up</text><path class="am-edge" d="M170,264 H200 V284 H172" marker-end="url(#am3-arrow)"/></g><g data-step="6"><text x="322.9" y="330" text-anchor="middle">工具结果</text><path class="am-edge am-edge--dashed" d="M475.8,340 L172,340" marker-end="url(#am3-arrow)"/></g></svg></figure>
+<div class="am-md"><p>（示意：按原文文字画，参与者名字取自原文。）</p>
+<p>一旦把模型输出当成事件流，架构就不再是“请求-响应”，而是“驱动-调度-反馈”。流式输出的意义不只是早点看到几个字，而是让运行时在模型还没结束时，就开始安排下一步执行。所以原文说，心跳是整个循环，而不是模型调用本身。</p>
+<h3>实测：回复还没结束，工具已经跑完</h3>
+<p>实测让模型在同一条回复里先调用 Glob，再调用 Write 写一段约 600 字的故事。Write 的参数很长，模型要生成好几秒。下面的时间以发出第 1 次请求为 0（实测，v2.1.312）：</p>
+</div>
+<ol class="am-timeline am-timeline--v"><li class="am-tl-item"><span class="am-tl-when">0 s</span><span class="am-tl-dot"></span><span class="am-tl-title">发出第 1 次请求</span><span class="am-tl-text">请求带 stream: true</span></li><li class="am-tl-item"><span class="am-tl-when">+2.0 s</span><span class="am-tl-dot"></span><span class="am-tl-title">Glob 开始执行</span><span class="am-tl-text">PreToolUse hook 触发</span></li><li class="am-tl-item"><span class="am-tl-when">+2.5 s</span><span class="am-tl-dot"></span><span class="am-tl-title">Glob 执行完</span><span class="am-tl-text">PostToolUse hook 触发</span></li><li class="am-tl-item am-tl-item--hi"><span class="am-tl-when">+6.7 s</span><span class="am-tl-dot"></span><span class="am-tl-title">第 1 次回复结束</span><span class="am-tl-text">stop_reason 为 tool_use，共 847 个输出 token</span></li><li class="am-tl-item"><span class="am-tl-when">+7.0 s</span><span class="am-tl-dot"></span><span class="am-tl-title">Write 开始执行</span><span class="am-tl-text">回复结束后才开始</span></li><li class="am-tl-item"><span class="am-tl-when">+7.3 s</span><span class="am-tl-dot"></span><span class="am-tl-title">发出第 2 次请求</span><span class="am-tl-text">带上两个 tool_result</span></li></ol>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>StreamingToolExecutor 这个名字无法核对：源码不公开。</li>
+<li>“边流边执行工具”行为属实：Glob 在回复结束前约 4.6 秒就执行完了。会话记录印证了这一点：Glob 的 tool_result 写于 06:33:15.7，同一条回复里的 Write 块到 06:33:19.9 才结束。</li>
+<li>流式调用属实：抓到的请求全部带 stream: true，响应带 stop_reason 和 usage。</li>
+<li>局限：只做了一次，只看到只读工具提前执行。Write 为什么等到回复结束才执行，从外部分不清。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>心跳必须能处理中断</h2><span class="am-panel-meta">原文 3.5</span></header>
+<div class="am-panel-body"><div class="am-md"><p>一个循环不仅要能持续运行，还要能在必要时停下来。停不下来，系统就只剩惯性。原文说，Claude Code 会优先处理 streaming abort：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 432 441" width="432" height="441" role="img" aria-label="流程图：用户中断：streaming abort、启用了 StreamingToolExecutor?、消费剩余结果，生成 synthetic tool_result、用 yieldMissingToolResultBlocks 补全中断说明、每个 tool_use 都有对应的 tool_result" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am4-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M231.7,66 L231.7,77.5 Q231.7,89 231.7,100.5 L231.7,112" marker-end="url(#am4-arrow)"/></g><g data-step="1"><path class="am-edge" d="M274.2,182 L307.9,204.6 Q341.7,227.2 341.7,247.5 L341.7,267.7" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="331" y="218.2" width="21.5" height="18" rx="3"/><text x="341.7" y="227.2" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="2"><path class="am-edge" d="M189.3,182 L155.5,204.6 Q121.7,227.2 121.7,243.2 L121.7,259.2" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="111" y="218.2" width="21.5" height="18" rx="3"/><text x="121.7" y="227.2" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="3"><path class="am-edge" d="M341.7,319.7 L341.7,335.5 Q341.7,351.2 315.9,362.7 L290.1,374.2" marker-end="url(#am4-arrow)"/></g><g data-step="4"><path class="am-edge" d="M121.7,328.2 L121.7,339.7 Q121.7,351.2 147.5,362.7 L173.4,374.2" marker-end="url(#am4-arrow)"/></g></g><g><g class="am-node am-node--round" data-key="用户中断：streaming abort" data-step="0"><rect class="am-node-shape" x="149.2" y="14" width="165.1" height="52" rx="26"/><text x="231.7" y="31.5" text-anchor="middle" dominant-baseline="central">用户中断：streaming</text><text x="231.7" y="48.5" text-anchor="middle" dominant-baseline="central">abort</text></g><g class="am-node am-node--diamond" data-key="启用了 StreamingToolExecutor?" data-step="0"><polygon class="am-node-shape" points="231.7,112 365.2,153.6 231.7,195.2 98.2,153.6"/><text x="231.7" y="145.1" text-anchor="middle" dominant-baseline="central">启用了</text><text x="231.7" y="162.1" text-anchor="middle" dominant-baseline="central">StreamingToolExecutor?</text></g><g class="am-node am-node--rect" data-key="消费剩余结果，生成 synthetic tool_result" data-step="1"><rect class="am-node-shape" x="265.5" y="267.7" width="152.5" height="52" rx="3"/><text x="341.7" y="285.2" text-anchor="middle" dominant-baseline="central">消费剩余结果，生成</text><text x="341.7" y="302.2" text-anchor="middle" dominant-baseline="central">synthetic tool_result</text></g><g class="am-node am-node--rect" data-key="用 yieldMissingToolResultBlocks 补全中断说明" data-step="2"><rect class="am-node-shape" x="14" y="259.2" width="215.5" height="69" rx="3"/><text x="121.7" y="276.7" text-anchor="middle" dominant-baseline="central">用</text><text x="121.7" y="293.7" text-anchor="middle" dominant-baseline="central">yieldMissingToolResultBlocks</text><text x="121.7" y="310.7" text-anchor="middle" dominant-baseline="central">补全中断说明</text></g><g class="am-node am-node--round am-node--hi" data-key="每个 tool_use 都有对应的 tool_result" data-step="3"><rect class="am-node-shape" x="142.8" y="374.2" width="177.8" height="52" rx="26"/><text x="231.7" y="391.7" text-anchor="middle" dominant-baseline="central">每个 tool_use 都有对应</text><text x="231.7" y="408.7" text-anchor="middle" dominant-baseline="central">的 tool_result</text></g></g></svg></figure>
+<div class="am-md"><p>（示意：按原文文字画。）</p>
+<p>背后的原则是：系统一旦对外承诺了一段执行，中断时就要把账补平。不能因为用户打断了，就假装前面的 tool_use 从未发生。外部系统、UI 和 transcript 都需要一条一致的因果链，哪怕结果是“中断了”，也要中断得完整。解释不了的执行轨迹，迟早会变成运维问题或审计问题。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>两个分支和 yieldMissingToolResultBlocks 无法核对：源码不公开。</li>
+<li>“中断时补齐 tool_result”行为属实（观察）。本机会话记录里有 6 次中断，版本是 2.1.284 到 2.1.296。每次被打断的调用都拿到一条 is_error 的 tool_result，内容是 “The user doesn&#39;t want to proceed with this tool use…”，随后是一条 “[Request interrupted by user for tool use]”。</li>
+<li>文档：按 <code>Esc</code> 后 “The running tool call is canceled”；用户中断时 Stop hook 不运行。</li>
+<li>局限：中断样本来自旧版本，没有在 2.1.312 上重做。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>心跳还必须能恢复</h2><span class="am-panel-meta">原文 3.6</span></header>
+<div class="am-panel-body"><div class="am-md"><p>中断是外部打进来的意外，恢复是系统内部预留的余量。没有恢复能力的循环，等于把幸运当成了设计。原文说，Claude Code 的恢复层层递进，不是简单重试。最典型的是下面两种。</p>
+<h3>prompt 太长（prompt-too-long）</h3>
+<p>原文说，系统先判断最后一条 assistant message 是不是被暂扣（withheld）的 prompt-too-long 错误。如果是，先让 context collapse 把积压提交出去；还不够，再做 reactive compact。恢复手段按成本和破坏性从低到高逐层尝试。下图按事实补了一段，+ 表示按事实补上：</p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 1216 165" width="1216" height="165" role="img" aria-label="流程图：prompt 太长、1 提交 context collapse 的积压、够了吗?、继续、2 reactive compact、压缩后仍太长?、3 再压一次，保留更少的近期对话" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am5-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am5-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M125.2,87 L136.7,87 Q148.2,87 159.7,87 L171.2,87" marker-end="url(#am5-arrow)"/></g><g data-step="0"><path class="am-edge" d="M340.9,87 L352.4,87 Q363.9,87 375.4,87 L386.9,87" marker-end="url(#am5-arrow)"/></g><g data-step="1"><path class="am-edge" d="M468.9,101.8 L503.9,121.5 Q538.9,141.3 595,141.3 Q651.2,141.3 704.5,141.3 Q757.8,141.3 817.7,141.3 Q877.5,141.3 937.4,141.3 Q997.2,141.3 1037.9,136.3 L1078.6,131.4" marker-end="url(#am5-arrow)"/><g class="am-edge-label"><rect x="747.1" y="132.3" width="21.5" height="18" rx="3"/><text x="757.8" y="141.3" text-anchor="middle" dominant-baseline="central">够</text></g></g><g data-step="2"><path class="am-edge" d="M477.9,76.7 L508.4,67.9 Q538.9,59 559.1,59 L579.4,59" marker-end="url(#am5-arrow)"/><g class="am-edge-label"><rect x="522.4" y="50" width="33" height="18" rx="3"/><text x="538.9" y="59" text-anchor="middle" dominant-baseline="central">不够</text></g></g><g data-step="3" data-delta="added"><path class="am-edge" d="M723.1,59 L740.4,59 Q757.8,59 775.2,59 L792.6,59" marker-end="url(#am5-arrow-added)"/></g><g data-step="4" data-delta="added"><path class="am-edge" d="M934.9,49.9 L966,44.9 Q997.2,40 1014.6,40 L1032,40" marker-end="url(#am5-arrow-added)"/><g class="am-edge-label"><rect x="986.5" y="31" width="21.5" height="18" rx="3"/><text x="997.2" y="40" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="5" data-delta="added"><path class="am-edge" d="M919.8,73.1 L958.5,85.9 Q997.2,98.8 1037.9,108.3 L1078.6,117.8" marker-end="url(#am5-arrow-added)"/><g class="am-edge-label"><rect x="986.5" y="89.8" width="21.5" height="18" rx="3"/><text x="997.2" y="98.8" text-anchor="middle" dominant-baseline="central">否</text></g></g></g><g><g class="am-node am-node--round" data-key="prompt 太长" data-step="0"><rect class="am-node-shape" x="14" y="69.5" width="111.2" height="35" rx="17.5"/><text x="69.6" y="87" text-anchor="middle" dominant-baseline="central">prompt 太长</text></g><g class="am-node am-node--rect" data-key="1 提交 context collapse 的积压" data-step="0"><rect class="am-node-shape" x="171.2" y="61" width="169.7" height="52" rx="3"/><text x="256.1" y="78.5" text-anchor="middle" dominant-baseline="central">1 提交 context collapse</text><text x="256.1" y="95.5" text-anchor="middle" dominant-baseline="central">的积压</text></g><g class="am-node am-node--diamond" data-key="够了吗?" data-step="0"><polygon class="am-node-shape" points="442.7,59 498.4,87 442.7,115 386.9,87"/><text x="442.7" y="87" text-anchor="middle" dominant-baseline="central">够了吗?</text></g><g class="am-node am-node--round" data-key="继续" data-step="1"><rect class="am-node-shape" x="1078.6" y="109.3" width="76" height="35" rx="17.5"/><text x="1116.6" y="126.8" text-anchor="middle" dominant-baseline="central">继续</text></g><g class="am-node am-node--rect" data-key="2 reactive compact" data-step="2"><rect class="am-node-shape" x="579.4" y="41.5" width="143.7" height="35" rx="3"/><text x="651.2" y="59" text-anchor="middle" dominant-baseline="central">2 reactive compact</text></g><g class="am-node am-node--diamond" data-key="压缩后仍太长?" data-step="3" data-delta="added"><polygon class="am-node-shape" points="877.5,31 962.5,59 877.5,87 792.6,59"/><text x="877.5" y="59" text-anchor="middle" dominant-baseline="central">压缩后仍太长?</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(920,45)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="3 再压一次，保留更少的近期对话" data-step="4" data-delta="added"><rect class="am-node-shape" x="1032" y="14" width="169.2" height="52" rx="3"/><text x="1116.6" y="31.5" text-anchor="middle" dominant-baseline="central">3 再压一次，保留更少的</text><text x="1116.6" y="48.5" text-anchor="middle" dominant-baseline="central">近期对话</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(1201.2,14)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+5 新增</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-md"><h3>输出超长（max-output-tokens）</h3>
+<p>原文说，系统先尝试提高 token 上限；还不行，再追加一条 meta 消息，让模型从截断处继续往下做，而不是先道歉、先总结。</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 698 151" width="698" height="151" role="img" aria-label="流程图：输出达到 max_output_tokens、token 上限已到最大?、提高上限后重跑、追加一条 meta 消息，让模型从截断处续写" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am6-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M172.3,79.8 L183.8,79.8 Q195.3,79.8 206.8,79.8 L218.3,79.8" marker-end="url(#am6-arrow)"/></g><g data-step="1"><path class="am-edge" d="M385.3,94.3 L432,106.9 Q478.7,119.5 508.8,119.5 L538.8,119.5" marker-end="url(#am6-arrow)"/><g class="am-edge-label"><rect x="468" y="110.5" width="21.5" height="18" rx="3"/><text x="478.7" y="119.5" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="2"><path class="am-edge" d="M385.3,65.2 L432,52.6 Q478.7,40 496.1,40 L513.5,40" marker-end="url(#am6-arrow)"/><g class="am-edge-label"><rect x="468" y="31" width="21.5" height="18" rx="3"/><text x="478.7" y="40" text-anchor="middle" dominant-baseline="central">是</text></g></g></g><g><g class="am-node am-node--round" data-key="输出达到 max_output_tokens" data-step="0"><rect class="am-node-shape" x="14" y="53.8" width="158.3" height="52" rx="26"/><text x="93.2" y="71.3" text-anchor="middle" dominant-baseline="central">输出达到</text><text x="93.2" y="88.3" text-anchor="middle" dominant-baseline="central">max_output_tokens</text></g><g class="am-node am-node--diamond" data-key="token 上限已到最大?" data-step="0"><polygon class="am-node-shape" points="331.1,51.8 444,79.8 331.1,107.8 218.3,79.8"/><text x="331.1" y="79.8" text-anchor="middle" dominant-baseline="central">token 上限已到最大?</text></g><g class="am-node am-node--rect" data-key="提高上限后重跑" data-step="1"><rect class="am-node-shape" x="538.8" y="102" width="119" height="35" rx="3"/><text x="598.3" y="119.5" text-anchor="middle" dominant-baseline="central">提高上限后重跑</text></g><g class="am-node am-node--rect am-node--hi" data-key="追加一条 meta 消息，让模型从截断处续写" data-step="2"><rect class="am-node-shape" x="513.5" y="14" width="169.7" height="52" rx="3"/><text x="598.3" y="31.5" text-anchor="middle" dominant-baseline="central">追加一条 meta 消息，让</text><text x="598.3" y="48.5" text-anchor="middle" dominant-baseline="central">模型从截断处续写</text></g></g></svg></figure>
+<div class="am-md"><p>（示意：按原文文字画。）</p>
+<p>原文评价：Claude Code 把恢复看成运行时主路径的一部分，而不是模型失败后的礼貌动作。恢复的意义是给系统一个继续工作的机会。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>prompt 太长：文档说，遇到 Prompt is too long 时会自动压缩，通常概括最早的对话、保留最新的；压缩失败时报 “Prompt is too long · automatic compaction failed”。CHANGELOG 2.1.284 补上了第 3 步。withheld 和 context collapse 无法核对。</li>
+<li>prompt 太长的实测（见第 6 章故障注入）：注入一次时，约 0.2 秒后自动压缩并重试，用户看不到这个错误；一直注入时，压缩两次后报 “Prompt is too long”。第 3 步属实。</li>
+<li>文档还写了一种更轻的恢复：输入加 max_tokens 超过上下文上限时，先减小 max_tokens 重试，减不下去才压缩。</li>
+<li>输出超长：续写行为属实（实测）。把上限设成 400 后，回复两次被截断，Claude Code 两次追加同一条用户消息：“Output token limit hit. Resume directly — no apology, no recap of what you were doing. Pick up mid-thought if that is where the cut happened. Break remaining work into smaller pieces.” 第三次回复正常结束。</li>
+<li>“提高上限”这一步本次没观察到。用环境变量设上限时，三次请求都是 400；默认配置下请求的 max_tokens 已是 128000（claude-haiku-5-5）。文档没写自动续写，只写了最终报错和手动回复 continue。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>停止条件不能只有一个</h2><span class="am-panel-meta">原文 3.7</span></header>
+<div class="am-panel-body"><div class="am-md"><p>问答系统有回答就结束。代理系统不行：“当前轮结束”不等于“任务完成”，更不等于“系统成功”。原文说，queryLoop() 至少区分了下面这些情况。表里最后一列是核对结果：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>事件</th>
+<th>前置状态</th>
+<th>触发</th>
+<th>下一步</th>
+<th>核对</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>流正常结束，有 tool_use</td>
+<td>有未完成的 tool_use</td>
+<td>stop reason</td>
+<td>follow-up，进入工具执行</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>实测：stop_reason 为 tool_use，执行工具后发下一次请求</span></td>
+</tr>
+<tr>
+<td>流正常结束，无 tool_use</td>
+<td>没有待处理的工具</td>
+<td>stop reason</td>
+<td>进入 stop hooks</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>实测：end_turn 后运行 Stop hook</span></td>
+</tr>
+<tr>
+<td>用户中断</td>
+<td>任意</td>
+<td>abort signal</td>
+<td>消费剩余结果，生成 synthetic tool_result</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>观察：被打断的调用都有 is_error 的 tool_result</span></td>
+</tr>
+<tr>
+<td>prompt 太长</td>
+<td>还没试过 compact</td>
+<td>可恢复错误</td>
+<td>走 collapse 或 reactive compact</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>实测：自动压缩后重试，一回合最多两次；collapse 无法核对</span></td>
+</tr>
+<tr>
+<td>输出超长</td>
+<td>上限未到最大</td>
+<td>stop reason</td>
+<td>提高上限后重跑</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>本次未观察到</span></td>
+</tr>
+<tr>
+<td>输出超长</td>
+<td>上限已到最大</td>
+<td>stop reason</td>
+<td>追加 meta 消息，续写</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>实测：两次续写后正常结束</span></td>
+</tr>
+<tr>
+<td>stop hook 阻塞，且 prompt 又太长</td>
+<td>已试过 reactive compact</td>
+<td>两次失败</td>
+<td>跳过 stop hooks，报告错误</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>实测：压缩两次后报错，跑 StopFailure，Stop 不再运行</span></td>
+</tr>
+<tr>
+<td>API 错误</td>
+<td>—</td>
+<td>api_error</td>
+<td>直接返回，不重试</td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>与现状不符：实测 529 重试 10 次后才报错</span></td>
+</tr>
+</tbody></table></div>
+<h3>防止死循环</h3>
+<p>原文说，stop hooks 这段代码专门防了一种死循环：compact 后仍然太长，再被 hook 阻塞，再继续 compact。</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 874 109" width="874" height="109" role="img" aria-label="流程图：reactive compact、仍然太长、stop hook 阻塞、跳过 stop hooks，报告错误" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am7-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M137.6,67.8 L153.6,72.6 Q169.5,77.5 192.8,77.5 L216,77.5" marker-end="url(#am7-arrow)"/></g><g data-step="0"><path class="am-edge" d="M296,77.5 L319.3,77.5 Q342.5,77.5 357.1,72.6 L371.7,67.8" marker-end="url(#am7-arrow)"/></g><g data-step="1"><path class="am-edge am-edge--dashed" d="M371.7,32.8 L357.1,27.9 Q342.5,23 299.3,23 Q256,23 212.8,23 Q169.5,23 153.6,27.9 L137.6,32.8" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="193.5" y="14" width="125" height="18" rx="3"/><text x="256" y="23" text-anchor="middle" dominant-baseline="central">不加保护就会回到这里</text></g></g><g data-step="2"><path class="am-edge" d="M482.4,50.3 L529.5,50.3 Q576.6,50.3 623.7,50.3 L670.9,50.3" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="506.4" y="41.3" width="140.4" height="18" rx="3"/><text x="576.6" y="50.3" text-anchor="middle" dominant-baseline="central">已试过 reactive compact</text></g></g></g><g><g class="am-node am-node--rect" data-key="reactive compact" data-step="0"><rect class="am-node-shape" x="14" y="32.8" width="132.5" height="35" rx="3"/><text x="80.3" y="50.3" text-anchor="middle" dominant-baseline="central">reactive compact</text></g><g class="am-node am-node--rect" data-key="仍然太长" data-step="0"><rect class="am-node-shape" x="216" y="60" width="80" height="35" rx="3"/><text x="256" y="77.5" text-anchor="middle" dominant-baseline="central">仍然太长</text></g><g class="am-node am-node--rect" data-key="stop hook 阻塞" data-step="0"><rect class="am-node-shape" x="365.5" y="32.8" width="116.9" height="35" rx="3"/><text x="424" y="50.3" text-anchor="middle" dominant-baseline="central">stop hook 阻塞</text></g><g class="am-node am-node--round am-node--hi" data-key="跳过 stop hooks，报告错误" data-step="2"><rect class="am-node-shape" x="670.9" y="24.3" width="188.2" height="52" rx="26"/><text x="765" y="41.8" text-anchor="middle" dominant-baseline="central">跳过 stop hooks，报告错</text><text x="765" y="58.8" text-anchor="middle" dominant-baseline="central">误</text></g></g></svg></figure>
+<div class="am-md"><p>（示意：按原文文字画。）</p>
+<p>许多系统的想法是“失败了就重试”。Claude Code 则承认重试本身也要被管理：为什么重试、已经试过什么、哪些保护状态不能重置、哪些情况会无限循环。这些判断区分了“会继续试”的系统和“知道什么时候不该再试”的系统。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>API 错误：文档说，Claude Code 对瞬时失败（服务器错误、过载、超时、临时 429、断线）“retries … up to 10 times with exponential backoff before showing you an error”。回复中途失败时，它保留已完成的部分，执行已完成的工具调用，然后继续这一轮。API 错误时触发 StopFailure hook，不运行 Stop hook。实测（第 6 章）：让每次请求都返回 529，Claude Code 共发了 11 次请求，间隔从约 0.6 秒逐次翻倍，最后报错并触发 StopFailure。重试在哪一层做无法核对，所以“queryLoop 本身不重试”可能仍然成立；但从行为上看，Claude Code 不是“直接返回，不重试”。</li>
+<li>Stop hook 阻塞后再来一轮：属实（实测）。hook 返回 block 后，下一次请求多了一条 “Stop hook feedback: …” 用户消息。</li>
+<li>防死循环属实（实测，见第 6 章）。先让 Stop hook 阻塞一次，再让每次请求都返回 prompt too long：Claude Code 压缩两次后报错，跑 StopFailure，Stop hook 没有再运行，没有出现循环。文档还写了另外两种防循环保护：Stop hook 连续续跑 8 次后，Claude Code 不再接受阻塞；自动压缩连续无效时，Claude Code 停止并报错。原文“重试也要被管理”的论点有这些依据支撑。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>QueryEngine：循环属于会话生命周期</h2><span class="am-panel-meta">原文 3.8</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，QueryEngine 的源码注释直接写明了它的职责：</p>
+<blockquote>
+<p>QueryEngine owns the query lifecycle and session state for a conversation.</p>
+</blockquote>
+<p>也就是说，它管理的是一整个对话的生命周期，而不是某一次调用。一个 QueryEngine 对应一个对话；每次调用 submitMessage()，都是在同一个对话里开始新的一轮，状态持续保存。QueryEngine 把准备好的 messages、systemPrompt、userContext、systemContext、toolUseContext 一起交给 query()，再把 assistant、user、compact boundary 等消息写回 transcript。</p>
+<p>原文由此认为，query loop 是会话系统真正的执行中心，UI、SDK 和 session persistence 都围着它转。要理解 Claude Code，不能只看它有哪些工具、prompt 写了什么，最终要看这个循环怎样把各种约束落实成连续的行为。</p>
+<h3>原文的图：一轮的外壳</h3>
+<p>原文放了两张图。第一张标题是 “QueryEngine Turn - SDK Shell Wrapping The Inner Loop”，意思是 QueryEngine 不亲自跑这一轮，而是包住一次内层循环，负责循环外的一切。下图按事实重画，+ 表示按事实补上，~ 表示改过的节点：</p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 325 717" width="325" height="717" role="img" aria-label="流程图：接收 submitMessage、规整文本和附件、组装本轮上下文 · system、user、tool、内层 query loop、消费流事件，交给 SDK、持久化 transcript 和回放标记、更新会话状态 · mutableMessages 等、本轮结束" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am8-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am8-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M147.2,49 L147.2,60.5 Q147.2,72 147.2,83.5 L147.2,95" marker-end="url(#am8-arrow)"/></g><g data-step="1"><path class="am-edge" d="M147.2,130 L147.2,141.5 Q147.2,153 147.2,164.5 L147.2,176" marker-end="url(#am8-arrow)"/></g><g data-step="2"><path class="am-edge" d="M147.2,228 L147.2,244 Q147.2,260 147.2,276 L147.2,292" marker-end="url(#am8-arrow)"/><g class="am-edge-label"><rect x="114.2" y="251" width="65.9" height="18" rx="3"/><text x="147.2" y="260" text-anchor="middle" dominant-baseline="central">调用 query</text></g></g><g data-step="3"><path class="am-edge" d="M175.9,327 L202.1,343 Q228.4,359 228.4,375 L228.4,391" marker-end="url(#am8-arrow)"/><g class="am-edge-label"><rect x="200.4" y="350" width="56" height="18" rx="3"/><text x="228.4" y="359" text-anchor="middle" dominant-baseline="central">流式事件</text></g></g><g data-step="4"><path class="am-edge" d="M228.4,426 L228.4,437.5 Q228.4,449 209.3,460.5 L190.3,472" marker-end="url(#am8-arrow)"/></g><g data-step="5"><path class="am-edge" d="M147.2,524 L147.2,535.5 Q147.2,547 147.2,558.5 L147.2,570" marker-end="url(#am8-arrow)"/></g><g data-step="6"><path class="am-edge" d="M147.2,622 L147.2,633.5 Q147.2,645 147.2,656.5 L147.2,668" marker-end="url(#am8-arrow)"/></g><g data-step="7" data-delta="added"><path class="am-edge am-edge--dashed" d="M118.5,327 L92.2,343 Q66,359 66,383.8 Q66,408.5 66,428.8 Q66,449 85.1,460.5 L104.1,472" marker-end="url(#am8-arrow-added)"/><g class="am-edge-label"><rect x="15" y="399.5" width="102" height="18" rx="3"/><text x="66" y="408.5" text-anchor="middle" dominant-baseline="central">运行中就逐条写入</text></g></g></g><g><g class="am-node am-node--round" data-key="接收 submitMessage" data-step="0"><rect class="am-node-shape" x="64.1" y="14" width="166.1" height="35" rx="17.5"/><text x="147.2" y="31.5" text-anchor="middle" dominant-baseline="central">接收 submitMessage</text></g><g class="am-node am-node--rect" data-key="规整文本和附件" data-step="0"><rect class="am-node-shape" x="87.7" y="95" width="119" height="35" rx="3"/><text x="147.2" y="112.5" text-anchor="middle" dominant-baseline="central">规整文本和附件</text></g><g class="am-node am-node--rect" data-key="组装本轮上下文 · system、user、tool" data-step="1"><rect class="am-node-shape" x="73.5" y="176" width="147.3" height="52" rx="3"/><text x="147.2" y="193.5" text-anchor="middle" dominant-baseline="central">组装本轮上下文 ·</text><text x="147.2" y="210.5" text-anchor="middle" dominant-baseline="central">system、user、tool</text></g><g class="am-node am-node--rect" data-key="内层 query loop" data-step="2"><rect class="am-node-shape" x="86.7" y="292" width="121.1" height="35" rx="3"/><text x="147.2" y="309.5" text-anchor="middle" dominant-baseline="central">内层 query loop</text></g><g class="am-node am-node--rect" data-key="消费流事件，交给 SDK" data-step="3"><rect class="am-node-shape" x="146" y="391" width="164.8" height="35" rx="3"/><text x="228.4" y="408.5" text-anchor="middle" dominant-baseline="central">消费流事件，交给 SDK</text></g><g class="am-node am-node--rect" data-key="持久化 transcript 和回放标记" data-step="4" data-delta="changed"><rect class="am-node-shape" x="61.7" y="472" width="171" height="52" rx="3"/><text x="147.2" y="489.5" text-anchor="middle" dominant-baseline="central">持久化 transcript 和回放</text><text x="147.2" y="506.5" text-anchor="middle" dominant-baseline="central">标记</text><g class="am-delta-badge am-delta-badge--changed" data-delta="changed" transform="translate(232.7,472)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">~</text></g></g><g class="am-node am-node--rect" data-key="更新会话状态 · mutableMessages 等" data-step="5"><rect class="am-node-shape" x="69.4" y="570" width="155.7" height="52" rx="3"/><text x="147.2" y="587.5" text-anchor="middle" dominant-baseline="central">更新会话状态 ·</text><text x="147.2" y="604.5" text-anchor="middle" dominant-baseline="central">mutableMessages 等</text></g><g class="am-node am-node--round" data-key="本轮结束" data-step="6"><rect class="am-node-shape" x="101.2" y="668" width="92" height="35" rx="17.5"/><text x="147.2" y="685.5" text-anchor="middle" dominant-baseline="central">本轮结束</text></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+1 新增</span> <span class="am-delta-count am-delta-count--changed">~1 修改</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-md"><h3>原文的图：轮与轮之间留下什么</h3>
+<p>第二张图标题是 “QueryEngine State Carry-Over - What Survives Between Turns”。图的意思是：每一轮都读写同一个会话外壳，连续性在外壳里，不在某一次内层循环里。下图按事实重画，+ 表示按事实补上：</p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 1005 237" width="1005" height="237" role="img" aria-label="流程图：开始、第 N 轮 · 内层循环、第 N+1 轮 · 内层循环、第 N+2 轮 · 内层循环、结束、会话外壳、会话记录 JSONL" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am9-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am9-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M92,205.5 L144.2,205.5 Q196.5,205.5 247.7,201.2 L299,196.8" marker-end="url(#am9-arrow)"/></g><g data-step="0"><path class="am-edge" d="M436.7,191 L456.9,191 Q477.2,191 498.1,186.1 L518.9,181.3" marker-end="url(#am9-arrow)"/></g><g data-step="0"><path class="am-edge" d="M670,163.8 L681.5,163.8 Q693,163.8 704.5,161.1 L716,158.5" marker-end="url(#am9-arrow)"/></g><g data-step="0"><path class="am-edge" d="M868.3,141 L879.8,141 Q891.3,141 902.8,141 L914.3,141" marker-end="url(#am9-arrow)"/></g><g data-step="1"><path class="am-edge am-edge--dashed" d="M92.7,123 L144.6,146.5 Q196.5,170 247.7,176.3 L299,182.6" marker-end="url(#am9-arrow)"/><g class="am-edge-label"><rect x="180" y="161" width="33" height="18" rx="3"/><text x="196.5" y="170" text-anchor="middle" dominant-baseline="central">读写</text></g></g><g data-step="2"><path class="am-edge am-edge--dashed" d="M94,111.9 L145.2,120.1 Q196.5,128.3 282.2,128.3 Q367.8,128.3 422.5,128.3 Q477.2,128.3 506.8,137.3 L536.3,146.3" marker-end="url(#am9-arrow)"/><g class="am-edge-label"><rect x="351.3" y="119.3" width="33" height="18" rx="3"/><text x="367.8" y="128.3" text-anchor="middle" dominant-baseline="central">读写</text></g></g><g data-step="3"><path class="am-edge am-edge--dashed" d="M94,101.4 L145.2,96.2 Q196.5,91 282.2,91 Q367.8,91 422.5,91 Q477.2,91 535.5,91 Q593.8,91 643.4,91 Q693,91 725.2,107.3 L757.4,123.5" marker-end="url(#am9-arrow)"/><g class="am-edge-label"><rect x="460.7" y="82" width="33" height="18" rx="3"/><text x="477.2" y="91" text-anchor="middle" dominant-baseline="central">读写</text></g></g><g data-step="4" data-delta="added"><path class="am-edge am-edge--dashed" d="M91.2,88 L143.9,63.3 Q196.5,38.5 249.5,38.5 L302.6,38.5" marker-end="url(#am9-arrow-added)"/><g class="am-edge-label"><rect x="118" y="29.5" width="157" height="18" rx="3"/><text x="196.5" y="38.5" text-anchor="middle" dominant-baseline="central">逐条写入，可按会话 ID 恢复</text></g></g></g><g><g class="am-node am-node--round" data-key="开始" data-step="0"><rect class="am-node-shape" x="16" y="188" width="76" height="35" rx="17.5"/><text x="54" y="205.5" text-anchor="middle" dominant-baseline="central">开始</text></g><g class="am-node am-node--rect" data-key="第 N 轮 · 内层循环" data-step="0"><rect class="am-node-shape" x="299" y="173.5" width="137.7" height="35" rx="3"/><text x="367.8" y="191" text-anchor="middle" dominant-baseline="central">第 N 轮 · 内层循环</text></g><g class="am-node am-node--rect" data-key="第 N+1 轮 · 内层循环" data-step="0"><rect class="am-node-shape" x="517.7" y="146.3" width="152.3" height="35" rx="3"/><text x="593.8" y="163.8" text-anchor="middle" dominant-baseline="central">第 N+1 轮 · 内层循环</text></g><g class="am-node am-node--rect" data-key="第 N+2 轮 · 内层循环" data-step="0"><rect class="am-node-shape" x="716" y="123.5" width="152.3" height="35" rx="3"/><text x="792.1" y="141" text-anchor="middle" dominant-baseline="central">第 N+2 轮 · 内层循环</text></g><g class="am-node am-node--round" data-key="结束" data-step="0"><rect class="am-node-shape" x="914.3" y="123.5" width="76" height="35" rx="17.5"/><text x="952.3" y="141" text-anchor="middle" dominant-baseline="central">结束</text></g><g class="am-node am-node--rect" data-key="会话外壳" data-step="1"><rect class="am-node-shape" x="14" y="88" width="80" height="35" rx="3"/><text x="54" y="105.5" text-anchor="middle" dominant-baseline="central">会话外壳</text></g><g class="am-node am-node--db" data-key="会话记录 JSONL" data-step="4" data-delta="added"><path class="am-node-shape" d="M302.6,21 A65.2,7 0 0 1 433.1,21 V56 A65.2,7 0 0 1 302.6,56 Z"/><path class="am-node-shape" d="M302.6,21 A65.2,7 0 0 0 433.1,21"/><text x="367.8" y="42.5" text-anchor="middle" dominant-baseline="central">会话记录 JSONL</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(433.1,14)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+2 新增</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-md"><p>原图列出了会话外壳里的六项，逐项核对如下：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>原图里的项</th>
+<th>核对</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>mutableMessages（消息历史）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测：用 --resume 在新进程里继续会话，请求带着之前的全部消息</td>
+</tr>
+<tr>
+<td>readFileState 缓存</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>观察：Write 的结果写着 “file state is current in your context”；本会话的 Edit 工具要求先在本对话里 Read 过文件</td>
+</tr>
+<tr>
+<td>abortController</td>
+<td>无法核对</td>
+<td>源码不公开</td>
+</tr>
+<tr>
+<td>权限拒绝记录</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>实测：-p 的结果里有 permission_denials 字段</td>
+</tr>
+<tr>
+<td>用量统计</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>实测：-p 的结果里有 usage、total_cost_usd、modelUsage</td>
+</tr>
+<tr>
+<td>memory、skill 索引</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>观察：会话记录里有 skill_listing 附件，记录注入了哪些技能。memory 部分无法核对</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>QueryEngine、submitMessage 和注释原话无法核对：源码不公开。</li>
+<li>原图把持久化画在消费完流事件之后。文档说 Claude Code “saves your conversation locally as you work”，transcript “is written asynchronously”。也就是说，会话记录在运行中就逐条写入，不是等内层循环结束才写。</li>
+<li>原文说连续性在会话外壳里。还要补一点：会话记录写在 <code>~/.claude/projects/</code> 下的 JSONL 文件里，<code>--resume</code> 能在新进程里接上同一个会话（文档、实测）。连续性不只在内存里。</li>
+<li>组装上下文（观察）：请求把上下文放在三处。一是 system 字段，二是第一条用户消息里的 <code>&lt;system-reminder&gt;</code>（CLAUDE.md 等），三是一条 system 角色消息里的环境信息。</li>
+<li>“UI 和 SDK 都围着这个循环转”有依据。文档说，不同界面只决定你怎样和 Claude 交互，“the underlying agentic loop is identical”。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-I">
+<header class="am-panel-head"><span class="am-panel-id">I</span><h2>从源码提炼的第三个原则</h2><span class="am-panel-meta">原文 3.9</span></header>
+<div class="am-panel-body"><div class="am-callout am-callout--ok" role="note"><div class="am-callout-title">第三个原则</div><div class="am-callout-body am-md"><p>代理系统的核心能力，是维持可恢复的执行循环。</p>
+</div></div>
+<div class="am-md"><p>原文说，一个成熟 agent 的“心跳”，至少要同时管住下面五件事。原文的证据来自源码；核对后的证据如下：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>要管的事</th>
+<th>原文的证据</th>
+<th>核对后的证据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>跨轮状态</td>
+<td>B：State 对象与三条不变式</td>
+<td>字段无法核对。stop_hook_active 跨迭代保存（文档、实测）；会话写入 JSONL，能 --resume（文档、实测）</td>
+</tr>
+<tr>
+<td>输入治理</td>
+<td>C：模型调用前的 8 步治理</td>
+<td>压缩边界截取、工具结果上限、自动压缩有依据；顺序和其余步骤无法核对</td>
+</tr>
+<tr>
+<td>流式消费</td>
+<td>D：流式消费与 StreamingToolExecutor</td>
+<td>请求全部流式；只读工具在回复结束前就执行完（实测）</td>
+</tr>
+<tr>
+<td>中断账本</td>
+<td>E：synthetic tool_result</td>
+<td>被打断的调用都有 is_error 的 tool_result（观察）</td>
+</tr>
+<tr>
+<td>区分完成、失败、恢复、继续</td>
+<td>F：逐层恢复；G：停止条件矩阵</td>
+<td>截断续写、Stop hook 再来一轮（实测）；prompt 太长时自动压缩（文档、实测）；API 错误先重试再报错（实测），与原文“不重试”不符</td>
+</tr>
+</tbody></table></div>
+<p>原文提炼的工程原则：缺少这些结构，系统也能做漂亮的 demo，但更接近一次性表演，而不是运行时。核对后，五件事都有行为层的依据，论点成立。修正的两处是 API 错误重试和压缩次数。它们不影响“循环要可恢复”这个结论，反而说明 Claude Code 比原文写的多一层恢复。</p>
+<p>本章解释了循环为什么存在。下一章讨论这颗心跳最直接接触外部世界的地方：工具、权限与中断。它要说明，循环一旦拥有工具，为什么必须学会克制。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-J">
+<header class="am-panel-head"><span class="am-panel-id">J</span><h2>附录：事实核对</h2><span class="am-panel-meta">本页补充</span></header>
+<div class="am-panel-body"><div class="am-md"><h3>逐条核对</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>原文的说法</th>
+<th>核对</th>
+<th>实际情况和依据</th>
+<th>正文</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>query()</code> 是壳，<code>queryLoop()</code> 是核心（原文：<code>src/query.ts</code>）</td>
+<td>无法核对</td>
+<td>源码不公开；文档没有这两个名字</td>
+<td>A</td>
+</tr>
+<tr>
+<td>2</td>
+<td>循环：治理输入 → 流式调用 → 工具、恢复、压缩 → 继续或终止</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>文档 <a href="https://code.claude.com/docs/en/how-claude-code-works">how-claude-code-works</a>：“gather context, take action, and verify results”，“You can interrupt at any point”。实测 1：一条提示产生 3 次请求</td>
+<td>A</td>
+</tr>
+<tr>
+<td>3</td>
+<td>原图 1：循环状态、调用前治理、模型流、工具执行、决定下一步、结束本轮</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>需要补充</span></td>
+<td>节点名无法核对。实测 1：回答结束后先运行 Stop hook，阻塞时再来一轮，原图没有画</td>
+<td>A</td>
+</tr>
+<tr>
+<td>4</td>
+<td>9 项可变状态，启动时装配成 State，在 continue 分支整体更新</td>
+<td>无法核对</td>
+<td>源码不公开。相关行为：<a href="https://code.claude.com/docs/en/hooks">hooks</a> 的 Stop 输入有 <code>stop_hook_active</code>；实测 1 中第二次 Stop 调用为 true</td>
+<td>B</td>
+</tr>
+<tr>
+<td>5</td>
+<td>不变式：turnCount 单调</td>
+<td>无法核对</td>
+<td>源码不公开</td>
+<td>B</td>
+</tr>
+<tr>
+<td>6</td>
+<td>不变式：每个 tool_use 都有 tool_result</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>观察：本机 104 个会话记录共 8490 次工具调用，只有 2 次没有结果。这 2 次都是文件里最后一次调用，其中一次是核对时正在执行的调用。<a href="https://code.claude.com/docs/en/errors">errors</a>：tool_use、tool_result 的顺序 “no longer matches what the API expects” 时 API 报 400</td>
+<td>B、E</td>
+</tr>
+<tr>
+<td>7</td>
+<td>不变式：试过 reactive compact 后不再压缩</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>与现状不完全相符</span></td>
+<td>旁证：CHANGELOG 2.1.284 “when the compacted request is still too long, Claude Code now compacts once more”。<a href="https://code.claude.com/docs/en/troubleshooting">troubleshooting</a>：连续几次压缩后上下文立刻又满，Claude Code “stops retrying”</td>
+<td>B、F</td>
+</tr>
+<tr>
+<td>8</td>
+<td>治理的八步顺序</td>
+<td>无法核对</td>
+<td>源码不公开，从外部看不到先后</td>
+<td>C</td>
+</tr>
+<tr>
+<td>9</td>
+<td>预取 memory</td>
+<td>无法核对</td>
+<td>文档：“The first 200 lines or 25KB of MEMORY.md … load at the start of each session”，没有按相关性预取的说法；本机会话记录里没有这类附件</td>
+<td>C</td>
+</tr>
+<tr>
+<td>10</td>
+<td>预取 skill discovery</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>观察：会话记录里有 115 条 skill_listing 附件，在请求前注入。<a href="https://code.claude.com/docs/en/context-window">context-window</a>：会话开始时载入技能描述</td>
+<td>C</td>
+</tr>
+<tr>
+<td>11</td>
+<td>截取 compact boundary 之后的消息</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测 3：/compact 后，下一次请求以 “This session is being continued from a previous conversation…” 开头，旧的工具调用不再发送；会话记录保留旧消息，写入 compact_boundary（trigger 为 manual，preTokens 26851，postTokens 3569）</td>
+<td>C</td>
+</tr>
+<tr>
+<td>12</td>
+<td>应用 tool result budget</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td><a href="https://code.claude.com/docs/en/tools-reference">tools-reference</a>：Bash 结果超过约 30,000 字符时，给出存到会话目录的文件路径和前 2,000 字符预览。是否在调用模型前统一处理，无法核对</td>
+<td>C</td>
+</tr>
+<tr>
+<td>13</td>
+<td>history snip、microcompact、context collapse</td>
+<td>无法核对</td>
+<td>文档和 CHANGELOG 都查不到（collapse 只出现在界面折叠等无关条目）。实测请求的 context_management 只有一条 thinking 设置（clear_thinking，keep 为 all）</td>
+<td>C</td>
+</tr>
+<tr>
+<td>14</td>
+<td>autocompact</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>context-window：“compacts automatically as you approach the limit”；<a href="https://code.claude.com/docs/en/model-config">model-config</a>：1M 窗口的模型默认在约 967K token 时压缩</td>
+<td>C</td>
+</tr>
+<tr>
+<td>15</td>
+<td>用 <code>for await</code> 流式消费，事件有文本、tool_use、usage、stop reason、错误</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测：抓到的 12 次请求全部带 stream: true；响应带 stop_reason 和 usage</td>
+<td>D</td>
+</tr>
+<tr>
+<td>16</td>
+<td>边流边把工具送给 StreamingToolExecutor</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>实测 1：Glob 的 PreToolUse 比第 1 次回复结束早约 4.6 秒；会话记录里 Glob 的 tool_result（06:33:15.7）早于同一回复的 Write 块（06:33:19.9）。只做了一次</td>
+<td>D</td>
+</tr>
+<tr>
+<td>17</td>
+<td>中断时消费剩余结果、生成 synthetic tool_result，或用 yieldMissingToolResultBlocks 补全</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>观察：本机 6 次中断（2.1.284–2.1.296），被打断的调用都拿到 is_error 的 tool_result，随后一条 “[Request interrupted by user for tool use]”。how-claude-code-works：按 Esc 后 “The running tool call is canceled”。两个分支无法核对</td>
+<td>E</td>
+</tr>
+<tr>
+<td>18</td>
+<td>prompt 太长：先判断 withheld，再提交 collapse 积压，再 reactive compact</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>errors：自动压缩 “normally summarizes your oldest exchanges and keeps the newest”，失败时报 “Prompt is too long · automatic compaction failed”；输入加 max_tokens 超上限时先减小 max_tokens 重试。实测 4：注入一次时自动压缩后重试成功，用户看不到错误；一直注入时压缩两次后报错。withheld、collapse 无法核对</td>
+<td>F、G</td>
+</tr>
+<tr>
+<td>19</td>
+<td>输出超长：先提高上限后重跑</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>本次未观察到</span></td>
+<td>实测 2：用 <code>CLAUDE_CODE_MAX_OUTPUT_TOKENS</code> 设 400 时，三次请求都是 400。默认配置下请求的 max_tokens 已是 128000（claude-haiku-5-5）；默认配置下是否提高，需要超长输出才能测</td>
+<td>F、G</td>
+</tr>
+<tr>
+<td>20</td>
+<td>输出超长：追加 meta user 消息续写</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测 2：两次截断，每次追加 “Output token limit hit. Resume directly — no apology, no recap…”，第三次正常结束。文档没写自动续写，只写最终报错 “Claude&#39;s response exceeded the … output token maximum” 和手动回复 continue</td>
+<td>F、G</td>
+</tr>
+<tr>
+<td>21</td>
+<td>无 tool_use 时进入 stop hooks；hook 阻塞时重进循环</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测 1：Stop hook 返回 block 后，下一次请求多了 “Stop hook feedback: …”。hooks：连续续跑 8 次后不再接受阻塞（<code>CLAUDE_CODE_STOP_HOOK_BLOCK_CAP</code>）</td>
+<td>A、G</td>
+</tr>
+<tr>
+<td>22</td>
+<td>stop hook 阻塞且 prompt 又太长、已试过 reactive compact 时，跳过 stop hooks 并报错</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>实测 4：Stop hook 先阻塞一次，之后每次请求都返回 prompt too long；压缩两次后报错，跑 StopFailure，Stop 没有再运行。hooks：“API errors fire StopFailure instead”。另有文档保护：Stop hook 8 次上限；自动压缩 thrashing 时停止</td>
+<td>G</td>
+</tr>
+<tr>
+<td>23</td>
+<td>API 错误直接返回，不重试</td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>与现状不符</span></td>
+<td>errors：“Claude Code retries transient failures up to 10 times with exponential backoff before showing you an error”；回复中途失败时 “keeps what Claude completed, runs any tool calls Claude finished, and continues the turn”。hooks：API 错误触发 StopFailure。实测 4：每次都返回 529 时共 11 次请求，间隔从约 0.6 秒逐次翻倍，最后报错并触发 StopFailure；只失败 3 次时第 4 次成功。重试在哪一层做无法核对</td>
+<td>G</td>
+</tr>
+<tr>
+<td>24</td>
+<td>QueryEngine 注释 “owns the query lifecycle and session state for a conversation”；一个 QueryEngine 对应一个对话，submitMessage 开启新一轮</td>
+<td>无法核对</td>
+<td>源码不公开</td>
+<td>H</td>
+</tr>
+<tr>
+<td>25</td>
+<td>QueryEngine 把 messages、systemPrompt、userContext、systemContext、toolUseContext 交给 query()，并把消息写回 transcript</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>观察：请求把上下文放在三处：system 字段、第一条用户消息里的 <code>&lt;system-reminder&gt;</code>、一条 system 角色消息。how-claude-code-works：“Each message, tool use, and result is written to a plaintext JSONL file under ~/.claude/projects/”</td>
+<td>H</td>
+</tr>
+<tr>
+<td>26</td>
+<td>原图 2：消费完流事件后才持久化 transcript</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>需要修正</span></td>
+<td>how-claude-code-works：“saves your conversation locally as you work”；hooks：transcript “is written asynchronously”</td>
+<td>H</td>
+</tr>
+<tr>
+<td>27</td>
+<td>原图 3：会话外壳的六项，连续性在外壳里</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>逐项结果见 H 节表格。另：会话写入 JSONL，--resume 能在新进程里接上（实测 3）</td>
+<td>H</td>
+</tr>
+<tr>
+<td>28</td>
+<td>UI、SDK、session persistence 都围着 query loop 转</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>基本成立</span></td>
+<td>how-claude-code-works：“the underlying agentic loop is identical”。观察：-p 模式请求的 query_source 为 sdk，压缩请求为 compact</td>
+<td>H</td>
+</tr>
+</tbody></table></div>
+<h3>核对范围与局限</h3>
+<ul>
+<li><strong>依据版本</strong>：本机 Claude Code 2.1.312（<code>claude --version</code>）；官方文档 2026-10-29 查阅；CHANGELOG 最新条目 2.1.312。</li>
+<li><strong>实测做法</strong>：在新建的空临时目录里用 <code>claude -p</code> 运行，模型 claude-haiku-5-5，请求经本机配置的 LLM 网关（<code>ANTHROPIC_BASE_URL</code>）。用 <code>OTEL_LOG_RAW_API_BODIES=file:&lt;目录&gt;</code> 抓完整请求和响应，用项目级 hook 记录时间戳。<ul>
+<li>实验 1：让模型在同一条回复里调用 Glob 和 Write，配一个只阻塞一次的 Stop hook。</li>
+<li>实验 2：用 <code>CLAUDE_CODE_MAX_OUTPUT_TOKENS=400</code> 让模型写约 1500 字的散文。</li>
+<li>实验 3：对实验 1 的会话执行 <code>/compact</code>，再用 <code>--resume</code> 提问。</li>
+<li>实验 4（2026-10-30，与第 6 章共用）：写一个本地代理转发请求，只对实验进程把 <code>ANTHROPIC_BASE_URL</code> 指向它。代理把指定请求换成 400 prompt too long 或 529 overloaded。做法和全部结果见第 6 章附录。</li>
+</ul>
+</li>
+<li><strong>观察</strong>：本机 <code>~/.claude/projects/</code> 下 104 个会话记录（含本次实测生成的）。中断样本来自 2.1.284–2.1.296，没有在 2.1.312 上重做。</li>
+<li><strong>局限</strong>：结果只代表这个版本、这个模型和这个网关下的表现，不能证明原文说的内部结构。没观察到某个行为不等于没有，功能可能分批上线或按账号开关。时间点用 hook 和文件写入时间测量，有百毫秒级误差；“边流边执行”只做了一次。</li>
+<li><strong>没核对的部分</strong>：默认配置下“提高输出上限”这一步没测；memory 预取、snip、microcompact、context collapse 和所有函数名、字段名无法核对。</li>
+<li><strong>原文的图</strong>：原文有三张图，都已按事实重画，图上说法见第 3、26、27 条。三张图是 <a href="https://harness-books.agentway.dev/book1-claude-code/diagrams/diag-ch03-01-query-loop-core.png">一次迭代的结构</a>、<a href="https://harness-books.agentway.dev/book1-claude-code/diagrams/diag-ch03-02-queryengine-turn-flow.png">一轮的外壳</a> 和 <a href="https://harness-books.agentway.dev/book1-claude-code/diagrams/diag-ch03-03-queryengine-state-carryover.png">轮与轮之间留下什么</a>。</li>
+<li><strong>观点</strong>：“把幸运当成了设计”“一次性表演”“驱动-调度-反馈”等是原文的观点，不核对。</li>
+</ul>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="图表查看" data-expand="展开查看图表">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="关闭" aria-label="关闭">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.4.14 · 2026-10-30 10:11</footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+title: Query Loop：代理系统的心跳（核对试点版）
+subtitle: 《Harness Engineering：Claude Code 设计指南》第 3 章解读，已按官方文档、本机观察和实测核对
+source: https://harness-books.agentway.dev/book1-claude-code/chapter-03-query-loop-heartbeat.html
+---
+原文：[第 3 章 Query Loop：代理系统的心跳](https://harness-books.agentway.dev/book1-claude-code/chapter-03-query-loop-heartbeat.html)
+
+一句话结论：原文认为，代理系统的核心能力是维持可恢复的执行循环，在 Claude Code 里就是 queryLoop()。
+
+核对后，论点成立。流式调用、提前执行工具、中断补齐 tool_result 都有观察或实测依据。截断后自动续写、Stop hook 阻塞后再来一轮，也在 v2.1.312 上实测到了。prompt 太长时先压缩、救不回来才报错，API 错误先重试；这两点用第 6 章的故障注入实测到了。函数名、状态字段和治理步骤的顺序无法核对。
+
+有两处与现状不符：停止条件矩阵说“API 错误直接返回，不重试”，实际上 Claude Code 会先自动重试瞬时错误；不变式说“试过 reactive compact 后不再压缩”，现在压缩后仍太长会再压一次。
+
+核对依据：Claude Code 官方文档 code.claude.com/docs（2026-10-29 查阅；故障注入实测做于 2026-10-30）；anthropics/claude-code 仓库的 CHANGELOG（最新条目 2.1.312）；本机 Claude Code 2.1.312 的实测和本机会话记录。依据分四种标签：文档、观察、实测（v2.1.312）、旁证（CHANGELOG）。逐条结果见附录。
+
+```callout info 试点说明
+本页是第 3 章的核对试点版，原页面保留不动。与原页面相比，本页多了三样东西：重画原文三张图、每节加“事实核对”、最后加附录。实现层的说法（函数名、状态字段）标“无法核对”；行为层的说法先用观察和实测核对。
+```
+
+## A 一个代理系统是否成熟，先看它有没有循环 {meta=&quot;原文 3.1&quot;}
+
+把会写代码的模型当成加强版问答接口，是最常见的错误。系统一旦开始调用工具、跨轮执行、处理中断、保存状态、压缩上下文，“一问一答”就失效了。原文说，Claude Code 从结构上承认：代理依赖一段持续的、有状态的执行过程。
+
+原文的依据是源码：`query()` 只是一层壳，核心是 `queryLoop()`。它维护一套跨迭代的状态，先做调用前的治理，再进入流式阶段。模型返回后，它再决定执行工具、恢复、压缩、继续下一轮，还是终止。
+
+原文用 lifecycle（生命周期）概括这一点。一个系统能否称为 agent，不在于它会不会说，而在于几轮之后它还知不知道自己在做什么。
+
+### 原文的图：一次迭代的结构
+
+原文在这里放了一张图，标题是 “Query Loop Core - One Iteration Of The While Loop”。图的意思是：循环状态跨迭代保留，喂给每次迭代。一次迭代依次是调用前治理、模型流、工具执行、应用结果、决定下一步。下图按事实重画。+ 表示按事实补上，− 表示原图有、但与事实不符。切换 Before 和 After，可以分别看原图结构和修正后的结构。
+
+```flow
+(本轮开始) -&gt; [循环状态 · messages、toolUseContext、压缩计数、transition]
+循环状态 · messages、toolUseContext、压缩计数、transition -&gt; [调用前治理 · budget、hooks、snip、microcompact]: 每次迭代读入
+调用前治理 · budget、hooks、snip、microcompact -&gt; [模型流 · 文本、tool_use、usage]: 预算够
+调用前治理 · budget、hooks、snip、microcompact -&gt; [决定下一步]: hook 或防护拦截
+模型流 · 文本、tool_use、usage -&gt; [工具执行 · 规划、执行、合并 tool_result]: 发出 tool_use
+模型流 · 文本、tool_use、usage -&gt; [应用结果]: 只有文本
+工具执行 · 规划、执行、合并 tool_result -&gt; 应用结果: 结果已合并
+应用结果 -&gt; 决定下一步
+决定下一步 -&gt; {要压缩或重试?}: 迭代结束
+要压缩或重试? --&gt; 调用前治理 · budget、hooks、snip、microcompact: 压缩或重试
+要压缩或重试? -&gt; {还要继续?}: 稳定
+还要继续? --&gt; 调用前治理 · budget、hooks、snip、microcompact: 是
+- 还要继续? -&gt; [结束本轮]: 否
++ 还要继续? -&gt; [Stop hooks]: 否
++ Stop hooks --&gt; 调用前治理 · budget、hooks、snip、microcompact: 阻塞，带着原因再来一轮
++ Stop hooks -&gt; 结束本轮: 通过
+group 一次迭代: 调用前治理 · budget、hooks、snip、microcompact, 模型流 · 文本、tool_use、usage, 工具执行 · 规划、执行、合并 tool_result, 应用结果, 决定下一步
+```
+
+```callout warn 事实核对
+- `query()`、`queryLoop()` 和原图的节点名无法核对：源码不公开，文档里也没有这些名字。
+- 循环本身有依据。文档说 agentic loop 分 gather context、take action、verify results 三个阶段，用户 “can interrupt at any point”。实测：一条提示产生了 3 次 API 请求，依次是调用工具、回答、被 Stop hook 阻塞后补答。
+- 原图从“不需要继续”直接画到“结束本轮”。实测中，回答结束后先运行 Stop hook，hook 阻塞时会再来一轮。重画时补上了这一段（附录第 3、21 条）。
+```
+
+## B 状态属于主业务 {meta=&quot;原文 3.2&quot;}
+
+很多系统把状态当成包袱，认为无状态更优雅。但代理系统一进入真实工作流，状态就会自然出现。忽视状态并不能消除它，只会让它以更难管理的方式回来。
+
+原文说，Claude Code 把 query loop 的可变状态明确定义为 9 项（下面的分类是本页归纳）：
+
+```tree
+State
+  对话与工具 | messages、toolUseContext
+  压缩与恢复 | autoCompactTracking、maxOutputTokensRecoveryCount、hasAttemptedReactiveCompact
+  轮次与流转 | turnCount、transition、stopHookActive、pendingToolUseSummary
+```
+
+每次 query loop 启动时，这些状态被整体装配成一个 State 对象，之后在每个 continue 分支里整体更新。恢复、压缩、预算、hook、轮次计数没有散落在局部变量里，因为它们共同决定“本轮结束后，下一轮如何继续”。脚本只关心这一步有没有跑完；代理系统还要关心，这一步失败后，下一步能不能接住前面留下的状态。
+
+### 循环必须守住的三条不变式
+
+| 不变式 | 含义 | 核对 | 依据 |
+|---|---|---|---|
+| 状态单调 | turnCount 只增不减 | 无法核对 | 源码不公开 |
+| 账本对齐 | 每个发出的 tool_use 都有对应的 tool_result | ok 行为属实 | 观察：本机 104 个会话记录共 8490 次工具调用，只有 2 次没有结果。这 2 次都是文件里最后一次调用 |
+| 防自回环 | 试过 reactive compact 之后，不再继续压缩 | warn 与现状不完全相符 | 旁证：2.1.284 起，压缩后仍太长会再压一次。文档：连续几次压缩都无效时，停止并报错 |
+
+```callout warn 事实核对
+- 9 个字段名和“整体装配、整体更新”无法核对：源码不公开。
+- 有一项状态能从外部看到。文档说，Stop hook 的输入里有 `stop_hook_active`，Claude Code 因 Stop hook 而继续时它为 true。实测中，第一次 Stop 调用为 false，hook 阻塞后的第二次为 true。这说明“stop hook 是否已经生效”确实跨迭代保存。
+- 防自回环：原文说试过一次就不再压缩。现状是，压缩后的请求仍太长时，Claude Code 会再压一次，保留更少的近期对话（CHANGELOG 2.1.284）。自动压缩连续几次后上下文立刻又满，Claude Code 会停止并报 thrashing 错误（文档）。防止无限压缩这个目的成立，但“只压一次”与现状不符。
+```
+
+## C Query loop 的第一职责是治理输入 {meta=&quot;原文 3.3&quot;}
+
+从外面看，代理系统的核心动作像是“调用模型”。但在工程上，更重要的常常是调用模型之前的那一串整理工作。原文说，queryLoop() 在进入模型流之前，按顺序做这些事：
+
+```flow LR
+(本轮开始) -&gt; 预取 memory -&gt; 预取 skill discovery -&gt; [截取 compact boundary 之后的消息] -&gt; 应用 tool result budget -&gt; history snip -&gt; microcompact -&gt; context collapse -&gt; *autocompact -&gt; (调用模型)
+group 预取: 预取 memory, 预取 skill discovery
+group 裁剪: 截取 compact boundary 之后的消息, 应用 tool result budget, history snip
+group 压缩: microcompact, context collapse, autocompact
+```
+
+（分组是本页归纳，顺序与原文一致。autocompact 排在最后，是最后才尝试的手段。）
+
+原文认为，这串顺序本身就是一种架构声明：Claude Code 把上下文治理放在模型推理之前。它不把“从混乱中整理秩序”的责任交给模型，而是由运行时先整理好，再把更干净的输入交给模型。很多系统的做法相反：先把大量上下文塞进去，再指望模型自己判断什么重要。这看似省事，实际上是把运行时该承担的责任转嫁给了概率分布。
+
+### 逐步核对
+
+| 步骤 | 核对 | 依据 |
+|---|---|---|
+| 预取 memory | 无法核对 | 文档只写 MEMORY.md 在会话开始时加载前 200 行或 25KB，没有按相关性预取的说法。本机会话记录里也没有这类附件 |
+| 预取 skill discovery | warn 部分可核对 | 观察：会话记录里有 115 条 skill_listing 附件，在请求前注入技能清单。“discovery 预取”这一步本身无法核对 |
+| 截取 compact boundary 之后的消息 | ok 行为属实 | 实测：手动压缩后，下一次请求以压缩摘要开头，之前的工具调用不再发送。会话记录保留旧消息，并写入一条 compact_boundary |
+| 应用 tool result budget | warn 部分可核对 | 文档：Bash 结果超过约 30,000 字符时，只给存档文件的路径和前 2,000 字符预览。是否在调用模型前统一处理，无法核对 |
+| history snip、microcompact、context collapse | 无法核对 | 文档和 CHANGELOG 都查不到。实测请求里的 context_management 只有一条 thinking 设置，没有清理工具结果的设置 |
+| autocompact | ok 行为属实 | 文档：接近上限时自动压缩，阈值随模型而定 |
+
+```callout warn 事实核对
+- 八个步骤的顺序无法核对：源码不公开，从外部也看不到先后。
+- 原文的论点是“运行时先整理上下文，再交给模型”。这一点有依据：压缩边界截取、工具结果上限、自动压缩都在模型看到输入之前生效。但“这串顺序是架构声明”依赖的顺序本身无法核对，其中 snip、microcompact、collapse 三步在公开渠道里查不到。
+```
+
+## D 调用模型只是循环的一段 {meta=&quot;原文 3.4&quot;}
+
+治理完成后才进入模型调用。原文指出一个细节：系统用 `for await` 流式消费模型输出，而不是同步拿回一个完整结果。所以模型输出在 Claude Code 里是一串事件，可能是 assistant 文本、tool_use block、usage 更新、stop reason 或 API 错误。系统把 assistant message 存起来，提取 tool_use，判断是否需要 follow-up，还可能边流边把工具送给 StreamingToolExecutor。
+
+```sequence
+participants: 模型, queryLoop, StreamingToolExecutor
+模型 -&gt; queryLoop: assistant 文本
+模型 -&gt; queryLoop: tool_use block
+queryLoop -&gt; StreamingToolExecutor: 边流边送出工具（可选）
+模型 -&gt; queryLoop: usage 更新
+模型 -&gt; queryLoop: stop reason
+queryLoop -&gt; queryLoop: 保存 assistant message，判断是否需要 follow-up
+StreamingToolExecutor --&gt; queryLoop: 工具结果
+```
+
+（示意：按原文文字画，参与者名字取自原文。）
+
+一旦把模型输出当成事件流，架构就不再是“请求-响应”，而是“驱动-调度-反馈”。流式输出的意义不只是早点看到几个字，而是让运行时在模型还没结束时，就开始安排下一步执行。所以原文说，心跳是整个循环，而不是模型调用本身。
+
+### 实测：回复还没结束，工具已经跑完
+
+实测让模型在同一条回复里先调用 Glob，再调用 Write 写一段约 600 字的故事。Write 的参数很长，模型要生成好几秒。下面的时间以发出第 1 次请求为 0（实测，v2.1.312）：
+
+```timeline v
+0 s | 发出第 1 次请求 | 请求带 stream: true
++2.0 s | Glob 开始执行 | PreToolUse hook 触发
++2.5 s | Glob 执行完 | PostToolUse hook 触发
+*+6.7 s | 第 1 次回复结束 | stop_reason 为 tool_use，共 847 个输出 token
++7.0 s | Write 开始执行 | 回复结束后才开始
++7.3 s | 发出第 2 次请求 | 带上两个 tool_result
+```
+
+```callout warn 事实核对
+- StreamingToolExecutor 这个名字无法核对：源码不公开。
+- “边流边执行工具”行为属实：Glob 在回复结束前约 4.6 秒就执行完了。会话记录印证了这一点：Glob 的 tool_result 写于 06:33:15.7，同一条回复里的 Write 块到 06:33:19.9 才结束。
+- 流式调用属实：抓到的请求全部带 stream: true，响应带 stop_reason 和 usage。
+- 局限：只做了一次，只看到只读工具提前执行。Write 为什么等到回复结束才执行，从外部分不清。
+```
+
+## E 心跳必须能处理中断 {meta=&quot;原文 3.5&quot;}
+
+一个循环不仅要能持续运行，还要能在必要时停下来。停不下来，系统就只剩惯性。原文说，Claude Code 会优先处理 streaming abort：
+
+```flow
+(用户中断：streaming abort) -&gt; {启用了 StreamingToolExecutor?}
+启用了 StreamingToolExecutor? -&gt; [消费剩余结果，生成 synthetic tool_result]: 是
+启用了 StreamingToolExecutor? -&gt; [用 yieldMissingToolResultBlocks 补全中断说明]: 否
+消费剩余结果，生成 synthetic tool_result -&gt; *(每个 tool_use 都有对应的 tool_result)
+用 yieldMissingToolResultBlocks 补全中断说明 -&gt; 每个 tool_use 都有对应的 tool_result
+```
+
+（示意：按原文文字画。）
+
+背后的原则是：系统一旦对外承诺了一段执行，中断时就要把账补平。不能因为用户打断了，就假装前面的 tool_use 从未发生。外部系统、UI 和 transcript 都需要一条一致的因果链，哪怕结果是“中断了”，也要中断得完整。解释不了的执行轨迹，迟早会变成运维问题或审计问题。
+
+```callout warn 事实核对
+- 两个分支和 yieldMissingToolResultBlocks 无法核对：源码不公开。
+- “中断时补齐 tool_result”行为属实（观察）。本机会话记录里有 6 次中断，版本是 2.1.284 到 2.1.296。每次被打断的调用都拿到一条 is_error 的 tool_result，内容是 “The user doesn&#39;t want to proceed with this tool use…”，随后是一条 “[Request interrupted by user for tool use]”。
+- 文档：按 `Esc` 后 “The running tool call is canceled”；用户中断时 Stop hook 不运行。
+- 局限：中断样本来自旧版本，没有在 2.1.312 上重做。
+```
+
+## F 心跳还必须能恢复 {meta=&quot;原文 3.6&quot;}
+
+中断是外部打进来的意外，恢复是系统内部预留的余量。没有恢复能力的循环，等于把幸运当成了设计。原文说，Claude Code 的恢复层层递进，不是简单重试。最典型的是下面两种。
+
+### prompt 太长（prompt-too-long）
+
+原文说，系统先判断最后一条 assistant message 是不是被暂扣（withheld）的 prompt-too-long 错误。如果是，先让 context collapse 把积压提交出去；还不够，再做 reactive compact。恢复手段按成本和破坏性从低到高逐层尝试。下图按事实补了一段，+ 表示按事实补上：
+
+```flow LR
+(prompt 太长) -&gt; [1 提交 context collapse 的积压] -&gt; {够了吗?}
+够了吗? -&gt; (继续): 够
+够了吗? -&gt; [2 reactive compact]: 不够
++ 2 reactive compact -&gt; {压缩后仍太长?}
++ 压缩后仍太长? -&gt; [3 再压一次，保留更少的近期对话]: 是
++ 压缩后仍太长? -&gt; 继续: 否
+```
+
+### 输出超长（max-output-tokens）
+
+原文说，系统先尝试提高 token 上限；还不行，再追加一条 meta 消息，让模型从截断处继续往下做，而不是先道歉、先总结。
+
+```flow LR
+(输出达到 max_output_tokens) -&gt; {token 上限已到最大?}
+token 上限已到最大? -&gt; [提高上限后重跑]: 否
+token 上限已到最大? -&gt; *[追加一条 meta 消息，让模型从截断处续写]: 是
+```
+
+（示意：按原文文字画。）
+
+原文评价：Claude Code 把恢复看成运行时主路径的一部分，而不是模型失败后的礼貌动作。恢复的意义是给系统一个继续工作的机会。
+
+```callout warn 事实核对
+- prompt 太长：文档说，遇到 Prompt is too long 时会自动压缩，通常概括最早的对话、保留最新的；压缩失败时报 “Prompt is too long · automatic compaction failed”。CHANGELOG 2.1.284 补上了第 3 步。withheld 和 context collapse 无法核对。
+- prompt 太长的实测（见第 6 章故障注入）：注入一次时，约 0.2 秒后自动压缩并重试，用户看不到这个错误；一直注入时，压缩两次后报 “Prompt is too long”。第 3 步属实。
+- 文档还写了一种更轻的恢复：输入加 max_tokens 超过上下文上限时，先减小 max_tokens 重试，减不下去才压缩。
+- 输出超长：续写行为属实（实测）。把上限设成 400 后，回复两次被截断，Claude Code 两次追加同一条用户消息：“Output token limit hit. Resume directly — no apology, no recap of what you were doing. Pick up mid-thought if that is where the cut happened. Break remaining work into smaller pieces.” 第三次回复正常结束。
+- “提高上限”这一步本次没观察到。用环境变量设上限时，三次请求都是 400；默认配置下请求的 max_tokens 已是 128000（claude-haiku-5-5）。文档没写自动续写，只写了最终报错和手动回复 continue。
+```
+
+## G 停止条件不能只有一个 {meta=&quot;原文 3.7&quot;}
+
+问答系统有回答就结束。代理系统不行：“当前轮结束”不等于“任务完成”，更不等于“系统成功”。原文说，queryLoop() 至少区分了下面这些情况。表里最后一列是核对结果：
+
+| 事件 | 前置状态 | 触发 | 下一步 | 核对 |
+|---|---|---|---|---|
+| 流正常结束，有 tool_use | 有未完成的 tool_use | stop reason | follow-up，进入工具执行 | ok 实测：stop_reason 为 tool_use，执行工具后发下一次请求 |
+| 流正常结束，无 tool_use | 没有待处理的工具 | stop reason | 进入 stop hooks | ok 实测：end_turn 后运行 Stop hook |
+| 用户中断 | 任意 | abort signal | 消费剩余结果，生成 synthetic tool_result | ok 观察：被打断的调用都有 is_error 的 tool_result |
+| prompt 太长 | 还没试过 compact | 可恢复错误 | 走 collapse 或 reactive compact | warn 实测：自动压缩后重试，一回合最多两次；collapse 无法核对 |
+| 输出超长 | 上限未到最大 | stop reason | 提高上限后重跑 | warn 本次未观察到 |
+| 输出超长 | 上限已到最大 | stop reason | 追加 meta 消息，续写 | ok 实测：两次续写后正常结束 |
+| stop hook 阻塞，且 prompt 又太长 | 已试过 reactive compact | 两次失败 | 跳过 stop hooks，报告错误 | ok 实测：压缩两次后报错，跑 StopFailure，Stop 不再运行 |
+| API 错误 | — | api_error | 直接返回，不重试 | no 与现状不符：实测 529 重试 10 次后才报错 |
+
+### 防止死循环
+
+原文说，stop hooks 这段代码专门防了一种死循环：compact 后仍然太长，再被 hook 阻塞，再继续 compact。
+
+```flow LR
+[reactive compact] -&gt; [仍然太长] -&gt; [stop hook 阻塞]
+stop hook 阻塞 --&gt; reactive compact: 不加保护就会回到这里
+stop hook 阻塞 -&gt; *(跳过 stop hooks，报告错误): 已试过 reactive compact
+```
+
+（示意：按原文文字画。）
+
+许多系统的想法是“失败了就重试”。Claude Code 则承认重试本身也要被管理：为什么重试、已经试过什么、哪些保护状态不能重置、哪些情况会无限循环。这些判断区分了“会继续试”的系统和“知道什么时候不该再试”的系统。
+
+```callout warn 事实核对
+- API 错误：文档说，Claude Code 对瞬时失败（服务器错误、过载、超时、临时 429、断线）“retries … up to 10 times with exponential backoff before showing you an error”。回复中途失败时，它保留已完成的部分，执行已完成的工具调用，然后继续这一轮。API 错误时触发 StopFailure hook，不运行 Stop hook。实测（第 6 章）：让每次请求都返回 529，Claude Code 共发了 11 次请求，间隔从约 0.6 秒逐次翻倍，最后报错并触发 StopFailure。重试在哪一层做无法核对，所以“queryLoop 本身不重试”可能仍然成立；但从行为上看，Claude Code 不是“直接返回，不重试”。
+- Stop hook 阻塞后再来一轮：属实（实测）。hook 返回 block 后，下一次请求多了一条 “Stop hook feedback: …” 用户消息。
+- 防死循环属实（实测，见第 6 章）。先让 Stop hook 阻塞一次，再让每次请求都返回 prompt too long：Claude Code 压缩两次后报错，跑 StopFailure，Stop hook 没有再运行，没有出现循环。文档还写了另外两种防循环保护：Stop hook 连续续跑 8 次后，Claude Code 不再接受阻塞；自动压缩连续无效时，Claude Code 停止并报错。原文“重试也要被管理”的论点有这些依据支撑。
+```
+
+## H QueryEngine：循环属于会话生命周期 {meta=&quot;原文 3.8&quot;}
+
+原文说，QueryEngine 的源码注释直接写明了它的职责：
+
+&gt; QueryEngine owns the query lifecycle and session state for a conversation.
+
+也就是说，它管理的是一整个对话的生命周期，而不是某一次调用。一个 QueryEngine 对应一个对话；每次调用 submitMessage()，都是在同一个对话里开始新的一轮，状态持续保存。QueryEngine 把准备好的 messages、systemPrompt、userContext、systemContext、toolUseContext 一起交给 query()，再把 assistant、user、compact boundary 等消息写回 transcript。
+
+原文由此认为，query loop 是会话系统真正的执行中心，UI、SDK 和 session persistence 都围着它转。要理解 Claude Code，不能只看它有哪些工具、prompt 写了什么，最终要看这个循环怎样把各种约束落实成连续的行为。
+
+### 原文的图：一轮的外壳
+
+原文放了两张图。第一张标题是 “QueryEngine Turn - SDK Shell Wrapping The Inner Loop”，意思是 QueryEngine 不亲自跑这一轮，而是包住一次内层循环，负责循环外的一切。下图按事实重画，+ 表示按事实补上，~ 表示改过的节点：
+
+```flow
+(接收 submitMessage) -&gt; [规整文本和附件]
+规整文本和附件 -&gt; [组装本轮上下文 · system、user、tool]
+组装本轮上下文 · system、user、tool -&gt; [内层 query loop]: 调用 query
+内层 query loop -&gt; [消费流事件，交给 SDK]: 流式事件
+消费流事件，交给 SDK -&gt; [持久化 transcript 和回放标记]
+持久化 transcript 和回放标记 -&gt; [更新会话状态 · mutableMessages 等]
+更新会话状态 · mutableMessages 等 -&gt; (本轮结束)
++ 内层 query loop --&gt; 持久化 transcript 和回放标记: 运行中就逐条写入
+~ 持久化 transcript 和回放标记
+```
+
+### 原文的图：轮与轮之间留下什么
+
+第二张图标题是 “QueryEngine State Carry-Over - What Survives Between Turns”。图的意思是：每一轮都读写同一个会话外壳，连续性在外壳里，不在某一次内层循环里。下图按事实重画，+ 表示按事实补上：
+
+```flow LR
+(开始) -&gt; [第 N 轮 · 内层循环] -&gt; [第 N+1 轮 · 内层循环] -&gt; [第 N+2 轮 · 内层循环] -&gt; (结束)
+[会话外壳] --&gt; 第 N 轮 · 内层循环: 读写
+会话外壳 --&gt; 第 N+1 轮 · 内层循环: 读写
+会话外壳 --&gt; 第 N+2 轮 · 内层循环: 读写
++ 会话外壳 --&gt; [(会话记录 JSONL)]: 逐条写入，可按会话 ID 恢复
+```
+
+原图列出了会话外壳里的六项，逐项核对如下：
+
+| 原图里的项 | 核对 | 依据 |
+|---|---|---|
+| mutableMessages（消息历史） | ok 行为属实 | 实测：用 --resume 在新进程里继续会话，请求带着之前的全部消息 |
+| readFileState 缓存 | ok 行为属实，命名无法核对 | 观察：Write 的结果写着 “file state is current in your context”；本会话的 Edit 工具要求先在本对话里 Read 过文件 |
+| abortController | 无法核对 | 源码不公开 |
+| 权限拒绝记录 | ok 行为属实，命名无法核对 | 实测：-p 的结果里有 permission_denials 字段 |
+| 用量统计 | ok 行为属实，命名无法核对 | 实测：-p 的结果里有 usage、total_cost_usd、modelUsage |
+| memory、skill 索引 | warn 部分可核对 | 观察：会话记录里有 skill_listing 附件，记录注入了哪些技能。memory 部分无法核对 |
+
+```callout warn 事实核对
+- QueryEngine、submitMessage 和注释原话无法核对：源码不公开。
+- 原图把持久化画在消费完流事件之后。文档说 Claude Code “saves your conversation locally as you work”，transcript “is written asynchronously”。也就是说，会话记录在运行中就逐条写入，不是等内层循环结束才写。
+- 原文说连续性在会话外壳里。还要补一点：会话记录写在 `~/.claude/projects/` 下的 JSONL 文件里，`--resume` 能在新进程里接上同一个会话（文档、实测）。连续性不只在内存里。
+- 组装上下文（观察）：请求把上下文放在三处。一是 system 字段，二是第一条用户消息里的 `&lt;system-reminder&gt;`（CLAUDE.md 等），三是一条 system 角色消息里的环境信息。
+- “UI 和 SDK 都围着这个循环转”有依据。文档说，不同界面只决定你怎样和 Claude 交互，“the underlying agentic loop is identical”。
+```
+
+## I 从源码提炼的第三个原则 {meta=&quot;原文 3.9&quot;}
+
+```callout ok 第三个原则
+代理系统的核心能力，是维持可恢复的执行循环。
+```
+
+原文说，一个成熟 agent 的“心跳”，至少要同时管住下面五件事。原文的证据来自源码；核对后的证据如下：
+
+| 要管的事 | 原文的证据 | 核对后的证据 |
+|---|---|---|
+| 跨轮状态 | B：State 对象与三条不变式 | 字段无法核对。stop_hook_active 跨迭代保存（文档、实测）；会话写入 JSONL，能 --resume（文档、实测） |
+| 输入治理 | C：模型调用前的 8 步治理 | 压缩边界截取、工具结果上限、自动压缩有依据；顺序和其余步骤无法核对 |
+| 流式消费 | D：流式消费与 StreamingToolExecutor | 请求全部流式；只读工具在回复结束前就执行完（实测） |
+| 中断账本 | E：synthetic tool_result | 被打断的调用都有 is_error 的 tool_result（观察） |
+| 区分完成、失败、恢复、继续 | F：逐层恢复；G：停止条件矩阵 | 截断续写、Stop hook 再来一轮（实测）；prompt 太长时自动压缩（文档、实测）；API 错误先重试再报错（实测），与原文“不重试”不符 |
+
+原文提炼的工程原则：缺少这些结构，系统也能做漂亮的 demo，但更接近一次性表演，而不是运行时。核对后，五件事都有行为层的依据，论点成立。修正的两处是 API 错误重试和压缩次数。它们不影响“循环要可恢复”这个结论，反而说明 Claude Code 比原文写的多一层恢复。
+
+本章解释了循环为什么存在。下一章讨论这颗心跳最直接接触外部世界的地方：工具、权限与中断。它要说明，循环一旦拥有工具，为什么必须学会克制。
+
+## 附录：事实核对 {meta=&quot;本页补充&quot;}
+
+### 逐条核对
+
+| # | 原文的说法 | 核对 | 实际情况和依据 | 正文 |
+|---|---|---|---|---|
+| 1 | `query()` 是壳，`queryLoop()` 是核心（原文：`src/query.ts`） | 无法核对 | 源码不公开；文档没有这两个名字 | A |
+| 2 | 循环：治理输入 → 流式调用 → 工具、恢复、压缩 → 继续或终止 | ok 行为属实，命名无法核对 | 文档 [how-claude-code-works](https://code.claude.com/docs/en/how-claude-code-works)：“gather context, take action, and verify results”，“You can interrupt at any point”。实测 1：一条提示产生 3 次请求 | A |
+| 3 | 原图 1：循环状态、调用前治理、模型流、工具执行、决定下一步、结束本轮 | warn 需要补充 | 节点名无法核对。实测 1：回答结束后先运行 Stop hook，阻塞时再来一轮，原图没有画 | A |
+| 4 | 9 项可变状态，启动时装配成 State，在 continue 分支整体更新 | 无法核对 | 源码不公开。相关行为：[hooks](https://code.claude.com/docs/en/hooks) 的 Stop 输入有 `stop_hook_active`；实测 1 中第二次 Stop 调用为 true | B |
+| 5 | 不变式：turnCount 单调 | 无法核对 | 源码不公开 | B |
+| 6 | 不变式：每个 tool_use 都有 tool_result | ok 行为属实 | 观察：本机 104 个会话记录共 8490 次工具调用，只有 2 次没有结果。这 2 次都是文件里最后一次调用，其中一次是核对时正在执行的调用。[errors](https://code.claude.com/docs/en/errors)：tool_use、tool_result 的顺序 “no longer matches what the API expects” 时 API 报 400 | B、E |
+| 7 | 不变式：试过 reactive compact 后不再压缩 | warn 与现状不完全相符 | 旁证：CHANGELOG 2.1.284 “when the compacted request is still too long, Claude Code now compacts once more”。[troubleshooting](https://code.claude.com/docs/en/troubleshooting)：连续几次压缩后上下文立刻又满，Claude Code “stops retrying” | B、F |
+| 8 | 治理的八步顺序 | 无法核对 | 源码不公开，从外部看不到先后 | C |
+| 9 | 预取 memory | 无法核对 | 文档：“The first 200 lines or 25KB of MEMORY.md … load at the start of each session”，没有按相关性预取的说法；本机会话记录里没有这类附件 | C |
+| 10 | 预取 skill discovery | warn 部分可核对 | 观察：会话记录里有 115 条 skill_listing 附件，在请求前注入。[context-window](https://code.claude.com/docs/en/context-window)：会话开始时载入技能描述 | C |
+| 11 | 截取 compact boundary 之后的消息 | ok 行为属实 | 实测 3：/compact 后，下一次请求以 “This session is being continued from a previous conversation…” 开头，旧的工具调用不再发送；会话记录保留旧消息，写入 compact_boundary（trigger 为 manual，preTokens 26851，postTokens 3569） | C |
+| 12 | 应用 tool result budget | warn 部分可核对 | [tools-reference](https://code.claude.com/docs/en/tools-reference)：Bash 结果超过约 30,000 字符时，给出存到会话目录的文件路径和前 2,000 字符预览。是否在调用模型前统一处理，无法核对 | C |
+| 13 | history snip、microcompact、context collapse | 无法核对 | 文档和 CHANGELOG 都查不到（collapse 只出现在界面折叠等无关条目）。实测请求的 context_management 只有一条 thinking 设置（clear_thinking，keep 为 all） | C |
+| 14 | autocompact | ok 行为属实 | context-window：“compacts automatically as you approach the limit”；[model-config](https://code.claude.com/docs/en/model-config)：1M 窗口的模型默认在约 967K token 时压缩 | C |
+| 15 | 用 `for await` 流式消费，事件有文本、tool_use、usage、stop reason、错误 | ok 行为属实 | 实测：抓到的 12 次请求全部带 stream: true；响应带 stop_reason 和 usage | D |
+| 16 | 边流边把工具送给 StreamingToolExecutor | ok 行为属实，命名无法核对 | 实测 1：Glob 的 PreToolUse 比第 1 次回复结束早约 4.6 秒；会话记录里 Glob 的 tool_result（06:33:15.7）早于同一回复的 Write 块（06:33:19.9）。只做了一次 | D |
+| 17 | 中断时消费剩余结果、生成 synthetic tool_result，或用 yieldMissingToolResultBlocks 补全 | ok 行为属实，命名无法核对 | 观察：本机 6 次中断（2.1.284–2.1.296），被打断的调用都拿到 is_error 的 tool_result，随后一条 “[Request interrupted by user for tool use]”。how-claude-code-works：按 Esc 后 “The running tool call is canceled”。两个分支无法核对 | E |
+| 18 | prompt 太长：先判断 withheld，再提交 collapse 积压，再 reactive compact | warn 部分可核对 | errors：自动压缩 “normally summarizes your oldest exchanges and keeps the newest”，失败时报 “Prompt is too long · automatic compaction failed”；输入加 max_tokens 超上限时先减小 max_tokens 重试。实测 4：注入一次时自动压缩后重试成功，用户看不到错误；一直注入时压缩两次后报错。withheld、collapse 无法核对 | F、G |
+| 19 | 输出超长：先提高上限后重跑 | warn 本次未观察到 | 实测 2：用 `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 设 400 时，三次请求都是 400。默认配置下请求的 max_tokens 已是 128000（claude-haiku-5-5）；默认配置下是否提高，需要超长输出才能测 | F、G |
+| 20 | 输出超长：追加 meta user 消息续写 | ok 行为属实 | 实测 2：两次截断，每次追加 “Output token limit hit. Resume directly — no apology, no recap…”，第三次正常结束。文档没写自动续写，只写最终报错 “Claude&#39;s response exceeded the … output token maximum” 和手动回复 continue | F、G |
+| 21 | 无 tool_use 时进入 stop hooks；hook 阻塞时重进循环 | ok 行为属实 | 实测 1：Stop hook 返回 block 后，下一次请求多了 “Stop hook feedback: …”。hooks：连续续跑 8 次后不再接受阻塞（`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`） | A、G |
+| 22 | stop hook 阻塞且 prompt 又太长、已试过 reactive compact 时，跳过 stop hooks 并报错 | ok 行为属实，命名无法核对 | 实测 4：Stop hook 先阻塞一次，之后每次请求都返回 prompt too long；压缩两次后报错，跑 StopFailure，Stop 没有再运行。hooks：“API errors fire StopFailure instead”。另有文档保护：Stop hook 8 次上限；自动压缩 thrashing 时停止 | G |
+| 23 | API 错误直接返回，不重试 | no 与现状不符 | errors：“Claude Code retries transient failures up to 10 times with exponential backoff before showing you an error”；回复中途失败时 “keeps what Claude completed, runs any tool calls Claude finished, and continues the turn”。hooks：API 错误触发 StopFailure。实测 4：每次都返回 529 时共 11 次请求，间隔从约 0.6 秒逐次翻倍，最后报错并触发 StopFailure；只失败 3 次时第 4 次成功。重试在哪一层做无法核对 | G |
+| 24 | QueryEngine 注释 “owns the query lifecycle and session state for a conversation”；一个 QueryEngine 对应一个对话，submitMessage 开启新一轮 | 无法核对 | 源码不公开 | H |
+| 25 | QueryEngine 把 messages、systemPrompt、userContext、systemContext、toolUseContext 交给 query()，并把消息写回 transcript | warn 部分可核对 | 观察：请求把上下文放在三处：system 字段、第一条用户消息里的 `&lt;system-reminder&gt;`、一条 system 角色消息。how-claude-code-works：“Each message, tool use, and result is written to a plaintext JSONL file under ~/.claude/projects/” | H |
+| 26 | 原图 2：消费完流事件后才持久化 transcript | warn 需要修正 | how-claude-code-works：“saves your conversation locally as you work”；hooks：transcript “is written asynchronously” | H |
+| 27 | 原图 3：会话外壳的六项，连续性在外壳里 | warn 部分可核对 | 逐项结果见 H 节表格。另：会话写入 JSONL，--resume 能在新进程里接上（实测 3） | H |
+| 28 | UI、SDK、session persistence 都围着 query loop 转 | ok 基本成立 | how-claude-code-works：“the underlying agentic loop is identical”。观察：-p 模式请求的 query_source 为 sdk，压缩请求为 compact | H |
+
+### 核对范围与局限
+
+- **依据版本**：本机 Claude Code 2.1.312（`claude --version`）；官方文档 2026-10-29 查阅；CHANGELOG 最新条目 2.1.312。
+- **实测做法**：在新建的空临时目录里用 `claude -p` 运行，模型 claude-haiku-5-5，请求经本机配置的 LLM 网关（`ANTHROPIC_BASE_URL`）。用 `OTEL_LOG_RAW_API_BODIES=file:&lt;目录&gt;` 抓完整请求和响应，用项目级 hook 记录时间戳。
+  - 实验 1：让模型在同一条回复里调用 Glob 和 Write，配一个只阻塞一次的 Stop hook。
+  - 实验 2：用 `CLAUDE_CODE_MAX_OUTPUT_TOKENS=400` 让模型写约 1500 字的散文。
+  - 实验 3：对实验 1 的会话执行 `/compact`，再用 `--resume` 提问。
+  - 实验 4（2026-10-30，与第 6 章共用）：写一个本地代理转发请求，只对实验进程把 `ANTHROPIC_BASE_URL` 指向它。代理把指定请求换成 400 prompt too long 或 529 overloaded。做法和全部结果见第 6 章附录。
+- **观察**：本机 `~/.claude/projects/` 下 104 个会话记录（含本次实测生成的）。中断样本来自 2.1.284–2.1.296，没有在 2.1.312 上重做。
+- **局限**：结果只代表这个版本、这个模型和这个网关下的表现，不能证明原文说的内部结构。没观察到某个行为不等于没有，功能可能分批上线或按账号开关。时间点用 hook 和文件写入时间测量，有百毫秒级误差；“边流边执行”只做了一次。
+- **没核对的部分**：默认配置下“提高输出上限”这一步没测；memory 预取、snip、microcompact、context collapse 和所有函数名、字段名无法核对。
+- **原文的图**：原文有三张图，都已按事实重画，图上说法见第 3、26、27 条。三张图是 [一次迭代的结构](https://harness-books.agentway.dev/book1-claude-code/diagrams/diag-ch03-01-query-loop-core.png)、[一轮的外壳](https://harness-books.agentway.dev/book1-claude-code/diagrams/diag-ch03-02-queryengine-turn-flow.png) 和 [轮与轮之间留下什么](https://harness-books.agentway.dev/book1-claude-code/diagrams/diag-ch03-03-queryengine-state-carryover.png)。
+- **观点**：“把幸运当成了设计”“一次性表演”“驱动-调度-反馈”等是原文的观点，不核对。
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions and the panel comments.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }].
+// Comment text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+function replyText({ title, decisions, comments, ui }) {
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   → ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) {
+      out.push(`- **${c.panel} · ${c.title}**`, ...c.text.trim().split('\n').map((l) => `  > ${l}`));
+    }
+    out.push('', `_${ui.typed}_`);
+  }
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers and the comments
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  const keyOf = (ask) => ask.querySelector('legend')?.textContent.trim() ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: panel?.querySelector('.am-panel-head h2')?.textContent.trim() ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: ask.querySelector('legend')?.textContent.trim() ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const empty = !decisions.length && !comments.some((c) => c.text.trim());
+    const title = document.querySelector('.am-head h1')?.textContent.trim() ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, ui });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg')].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+
+// ── Change markers: the Before / Changes / After switch ─────────────
+// The switch starts hidden because it needs this script. It swaps the am-view-* class of its diagram; the delta styles show the colors and badges only in
+// the Changes view and hide the items that do not exist in the view.
+(() => {
+  const VIEWS = ['before', 'changes', 'after'];
+  const setView = (el, view) => {
+    el.classList.remove(...VIEWS.map((v) => `am-view-${v}`));
+    el.classList.add(`am-view-${view}`);
+  };
+  for (const bar of document.querySelectorAll('.am-delta-bar')) {
+    const view = bar.parentElement;
+    const group = bar.querySelector('.am-delta-switch');
+    if (!group) continue;
+    group.hidden = false;
+    group.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-view]');
+      if (!btn) return;
+      setView(view, btn.dataset.view);
+      for (const b of group.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b === btn));
+    });
+  }
+  // The expand button copies only the drawing into the viewer; the viewer shows the view the diagram is in.
+  document.addEventListener('click', (e) => {
+    const host = e.target.closest?.('.am-diagram-expand')?.parentElement;
+    const canvas = document.querySelector('.am-lightbox-canvas');
+    const view = host && VIEWS.find((v) => host.classList.contains(`am-view-${v}`));
+    if (view && canvas) setView(canvas, view);
+  });
+})();
+</script>
+</body>
+</html>

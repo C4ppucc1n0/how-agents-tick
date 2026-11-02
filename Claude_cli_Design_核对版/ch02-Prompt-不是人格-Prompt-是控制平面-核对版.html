@@ -1,0 +1,2434 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="paper" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.4.14">
+<title>Prompt 不是人格，Prompt 是控制平面（核对试点版）</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-right: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin: 0 6px 0 auto; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-left: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; right: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { left: 50%; }
+.am-timeline--h li:last-child::before { right: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { left: 50%; }
+.am-tree-col:last-child::before { right: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }
+.am-tree-list ul { margin-left: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }
+.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 8px 4px auto;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-right: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */
+  .am-md th, .am-md td { min-width: 6em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="zh-CN" data-am-root-theme="paper" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">主题<select data-am="theme"><option value="blueprint">图纸</option><option value="shadcn">卡片</option><option value="paper" selected>纸张</option></select></label>
+<label class="am-pick">明暗<select data-am="mode"><option value="auto" selected>跟随系统</option><option value="light">亮</option><option value="dark">暗</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;回复&quot;,&quot;comment&quot;:&quot;评论&quot;,&quot;commentHint&quot;:&quot;对这个面板的意见&quot;,&quot;title&quot;:&quot;你的回复&quot;,&quot;hint&quot;:&quot;复制后粘贴到对话里。&quot;,&quot;copy&quot;:&quot;复制回复&quot;,&quot;close&quot;:&quot;关闭&quot;,&quot;suggested&quot;:&quot;建议&quot;,&quot;empty&quot;:&quot;先选择选项，或在面板上写评论。&quot;,&quot;decisions&quot;:&quot;决定&quot;,&quot;comments&quot;:&quot;评论&quot;,&quot;confirmed&quot;:&quot;确认了建议&quot;,&quot;untouched&quot;:&quot;未作答，保留建议&quot;,&quot;was&quot;:&quot;原为&quot;,&quot;typed&quot;:&quot;以 \&quot;&gt;\&quot; 开头的行是读者输入的文字。&quot;,&quot;done&quot;:&quot;已复制 ✓&quot;}">回复</button>
+<button class="am-btn" type="button" data-am="copy" data-done="已复制 ✓">复制源稿</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>Prompt 不是人格，Prompt 是控制平面（核对试点版）</h1><p class="am-sub">《Harness Engineering：Claude Code 设计指南》第 2 章解读，已按官方文档、本机观察和实测核对</p><div class="am-head-meta"><span><b>source</b>https://harness-books.agentway.dev/book1-claude-code/chapter-02-prompt-is-control-plane.html</span></div><div class="am-intro am-md"><div class="am-md"><p>原文：<a href="https://harness-books.agentway.dev/book1-claude-code/chapter-02-prompt-is-control-plane.html">第 2 章 Prompt 不是人格，Prompt 是控制平面</a></p>
+<p>一句话结论：原文认为，prompt 的价值在于它是否被纳入一套清楚的控制结构；Claude Code 的 system prompt 分层、有优先级、连着记忆、考虑缓存。核对后，论点成立。四个方面在 v2.1.312 上都有文档或实测依据，源码文件和函数名无法核对。</p>
+<p>需要修正三点：</p>
+<ul>
+<li>原文引用的身份句、URL 约束和工程指令，只在完整版 prompt 里。较新模型默认用短版，这几处被删去或缩成一句。</li>
+<li>CLAUDE.md 和 auto memory 的内容不进 system 字段，而是放在第一条用户消息里，并注明来源。</li>
+<li>实测中 <code>--agent</code> 和 <code>--system-prompt</code> 同时给时，用的是 <code>--system-prompt</code> 的文本。原文的优先级链里，agent 高于 custom，两者是否矛盾取决于命名对应关系，无法判断。</li>
+</ul>
+<p>核对依据：Claude Code 官方文档 code.claude.com/docs（2026-10-29 查阅）；anthropics/claude-code 仓库的 CHANGELOG（最新条目 2.1.312）；本机 Claude Code 2.1.312 的实测和本会话收到的上下文。依据分四种标签：文档、观察、实测（v2.1.312）、旁证（CHANGELOG）。逐条结果见附录。</p>
+</div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">试点说明</div><div class="am-callout-body am-md"><p>本页是第 2 章的核对试点版，原页面保留不动。原文本章没有图片，只有一段优先级伪代码，本页把它画成流程图。与原页面相比，本页每节加了“事实核对”，最后加了附录。</p>
+</div></div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="目录"><a href="#panel-A">A · 核心观点：人设和控制平面不在同一层</a><a href="#panel-B">B · prompt 从一开始就是分层的</a><a href="#panel-C">C · prompt 的真正价值在优先级</a><a href="#panel-D">D · prompt 还连接着记忆系统</a><a href="#panel-E">E · 控制平面还要考虑缓存与计算成本</a><a href="#panel-F">F · 用户可以覆盖 prompt，但不能跳过结构</a><a href="#panel-G">G · prompt 更像宪法，而不是台词</a><a href="#panel-H">H · 从源码提炼的第二个原则</a><a href="#panel-I">I · 附录：事实核对</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>核心观点：人设和控制平面不在同一层</h2><span class="am-panel-meta">原文 2.1</span></header>
+<div class="am-panel-body"><div class="am-md"><p>一说起 system prompt，很多人想到的是人设：你是谁、你擅长什么、最好再有一点稳定的人格。这对聊天系统够用。对要读文件、调工具、动 shell、跨轮执行的代理系统，就不够了。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>人设</th>
+<th>控制平面</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>解决的问题</td>
+<td>它像什么</td>
+<td>它能做什么、什么时候做、做错了怎么办、谁来兜底</td>
+</tr>
+<tr>
+<td>形态</td>
+<td>一篇人物小传</td>
+<td>一组分层拼装的行为区块</td>
+</tr>
+<tr>
+<td>更接近</td>
+<td>台词</td>
+<td>运行时协议</td>
+</tr>
+</tbody></table></div>
+<p>原文说，Claude Code 的 system prompt 属于后者。</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="Prompt 控制平面" data-step="0">Prompt 控制平面</div></div><ul class="am-tree-list"><li data-key="分层" data-step="1"><span class="am-tree-label">分层</span><span class="am-tree-sub">prompt 是一组 section，而不是一段字符串（B）</span></li><li data-key="优先级" data-step="2"><span class="am-tree-label">优先级</span><span class="am-tree-sub">多个来源按固定顺序装配（C）</span></li><li data-key="连接记忆" data-step="3"><span class="am-tree-label">连接记忆</span><span class="am-tree-sub">CLAUDE.md 和记忆规则也进入上下文（D）</span></li><li data-key="考虑缓存" data-step="4"><span class="am-tree-label">考虑缓存</span><span class="am-tree-sub">区分稳定部分和会变的部分（E）</span></li><li data-key="可覆盖但有结构" data-step="5"><span class="am-tree-label">可覆盖但有结构</span><span class="am-tree-sub">用户可以改内容，装配结构不变（F）</span></li></ul></div>
+<div class="am-md"><p>（这五个方面对应原文 2.7 列出的结构条件，分组是本页归纳。）</p>
+<p>本节是原文的观点，不涉及需要核对的事实。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>prompt 从一开始就是分层的</h2><span class="am-panel-meta">原文 2.2</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，<code>getSystemPrompt()</code> 返回一个由多个 section 组成的数组，而不是一段完整字符串。prompt 一旦变成多个块，系统就承认了它内部有一组职责不同的约束。原文列出三类 section：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="system prompt 的 section（按原文）" data-step="0">system prompt 的 section（按原文）</div></div><ul class="am-tree-list"><li data-key="身份与总任务" data-step="1"><span class="am-tree-label">身份与总任务</span><ul><li data-key="交互式代理，用工具帮用户完成软件工程任务" data-step="2"><span class="am-tree-label">交互式代理，用工具帮用户完成软件工程任务</span></li><li data-key="夹带安全约束，例如不要乱猜 URL" data-step="3"><span class="am-tree-label">夹带安全约束，例如不要乱猜 URL</span></li></ul></li><li data-key="系统级规则" data-step="4"><span class="am-tree-label">系统级规则</span><ul><li data-key="用户能看见哪些文本" data-step="5"><span class="am-tree-label">用户能看见哪些文本</span></li><li data-key="工具调用可能触发权限审批" data-step="6"><span class="am-tree-label">工具调用可能触发权限审批</span></li><li data-key="用户拒绝后不能机械重试" data-step="7"><span class="am-tree-label">用户拒绝后不能机械重试</span></li><li data-key="工具结果和用户消息里可能混入 system-reminder" data-step="8"><span class="am-tree-label">工具结果和用户消息里可能混入 system-reminder</span></li><li data-key="上下文会被自动压缩" data-step="9"><span class="am-tree-label">上下文会被自动压缩</span></li></ul></li><li data-key="做任务时的工程性指令" data-step="10"><span class="am-tree-label">做任务时的工程性指令</span><ul><li data-key="不要随意增加需求" data-step="11"><span class="am-tree-label">不要随意增加需求</span></li><li data-key="不要越权优化" data-step="12"><span class="am-tree-label">不要越权优化</span></li><li data-key="不要为了显得完整而隐瞒验证失败" data-step="13"><span class="am-tree-label">不要为了显得完整而隐瞒验证失败</span></li><li data-key="不要在没必要时制造抽象" data-step="14"><span class="am-tree-label">不要在没必要时制造抽象</span></li></ul></li></ul></div>
+<div class="am-md"><p>原文说，系统级规则不关心模型“像不像聪明助手”，而关心它是不是一个守规矩的执行体。这就是控制平面的语气：核心任务是定义边界。工程性指令看起来像写作风格要求，其实和工程约束绑得很紧。一个会“顺手优化一切”的模型，从产品角度看也许很热情，从工程角度看却相当危险。</p>
+<h3>实测：两版 prompt 里各有哪些条目</h3>
+<p>实测抓到两版 system prompt（v2.1.312）。较新模型默认用短版；设 <code>CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT=0</code> 时用完整版。下表逐条对照原文的条目：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>原文的条目</th>
+<th>完整版（约 29,700 字符）</th>
+<th>短版（约 8,500 字符，默认）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>交互式代理，帮用户完成软件工程任务</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>身份句改为 “an agent working with the user toward their goals”；软件工程任务移到 “# Doing tasks” 第一条</span></td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>只有身份句，没有提软件工程任务</span></td>
+</tr>
+<tr>
+<td>不要乱猜 URL</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“You must NEVER generate or guess URLs”</span></td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>没有</span></td>
+</tr>
+<tr>
+<td>用户能看见哪些文本</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>工具调用以外的文本都显示给用户</span></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>同左</span></td>
+</tr>
+<tr>
+<td>工具调用可能触发权限审批</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>不在自动放行范围内的调用，要请用户批准</span></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>写明工具运行在用户选的权限模式下</span></td>
+</tr>
+<tr>
+<td>用户拒绝后不能机械重试</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“do not re-attempt the exact same tool call”</span></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“don&#39;t retry verbatim”</span></td>
+</tr>
+<tr>
+<td>结果里可能混入 system-reminder</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>改为系统会在对话中途发 “system turns”；另有一条提醒工具结果可能有提示注入</span></td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>同左（没有提示注入那条）</span></td>
+</tr>
+<tr>
+<td>上下文会被自动压缩</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“automatically compress prior messages”</span></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“# Context management” 说长对话会被摘要</span></td>
+</tr>
+<tr>
+<td>不要随意增加需求、制造抽象</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“Don&#39;t add features, refactor, or introduce abstractions beyond what the task requires”</span></td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>没有</span></td>
+</tr>
+<tr>
+<td>不要越权优化</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“Match the scope of your actions to what was actually requested”</span></td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>没有</span></td>
+</tr>
+<tr>
+<td>不要隐瞒验证失败</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>测不了 UI 时要明说，不要声称成功</span></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“Report outcomes faithfully”</span></td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>原文的源码位置（<code>src/constants/prompts.ts</code>）和 <code>getSystemPrompt()</code> 返回数组，无法核对：源码不公开。</li>
+<li>分层行为属实（实测）。主 prompt 按 Markdown 标题分节；<code>--exclude-dynamic-system-prompt-sections</code> 能把记忆那一节单独移走（见 E）。发给 API 时，system 字段是三个块：计费头、身份句、主 prompt。</li>
+<li>原文的条目在完整版里大多还在，但身份句和 system-reminder 那条措辞变了（见上表）。</li>
+<li>文档说，较新模型默认用短版，工程指令那一节 “only the full system prompt includes”。所以“工程性指令”在默认短版里只剩如实报告结果一条。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>prompt 的真正价值在优先级</h2><span class="am-panel-meta">原文 2.3</span></header>
+<div class="am-panel-body"><div class="am-md"><p>prompt 只是写在那里，还不能算控制平面。关键是系统有没有给它定义严格的优先级。原文说，<code>buildEffectiveSystemPrompt()</code> 把 prompt 的来源排成一条链：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 869 63" width="869" height="63" role="img" aria-label="流程图：override、coordinator、agent、custom、default" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge am-edge--dashed" d="M90.9,31.5 L125.5,31.5 Q160.1,31.5 194.8,31.5 L229.4,31.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="114.9" y="22.5" width="90.5" height="18" rx="3"/><text x="160.1" y="31.5" text-anchor="middle" dominant-baseline="central">没有则看下一个</text></g></g><g data-step="1"><path class="am-edge am-edge--dashed" d="M325,31.5 L359.6,31.5 Q394.2,31.5 428.9,31.5 L463.5,31.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="349" y="22.5" width="90.5" height="18" rx="3"/><text x="394.2" y="31.5" text-anchor="middle" dominant-baseline="central">没有则看下一个</text></g></g><g data-step="2"><path class="am-edge am-edge--dashed" d="M527.5,31.5 L562.1,31.5 Q596.7,31.5 631.4,31.5 L666,31.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="551.5" y="22.5" width="90.5" height="18" rx="3"/><text x="596.7" y="31.5" text-anchor="middle" dominant-baseline="central">没有则看下一个</text></g></g><g data-step="3"><path class="am-edge am-edge--dashed" d="M738.4,31.5 L749.9,31.5 Q761.4,31.5 772.9,31.5 L784.4,31.5" marker-end="url(#am1-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="override" data-step="0"><rect class="am-node-shape" x="14" y="14" width="76.9" height="35" rx="3"/><text x="52.4" y="31.5" text-anchor="middle" dominant-baseline="central">override</text></g><g class="am-node am-node--rect" data-key="coordinator" data-step="0"><rect class="am-node-shape" x="229.4" y="14" width="95.6" height="35" rx="3"/><text x="277.2" y="31.5" text-anchor="middle" dominant-baseline="central">coordinator</text></g><g class="am-node am-node--rect" data-key="agent" data-step="1"><rect class="am-node-shape" x="463.5" y="14" width="64" height="35" rx="3"/><text x="495.5" y="31.5" text-anchor="middle" dominant-baseline="central">agent</text></g><g class="am-node am-node--rect" data-key="custom" data-step="2"><rect class="am-node-shape" x="666" y="14" width="72.5" height="35" rx="3"/><text x="702.2" y="31.5" text-anchor="middle" dominant-baseline="central">custom</text></g><g class="am-node am-node--rect am-node--hi" data-key="default" data-step="3"><rect class="am-node-shape" x="784.4" y="14" width="69.6" height="35" rx="3"/><text x="819.2" y="31.5" text-anchor="middle" dominant-baseline="central">default</text></g></g></svg></figure>
+<div class="am-md"><p>（按原文的伪代码画，名字取自原文，无法核对。）</p>
+<ul>
+<li>优先级从左到右依次降低。取第一个存在的来源作为基线，它会整段替换默认 prompt。</li>
+<li>最后统一拼接 appendSystemPrompt，它永远在最后一层。</li>
+</ul>
+<p>原文还写了一个特例：agent prompt 和 proactive 模式同时存在时，agent prompt 不替换默认 prompt，而是附加在它后面。原文的说法是：通用制度可以叠加岗位说明书，但不能被岗位说明书直接冲掉。</p>
+<h3>三条不变式</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>不变式</th>
+<th>含义</th>
+<th>核对</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>基线必须唯一</td>
+<td>所有来源里，只有一个作为基线</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测：给了 <code>--system-prompt</code> 或 <code>--agent</code>，主 prompt 都只剩一份，默认 prompt 不再出现</td>
+</tr>
+<tr>
+<td>顺序硬编码</td>
+<td>override 一定高于 default，不靠“后写为准”</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>文档：先写 <code>--append-system-prompt</code> 再写它的文件形式时，“The file&#39;s contents come first”，顺序与命令行先后无关</td>
+</tr>
+<tr>
+<td>追加只能附加</td>
+<td>appendSystemPrompt 永远不会替换基线</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测：三种基线下，追加文本都在主 prompt 末尾</td>
+</tr>
+</tbody></table></div>
+<p>原文说，任何一条被破坏，prompt 就会退化成一块谁后写谁说了算的涂鸦板。</p>
+<h3>实测：能从外部观察的组合</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>给的选项</th>
+<th>主 prompt 用的是</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>都不给</td>
+<td>默认 prompt（完整版或短版）</td>
+<td>实测</td>
+</tr>
+<tr>
+<td><code>--system-prompt</code></td>
+<td>自定义文本，默认 prompt 整段被替换</td>
+<td>文档、实测</td>
+</tr>
+<tr>
+<td><code>--agent</code></td>
+<td>代理 prompt，默认 prompt 整段被替换</td>
+<td>文档、实测</td>
+</tr>
+<tr>
+<td><code>--agent</code> 加 <code>--system-prompt</code></td>
+<td>自定义文本</td>
+<td>实测；文档没写</td>
+</tr>
+<tr>
+<td>任一组合加 <code>--append-system-prompt</code></td>
+<td>基线不变，末尾追加</td>
+<td>文档、实测</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>buildEffectiveSystemPrompt()</code> 和原文给的文件位置（<code>src/utils/systemPrompt.ts</code>）无法核对：源码不公开。</li>
+<li>文档里没有 override、coordinator 这两种来源的入口，它们的位置无法核对。</li>
+<li><code>--agent</code> 和 <code>--system-prompt</code> 同时给时，实测用的是自定义文本。若 <code>--system-prompt</code> 对应原文的 custom，这与“agent 高于 custom”不符；若它对应 override，则一致。源码不公开，无法判断。</li>
+<li>proactive 模式的特例无法核对：文档没有这个模式。文档里只有一种名为 Proactive 的输出风格，不能确认是同一机制。</li>
+<li>“基线唯一、追加只附加”行为属实（实测）；论点不受影响。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>prompt 还连接着记忆系统</h2><span class="am-panel-meta">原文 2.4</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，在 Claude Code 里，prompt 是整个上下文治理的入口，而不只是“写给模型看的一段话”。它举了两个函数：</p>
+<ul>
+<li><strong>getClaudeMds()</strong>：把项目指令、个人项目指令、团队共享的 team memory 和跨会话的 auto memory 整理成统一格式。整理后的内容拼进 prompt 相关上下文。每段内容都写明来源。</li>
+<li><strong>buildMemoryLines()</strong>：把“怎样保存记忆”也写进 prompt。它告诉模型五件事：memory 是文件化的持久系统；MEMORY.md 是索引，不是正文；frontmatter 怎么写；哪些信息不该保存；plan 和 task 不该被误用成 memory。</li>
+</ul>
+<p>下图按实测和观察画出这些内容实际放在哪里（本页归纳）：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 1400 390" width="1400" height="390" role="img" aria-label="流程图：./CLAUDE.md、第一条用户消息里的 system-reminder、./CLAUDE.local.md、auto memory 的 MEMORY.md、模型看到的上下文、记忆的保存规则、用了 --exclude-dynamic-system-prompt-sections?、system 字段的记忆一节" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M161.2,154.1 L161.2,182.1 Q161.2,210.2 368,234.9 L574.9,259.6" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="15" y="201.2" width="292.4" height="18" rx="3"/><text x="161.2" y="210.2" text-anchor="middle" dominant-baseline="central">标 “project instructions, checked into the codebase”</text></g></g><g data-step="1"><path class="am-edge" d="M481.5,154.1 L481.5,182.1 Q481.5,210.2 528.2,226.5 L574.9,242.8" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="329.4" y="201.2" width="304.2" height="18" rx="3"/><text x="481.5" y="210.2" text-anchor="middle" dominant-baseline="central">标 “user&#39;s private project instructions, not checked in”</text></g></g><g data-step="2"><path class="am-edge" d="M813.2,162.6 L813.2,186.4 Q813.2,210.2 766.5,226.5 L719.9,242.8" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="655.6" y="201.2" width="315.2" height="18" rx="3"/><text x="813.2" y="210.2" text-anchor="middle" dominant-baseline="central">标 “user&#39;s auto-memory, persists across conversations”</text></g></g><g data-step="3"><path class="am-edge" d="M647.4,294.2 L647.4,305.7 Q647.4,317.2 695.1,328.7 L742.8,340.3" marker-end="url(#am2-arrow)"/></g><g data-step="4"><path class="am-edge" d="M1148.1,49 L1148.1,60.5 Q1148.1,72 1148.1,83.5 L1148.1,95" marker-end="url(#am2-arrow)"/></g><g data-step="5"><path class="am-edge" d="M1159.7,176.2 L1164.8,193.2 Q1169.8,210.2 1169.8,230.5 L1169.8,250.7" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="1159.1" y="201.2" width="21.5" height="18" rx="3"/><text x="1169.8" y="210.2" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="6"><path class="am-edge" d="M1113.2,172.1 L1094.5,191.1 Q1075.8,210.2 897.8,234.3 L719.9,258.4" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="1065.1" y="201.2" width="21.5" height="18" rx="3"/><text x="1075.8" y="210.2" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="7"><path class="am-edge" d="M1169.8,285.7 L1169.8,301.5 Q1169.8,317.2 1028.3,333.3 L886.8,349.5" marker-end="url(#am2-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="./CLAUDE.md" data-step="0"><rect class="am-node-shape" x="102.5" y="119.1" width="117.4" height="35" rx="3"/><text x="161.2" y="136.6" text-anchor="middle" dominant-baseline="central">./CLAUDE.md</text></g><g class="am-node am-node--rect" data-key="第一条用户消息里的 system-reminder" data-step="0"><rect class="am-node-shape" x="574.9" y="242.2" width="145" height="52" rx="3"/><text x="647.4" y="259.7" text-anchor="middle" dominant-baseline="central">第一条用户消息里的</text><text x="647.4" y="276.7" text-anchor="middle" dominant-baseline="central">system-reminder</text></g><g class="am-node am-node--rect" data-key="./CLAUDE.local.md" data-step="1"><rect class="am-node-shape" x="405.6" y="119.1" width="151.8" height="35" rx="3"/><text x="481.5" y="136.6" text-anchor="middle" dominant-baseline="central">./CLAUDE.local.md</text></g><g class="am-node am-node--rect" data-key="auto memory 的 MEMORY.md" data-step="2"><rect class="am-node-shape" x="751.6" y="110.6" width="123.2" height="52" rx="3"/><text x="813.2" y="128.1" text-anchor="middle" dominant-baseline="central">auto memory 的</text><text x="813.2" y="145.1" text-anchor="middle" dominant-baseline="central">MEMORY.md</text></g><g class="am-node am-node--round am-node--hi" data-key="模型看到的上下文" data-step="3"><rect class="am-node-shape" x="742.8" y="340.2" width="144" height="35" rx="17.5"/><text x="814.8" y="357.7" text-anchor="middle" dominant-baseline="central">模型看到的上下文</text></g><g class="am-node am-node--rect" data-key="记忆的保存规则" data-step="4"><rect class="am-node-shape" x="1088.6" y="14" width="119" height="35" rx="3"/><text x="1148.1" y="31.5" text-anchor="middle" dominant-baseline="central">记忆的保存规则</text></g><g class="am-node am-node--diamond" data-key="用了 --exclude-dynamic-system-prompt-sections?" data-step="4"><polygon class="am-node-shape" points="1148.1,95 1385.3,136.6 1148.1,178.2 910.8,136.6"/><text x="1148.1" y="128.1" text-anchor="middle" dominant-baseline="central">用了</text><text x="1148.1" y="145.1" text-anchor="middle" dominant-baseline="central">--exclude-dynamic-system-prompt-sections?</text></g><g class="am-node am-node--rect" data-key="system 字段的记忆一节" data-step="5"><rect class="am-node-shape" x="1086.1" y="250.7" width="167.4" height="35" rx="3"/><text x="1169.8" y="268.2" text-anchor="middle" dominant-baseline="central">system 字段的记忆一节</text></g></g></svg></figure>
+<div class="am-md"><p>这些说明前面有一句开场：“These instructions OVERRIDE any default behavior and you MUST follow them exactly as written.”（观察）。文档说，所有找到的 CLAUDE.md 按从宽到窄的顺序拼接，而不是互相覆盖。</p>
+<h3>记忆规则：两版 prompt 对照</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>原文说 prompt 告诉模型的</th>
+<th>完整版</th>
+<th>短版</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>memory 是文件化的持久系统</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“persistent, file-based memory system”</span></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“persistent file-based memory”</span></td>
+</tr>
+<tr>
+<td>MEMORY.md 是索引，不是正文</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“<code>MEMORY.md</code> is an index, not a memory”</span></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>写明它是索引，不要把记忆内容写进去</span></td>
+</tr>
+<tr>
+<td>frontmatter 怎么写</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>给了模板</span></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>给了模板</span></td>
+</tr>
+<tr>
+<td>哪些信息不该保存</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“## What NOT to save in memory” 一节</span></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>一句话：仓库里已有的、只和本次对话有关的不存</span></td>
+</tr>
+<tr>
+<td>plan 和 task 不该当成 memory</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>“## Memory and other forms of persistence” 一节</span></td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>没有</span></td>
+</tr>
+</tbody></table></div>
+<p>原文由此说：这一步把 prompt 的职责从“约束当前行为”扩展到“约束未来知识怎样沉淀”。Claude Code 不只用 prompt 规定这一轮怎么说话，还用它规定长期记忆怎样形成。走到这一步，prompt 就不再是语气问题，而是制度问题。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>getClaudeMds()</code>、<code>buildMemoryLines()</code> 和原文给的文件位置（<code>src/utils/claudemd.ts</code>、<code>src/memdir/memdir.ts</code>）无法核对：源码不公开。</li>
+<li>“统一格式，写明来源”行为属实（实测、观察）。项目指令、个人项目指令、auto memory 各有一句来源标签，见上图。</li>
+<li>补充位置：这些内容不进 system 字段，而是放在第一条用户消息里（实测）。文档也说 system reminder “in the conversation, not in the system prompt”。</li>
+<li>team memory 本次没有观察到。CHANGELOG 提到过 team memory stores（<code>CLAUDE_MEMORY_STORES</code>），只能说明这个机制存在（旁证）。</li>
+<li>记忆规则：完整版五条都有；默认短版缺“plan 和 task 不该当成 memory”那一条（实测）。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>控制平面还要考虑缓存与计算成本</h2><span class="am-panel-meta">原文 2.5</span></header>
+<div class="am-panel-body"><div class="am-md"><p>多数人理解 prompt 时很少想到性能。但 prompt 同时也是计算成本：越复杂、变化越频繁，缓存命中就越差，系统就越贵、越慢。原文说，Claude Code 把 prompt section 分成两类：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>section 类型</th>
+<th>缓存</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>systemPromptSection</td>
+<td>可缓存</td>
+<td>resolveSystemPromptSections() 优先从缓存取，只在必要时重算</td>
+</tr>
+<tr>
+<td>DANGEROUS_uncachedSystemPromptSection</td>
+<td>会打破缓存</td>
+<td>名字里的 DANGEROUS 提醒使用者它的代价</td>
+</tr>
+</tbody></table></div>
+<p>原文还说，执行 <code>/clear</code> 或 <code>/compact</code> 后，clearSystemPromptSections() 会清空这些缓存状态。<code>getSystemPrompt()</code> 用一条 boundary 把静态部分和动态部分显式分开。</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 520 80" width="520" height="80" role="img" aria-label="流程图：静态部分：会话中相对稳定、boundary、动态部分：逐轮变化" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M185,40 L196.5,40 Q208,40 219.5,40 L231,40" marker-end="url(#am3-arrow)"/></g><g data-step="0"><path class="am-edge" d="M314.1,40 L325.6,40 Q337.1,40 348.6,40 L360.1,40" marker-end="url(#am3-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="静态部分：会话中相对稳定" data-step="0"><rect class="am-node-shape" x="14" y="14" width="171" height="52" rx="3"/><text x="99.5" y="31.5" text-anchor="middle" dominant-baseline="central">静态部分：会话中相对稳</text><text x="99.5" y="48.5" text-anchor="middle" dominant-baseline="central">定</text></g><g class="am-node am-node--rect" data-key="boundary" data-step="0"><rect class="am-node-shape" x="231" y="22.5" width="83.1" height="35" rx="3"/><text x="272.6" y="40" text-anchor="middle" dominant-baseline="central">boundary</text></g><g class="am-node am-node--rect" data-key="动态部分：逐轮变化" data-step="0"><rect class="am-node-shape" x="360.1" y="22.5" width="145" height="35" rx="3"/><text x="432.6" y="40" text-anchor="middle" dominant-baseline="central">动态部分：逐轮变化</text></g></g></svg></figure>
+<div class="am-md"><p>（示意：按原文文字画。）</p>
+<p>原文说，这说明设计时已经承认：有些内容相对稳定，有些内容逐轮变化，两者不能混在一起消耗缓存。一个系统一旦开始关心“哪部分 prompt 会让缓存失效”，就不再把 prompt 当作文案创作：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>文案</th>
+<th>控制平面</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>追求</td>
+<td>完整表达</td>
+<td>可治理、可复用、可预测的行为成本</td>
+</tr>
+</tbody></table></div>
+<h3>文档和实测能看到的行为</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>原文的说法</th>
+<th>能看到的行为</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>已算好的内容优先从缓存取</td>
+<td>system prompt 在会话第一次请求时构建并记录，压缩前的请求都复用它</td>
+<td>文档</td>
+</tr>
+<tr>
+<td><code>/clear</code>、<code>/compact</code> 后清空</td>
+<td>项目根和用户级的 CLAUDE.md 在会话开始时读一次；中途改了不生效，<code>/clear</code>、<code>/compact</code> 或重启后才重新读</td>
+<td>文档</td>
+</tr>
+<tr>
+<td>静态和动态部分分开</td>
+<td>用 <code>--exclude-dynamic-system-prompt-sections</code> 后，记忆那一节（约 2,400 字符）从 system 字段移到第一条用户消息；环境信息一节留在原处</td>
+<td>文档、实测</td>
+</tr>
+<tr>
+<td>自定义 prompt 也能分开</td>
+<td>在 <code>--system-prompt</code> 里加一行 <code>__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__</code>，上面的部分单独缓存</td>
+<td>文档</td>
+</tr>
+<tr>
+<td>变化会让缓存失效</td>
+<td>缓存按前缀匹配，system prompt 一变，后面全部重算</td>
+<td>文档、实测</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>两类 section 的名字和 <code>resolveSystemPromptSections()</code>、<code>clearSystemPromptSections()</code>，以及原文给的文件位置（<code>src/constants/systemPromptSections.ts</code>），无法核对：源码不公开。</li>
+<li>行为层与原文一致（见上表）。注意文档说的 API 缓存只按前缀匹配，“There is no per-file or per-segment caching”。原文说的按段缓存，指 Claude Code 自己保存算好的段落。这一层从外部看不到。</li>
+<li>实测三次运行，工具定义和身份句相同、主 prompt 不同。后两次都从缓存读了 12,542 个 token，主 prompt 及之后的内容重新写入。这与“前面不变的部分能复用缓存”一致。</li>
+<li>自定义 prompt 的边界：实测经本机网关时，边界那一行被删掉，但两部分仍在一个块里。文档写明经 LLM 网关时 “sends the whole prompt as one block”，两者一致。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>用户可以覆盖 prompt，但不能跳过结构</h2><span class="am-panel-meta">原文 2.6</span></header>
+<div class="am-panel-body"><div class="am-md"><p>Claude Code 没有把用户锁死在默认 prompt 上，CLI 明确支持覆盖和追加。原文列了四个选项：<code>--system-prompt</code>、<code>--system-prompt-file</code>、<code>--append-system-prompt</code>、<code>--append-system-prompt-file</code>。</p>
+<p>关键在于：无论用户怎样覆盖和追加，最终都由同一个 buildEffectiveSystemPrompt() 装配。系统允许自定义，但不放弃秩序；用户可以改内容，系统保留结构。</p>
+<p>没有结构的可定制，最后往往退化成另一种随意。今天加一段，明天减一段，后天某个 agent 又替换掉基线约束，系统行为就越来越像临时口头通知。原文说，Claude Code 的选择是：允许修改，但修改必须发生在既定的优先级和分层机制里。</p>
+<p>下图按文档和实测画出替换默认 prompt 时，哪些层变、哪些层不变（本页归纳）：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 737 260" width="737" height="260" role="img" aria-label="流程图：--system-prompt 或 --system-prompt-file、替换基线：主 prompt、--append-system-prompt 或其文件形式、追加在主 prompt 末尾、替换基线、system 字段、CLAUDE.md、记忆、文件变更提示等、第一条及后续用户消息" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am4-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M95.3,66 L95.3,82 Q95.3,98 95.3,114 L95.3,130" marker-end="url(#am4-arrow)"/></g><g data-step="1"><path class="am-edge" d="M306,66 L306,82 Q306,98 306,114 L306,130" marker-end="url(#am4-arrow)"/></g><g data-step="3"><path class="am-edge" d="M306,165 L306,176.5 Q306,188 306,199.5 L306,211" marker-end="url(#am4-arrow)"/></g><g data-step="4"><path class="am-edge" d="M636.8,66 L636.8,82 Q636.8,98 636.8,114 L636.8,130" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="597.3" y="89" width="79" height="18" rx="3"/><text x="636.8" y="98" text-anchor="middle" dominant-baseline="central">不受替换影响</text></g></g></g><g><g class="am-node am-node--rect" data-key="--system-prompt 或 --system-prompt-file" data-step="0"><rect class="am-node-shape" x="14" y="14" width="162.7" height="52" rx="3"/><text x="95.3" y="31.5" text-anchor="middle" dominant-baseline="central">--system-prompt 或</text><text x="95.3" y="48.5" text-anchor="middle" dominant-baseline="central">--system-prompt-file</text></g><g class="am-node am-node--rect am-node--hi" data-key="替换基线：主 prompt" data-step="0"><rect class="am-node-shape" x="19.7" y="130" width="151.2" height="35" rx="3"/><text x="95.3" y="147.5" text-anchor="middle" dominant-baseline="central">替换基线：主 prompt</text></g><g class="am-node am-node--rect" data-key="--append-system-prompt 或其文件形式" data-step="1"><rect class="am-node-shape" x="212.7" y="14" width="186.6" height="52" rx="3"/><text x="306" y="31.5" text-anchor="middle" dominant-baseline="central">--append-system-prompt</text><text x="306" y="48.5" text-anchor="middle" dominant-baseline="central">或其文件形式</text></g><g class="am-node am-node--rect" data-key="追加在主 prompt 末尾" data-step="1"><rect class="am-node-shape" x="228.4" y="130" width="155.1" height="35" rx="3"/><text x="306" y="147.5" text-anchor="middle" dominant-baseline="central">追加在主 prompt 末尾</text></g><g class="am-node am-node--rect" data-key="替换基线" data-step="2"><rect class="am-node-shape" x="435.3" y="22.5" width="80" height="35" rx="3"/><text x="475.3" y="40" text-anchor="middle" dominant-baseline="central">替换基线</text></g><g class="am-node am-node--rect" data-key="system 字段" data-step="3"><rect class="am-node-shape" x="254.8" y="211" width="102.4" height="35" rx="3"/><text x="306" y="228.5" text-anchor="middle" dominant-baseline="central">system 字段</text></g><g class="am-node am-node--rect" data-key="CLAUDE.md、记忆、文件变更提示等" data-step="4"><rect class="am-node-shape" x="551.3" y="14" width="171" height="52" rx="3"/><text x="636.8" y="31.5" text-anchor="middle" dominant-baseline="central">CLAUDE.md、记忆、文</text><text x="636.8" y="48.5" text-anchor="middle" dominant-baseline="central">件变更提示等</text></g><g class="am-node am-node--rect" data-key="第一条及后续用户消息" data-step="4"><rect class="am-node-shape" x="557.8" y="130" width="158" height="35" rx="3"/><text x="636.8" y="147.5" text-anchor="middle" dominant-baseline="central">第一条及后续用户消息</text></g></g></svg></figure>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>原文给的文件位置（<code>src/main.tsx</code>）无法核对：源码不公开。</li>
+<li>四个选项都存在（文档）。文档另有 <code>--system-prompt-snapshot</code> 和 <code>--exclude-dynamic-system-prompt-sections</code>，也调整这套结构。</li>
+<li>“替换后结构仍在”行为属实。文档说，替换会丢掉默认 prompt 里的工具指引和安全说明；但 CLAUDE.md 等 system reminder 走对话消息，替换后大多照样送达。实测中，替换后 CLAUDE.md 仍在第一条用户消息里，追加文本仍在末尾。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>prompt 更像宪法，而不是台词</h2><span class="am-panel-meta">原文 2.7</span></header>
+<div class="am-panel-body"><div class="am-md"><p>台词是给角色在场上说的；宪法规定权力边界、责任关系，以及例外情况怎样处理。原文说，Claude Code 的 prompt 更接近宪法，因为它满足五个结构条件：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>结构条件</th>
+<th>而不是</th>
+<th>核对</th>
+<th>详见</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分层</td>
+<td>一块写到底</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>B</td>
+</tr>
+<tr>
+<td>有优先级</td>
+<td>谁后写谁说了算</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实；agent 与 custom 的先后无法核对</span></td>
+<td>C</td>
+</tr>
+<tr>
+<td>与 memory、CLAUDE.md、agent instructions、MCP instructions 一起组成控制平面</td>
+<td>孤立的一段文字</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>CLAUDE.md 和记忆实测属实；MCP 说明本次没配置</span></td>
+<td>D</td>
+</tr>
+<tr>
+<td>有缓存和动态 section 机制</td>
+<td>随手拼一段文本</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>E</td>
+</tr>
+<tr>
+<td>和运行时紧密耦合</td>
+<td>游离于系统之外的装饰物</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>观点，依据见各节</span></td>
+<td>B–F</td>
+</tr>
+</tbody></table></div>
+<p>原文说，单独“写一个好 prompt”价值有限。更重要的问题是：prompt 在系统里处于什么位置，和哪些模块配合，是否参与权限、状态、上下文和长期记忆的治理。不回答这些问题，所谓好 prompt 往往只在某个顺利的场景里暂时成立。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>MCP 服务器说明：文档说它会占用上下文；本次没配置 MCP 服务器，它放在哪里没有观察到。</li>
+<li>其余四条的依据见 B–F 的“事实核对”。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>从源码提炼的第二个原则</h2><span class="am-panel-meta">原文 2.8</span></header>
+<div class="am-panel-body"><div class="am-callout am-callout--ok" role="note"><div class="am-callout-title">第二个原则</div><div class="am-callout-body am-md"><p>Prompt 的价值，在于它是否被纳入一套清楚的控制结构。</p>
+</div></div>
+<div class="am-md"><p>原文说，源码在五个地方共同证明了这一点。源码不公开，下表把原文的证据换成核对后的依据：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>原文的源码依据</th>
+<th>说明什么</th>
+<th>核对后的依据</th>
+<th>详见</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>constants/prompts.ts</td>
+<td>把 prompt 写成分段的控制结构，而不是一段统一宣言</td>
+<td>主 prompt 按标题分节，记忆一节能单独移走（实测）；默认短版比完整版简略得多（文档、实测）</td>
+<td>B</td>
+</tr>
+<tr>
+<td>utils/systemPrompt.ts</td>
+<td>明确规定 prompt 来源的优先级</td>
+<td>替换、代理、追加三种来源的组合结果固定（文档、实测）</td>
+<td>C</td>
+</tr>
+<tr>
+<td>utils/claudemd.ts</td>
+<td>把项目级内容和长期记忆纳入上下文装配</td>
+<td>CLAUDE.md、CLAUDE.local.md、MEMORY.md 带来源标签进第一条用户消息（实测、观察）</td>
+<td>D</td>
+</tr>
+<tr>
+<td>memdir/memdir.ts</td>
+<td>用 prompt 规定长期记忆的保存规则</td>
+<td>两版 prompt 都有记忆规则；短版缺 plan 和 task 那一条（实测）</td>
+<td>D</td>
+</tr>
+<tr>
+<td>constants/systemPromptSections.ts</td>
+<td>把 prompt 变成可缓存、可失效、可按段重算的运行时对象</td>
+<td>首次构建后复用，压缩或清空后重建；动态段能移出 system 字段（文档、实测）</td>
+<td>E</td>
+</tr>
+</tbody></table></div>
+<p>原文提炼的工程原则：成熟代理系统里，prompt 不是“让模型入戏的开场白”。它更像一套运行中的制度文本。制度文本当然可以写得清楚，但最重要的始终是约束力。核对后，五处证据都能换成文档或实测依据，论点成立。需要补充两点：</p>
+<ul>
+<li>约束的密度随 prompt 版本变化，默认短版比完整版少很多条。</li>
+<li>项目说明和记忆不在 system 字段里，而在对话消息里。“prompt”在这里应理解为整个上下文，而不只是 system 字段。</li>
+</ul>
+<p>下一章讨论 query loop。原文说，再好的控制平面，最后都要落到执行循环里。prompt 规定边界，循环决定系统每一轮怎样继续、中断和恢复。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-I">
+<header class="am-panel-head"><span class="am-panel-id">I</span><h2>附录：事实核对</h2><span class="am-panel-meta">本页补充</span></header>
+<div class="am-panel-body"><div class="am-md"><h3>逐条核对</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>原文的说法</th>
+<th>核对</th>
+<th>实际情况和依据</th>
+<th>正文</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>getSystemPrompt()</code> 返回由多个 section 组成的数组（原文：<code>src/constants/prompts.ts:444</code>）</td>
+<td>无法核对</td>
+<td>源码不公开。行为：主 prompt 按 Markdown 标题分节，记忆一节能单独移走（实测）</td>
+<td>B</td>
+</tr>
+<tr>
+<td>2</td>
+<td>身份说明：交互式代理，用工具帮用户完成软件工程任务</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>措辞已变</span></td>
+<td>实测完整版：“You are an agent working with the user toward their goals, using your own judgment along the way. Use the instructions below and the tools available to you to assist the user.” 软件工程任务写在 “# Doing tasks” 第一条。短版没有提软件工程任务</td>
+<td>B</td>
+</tr>
+<tr>
+<td>3</td>
+<td>身份部分夹带安全约束：不要乱猜 URL</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>只在完整版</span></td>
+<td>实测完整版有 “You must NEVER generate or guess URLs for the user unless you are confident that the URLs are for helping the user with programming”；短版没有</td>
+<td>B</td>
+</tr>
+<tr>
+<td>4</td>
+<td>系统级规则：用户能看见的文本、权限审批、拒绝后不机械重试、system-reminder、自动压缩</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>属实，一条措辞已变</span></td>
+<td>实测完整版 “# System” 一节五条都有。system-reminder 那条现在是 “The system may send updates, reminders, or modifications to rules via mid-conversation system turns. These are system-controlled, unlike function results.” 短版 “# Harness” 和 “# Context management” 也覆盖这五条</td>
+<td>B</td>
+</tr>
+<tr>
+<td>5</td>
+<td>工程性指令：不随意加需求、不越权优化、不隐瞒验证失败、不制造抽象</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>完整版属实，短版只剩一条</span></td>
+<td>实测完整版有 “Don&#39;t add features, refactor, or introduce abstractions beyond what the task requires”“Match the scope of your actions to what was actually requested”“if you can&#39;t test the UI, say so explicitly rather than claiming success”。短版只有 “Report outcomes faithfully”。<a href="https://code.claude.com/docs/en/output-styles">output-styles</a>：工程指令那一节 “only the full system prompt includes”</td>
+<td>B</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>buildEffectiveSystemPrompt()</code> 的优先级链：override、coordinator、agent、custom、default（原文：<code>src/utils/systemPrompt.ts:28</code>）</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>命名无法核对。<a href="https://code.claude.com/docs/en/cli-reference">cli-reference</a>：<code>--system-prompt</code> “Replaces the entire default prompt”；<a href="https://code.claude.com/docs/en/sub-agents">sub-agents</a>：代理 prompt “replaces the default Claude Code system prompt entirely”。实测：<code>--agent</code> 加 <code>--system-prompt</code> 时用自定义文本；若它对应原文的 custom，与原文顺序不符。override、coordinator 在文档里没有入口</td>
+<td>C</td>
+</tr>
+<tr>
+<td>7</td>
+<td>appendSystemPrompt 最后统一拼接</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>cli-reference：<code>--append-system-prompt</code> “Appends to the default prompt”；实测在默认、自定义、代理三种基线下都在主 prompt 末尾</td>
+<td>C</td>
+</tr>
+<tr>
+<td>8</td>
+<td>proactive 模式下，agent prompt 附加在默认 prompt 之后（原文：<code>src/utils/systemPrompt.ts:99</code>）</td>
+<td>无法核对</td>
+<td>文档没有 proactive 模式。<a href="https://code.claude.com/docs/en/output-styles">output-styles</a> 有名为 Proactive 的输出风格，不能确认是同一机制</td>
+<td>C</td>
+</tr>
+<tr>
+<td>9</td>
+<td>三条不变式：基线唯一、顺序硬编码、追加只附加</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测：替换后默认 prompt 不再出现；追加总在末尾。cli-reference：同时给追加文本和追加文件时，“The file&#39;s contents come first even if you pass <code>--append-system-prompt</code> before <code>--append-system-prompt-file</code>”</td>
+<td>C</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>getClaudeMds()</code> 把项目指令、个人项目指令、team memory、auto memory 整理成统一格式，写明来源（原文：<code>src/utils/claudemd.ts:1153</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>实测：CLAUDE.md 标 “project instructions, checked into the codebase”，CLAUDE.local.md 标 “user&#39;s private project instructions, not checked in”。观察：MEMORY.md 标 “user&#39;s auto-memory, persists across conversations”。team memory 没观察到；CHANGELOG 提到 team memory stores（<code>CLAUDE_MEMORY_STORES</code>），属旁证</td>
+<td>D</td>
+</tr>
+<tr>
+<td>11</td>
+<td>这些内容拼进 prompt 相关的上下文</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>属实，需补充位置</span></td>
+<td>实测：它们在第一条用户消息的 system-reminder 里，不在 system 字段。<a href="https://code.claude.com/docs/en/agent-sdk/modifying-system-prompts">modifying-system-prompts</a>：system reminder “in the conversation, not in the system prompt”。<a href="https://code.claude.com/docs/en/memory">memory</a>：各级 CLAUDE.md 拼接而不互相覆盖</td>
+<td>D</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>buildMemoryLines()</code> 告诉模型五条记忆规则（原文：<code>src/memdir/memdir.ts:187</code>）</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>完整版属实，短版缺一条</span></td>
+<td>实测完整版有 “MEMORY.md is an index, not a memory”、frontmatter 模板、“## What NOT to save in memory”、“## Memory and other forms of persistence”（plan 和 task）。短版缺 plan 和 task 那一条。命名无法核对</td>
+<td>D</td>
+</tr>
+<tr>
+<td>13</td>
+<td>systemPromptSection 与 DANGEROUS_uncachedSystemPromptSection；resolve 优先取缓存；<code>/clear</code>、<code>/compact</code> 后 clear（原文：<code>src/constants/systemPromptSections.ts:16</code>）</td>
+<td>无法核对</td>
+<td>源码不公开。相关行为：cli-reference 说 system prompt 在第一次请求时构建并记录，压缩前复用；<a href="https://code.claude.com/docs/en/prompt-caching">prompt-caching</a> 说 CLAUDE.md 在 <code>/clear</code>、<code>/compact</code> 或重启后才重新读</td>
+<td>E</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>getSystemPrompt()</code> 用 boundary 分开静态和动态部分（原文：<code>src/constants/prompts.ts:560</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>cli-reference：<code>--exclude-dynamic-system-prompt-sections</code> 把 auto memory 位置等每个用户不同的内容移出 system prompt。实测：记忆一节（约 2,400 字符）移到第一条用户消息，环境信息一节留在原处。自定义 prompt 可用 <code>__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__</code>（v2.1.275 起）</td>
+<td>E</td>
+</tr>
+<tr>
+<td>15</td>
+<td>动态部分逐轮变化，会消耗缓存</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>prompt-caching：缓存按前缀精确匹配，system prompt 一变，后面全部重算。实测：三次运行工具定义和身份句相同，后两次都读到 12,542 个缓存 token</td>
+<td>E</td>
+</tr>
+<tr>
+<td>16</td>
+<td>CLI 处理 <code>--system-prompt</code>、<code>--system-prompt-file</code>、<code>--append-system-prompt</code>、<code>--append-system-prompt-file</code>（原文：<code>src/main.tsx:1342</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>选项属实，位置无法核对</span></td>
+<td>cli-reference 的 System prompt flags 表列出这四个，另有 <code>--system-prompt-snapshot</code></td>
+<td>F</td>
+</tr>
+<tr>
+<td>17</td>
+<td>覆盖和追加之后，仍由同一套结构装配</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测：替换基线后，CLAUDE.md 仍在第一条用户消息里，追加文本仍在末尾。cli-reference：替换会丢掉默认 prompt 的工具指引和安全说明</td>
+<td>F</td>
+</tr>
+<tr>
+<td>18</td>
+<td>MCP instructions 也是控制平面的一部分</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td><a href="https://code.claude.com/docs/en/how-claude-code-works">how-claude-code-works</a>：MCP 的工具名和 “server instructions” 会占上下文。本次没配置 MCP 服务器，位置没有观察到</td>
+<td>G</td>
+</tr>
+</tbody></table></div>
+<h3>核对范围与局限</h3>
+<ul>
+<li><strong>依据版本</strong>：本机 Claude Code 2.1.312（<code>claude --version</code>）；官方文档 2026-10-29 查阅；CHANGELOG 最新条目 2.1.312。</li>
+<li><strong>实测做法</strong>：在新建的空临时目录里用 <code>claude -p</code> 运行，模型 claude-haiku-5-5，请求经本机配置的 LLM 网关（<code>ANTHROPIC_BASE_URL</code>）。用 <code>OTEL_LOG_RAW_API_BODIES=file:&lt;目录&gt;</code> 抓完整请求。每个目录放一份带标记的 CLAUDE.md 和 CLAUDE.local.md。<ul>
+<li>两版 prompt：沿用第 1 章核对版的抓包，分别是默认设置和 <code>CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT=0</code>。</li>
+<li>优先级：沿用第 1 章的 <code>--system-prompt</code>、<code>--agent</code>、<code>--append-system-prompt</code> 组合。</li>
+<li>动态段和缓存：分别用默认设置、<code>--exclude-dynamic-system-prompt-sections</code>、带 <code>__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__</code> 的 <code>--system-prompt</code> 各跑一次。记下各段的位置，以及响应里的缓存 token 数。</li>
+</ul>
+</li>
+<li><strong>观察</strong>：auto memory 的来源标签取自本会话收到的上下文。</li>
+<li><strong>局限</strong>：结果只代表这个版本、这个模型和这个网关下的表现，不能证明原文说的内部结构。经网关时，自定义 prompt 不按边界拆块；直连 Claude API 时可能不同。没观察到某个行为不等于没有，功能可能分批上线或按账号开关；文档也说短版和完整版可能由实验或服务端配置选择。</li>
+<li><strong>没核对的部分</strong>：所有源码文件名和函数名；override、coordinator、proactive 三种来源；team memory 的格式；MCP 服务器说明的位置；用户级 <code>~/.claude/CLAUDE.md</code> 的来源标签（没有改动用户的真实配置）。</li>
+<li><strong>观点</strong>：“控制平面”“宪法而非台词”“制度文本”等是原文的观点，不核对。</li>
+</ul>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="图表查看" data-expand="展开查看图表">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="关闭" aria-label="关闭">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.4.14 · 2026-10-29 17:13</footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+title: Prompt 不是人格，Prompt 是控制平面（核对试点版）
+subtitle: 《Harness Engineering：Claude Code 设计指南》第 2 章解读，已按官方文档、本机观察和实测核对
+source: https://harness-books.agentway.dev/book1-claude-code/chapter-02-prompt-is-control-plane.html
+---
+原文：[第 2 章 Prompt 不是人格，Prompt 是控制平面](https://harness-books.agentway.dev/book1-claude-code/chapter-02-prompt-is-control-plane.html)
+
+一句话结论：原文认为，prompt 的价值在于它是否被纳入一套清楚的控制结构；Claude Code 的 system prompt 分层、有优先级、连着记忆、考虑缓存。核对后，论点成立。四个方面在 v2.1.312 上都有文档或实测依据，源码文件和函数名无法核对。
+
+需要修正三点：
+
+- 原文引用的身份句、URL 约束和工程指令，只在完整版 prompt 里。较新模型默认用短版，这几处被删去或缩成一句。
+- CLAUDE.md 和 auto memory 的内容不进 system 字段，而是放在第一条用户消息里，并注明来源。
+- 实测中 `--agent` 和 `--system-prompt` 同时给时，用的是 `--system-prompt` 的文本。原文的优先级链里，agent 高于 custom，两者是否矛盾取决于命名对应关系，无法判断。
+
+核对依据：Claude Code 官方文档 code.claude.com/docs（2026-10-29 查阅）；anthropics/claude-code 仓库的 CHANGELOG（最新条目 2.1.312）；本机 Claude Code 2.1.312 的实测和本会话收到的上下文。依据分四种标签：文档、观察、实测（v2.1.312）、旁证（CHANGELOG）。逐条结果见附录。
+
+```callout info 试点说明
+本页是第 2 章的核对试点版，原页面保留不动。原文本章没有图片，只有一段优先级伪代码，本页把它画成流程图。与原页面相比，本页每节加了“事实核对”，最后加了附录。
+```
+
+## A 核心观点：人设和控制平面不在同一层 {meta=&quot;原文 2.1&quot;}
+
+一说起 system prompt，很多人想到的是人设：你是谁、你擅长什么、最好再有一点稳定的人格。这对聊天系统够用。对要读文件、调工具、动 shell、跨轮执行的代理系统，就不够了。
+
+| | 人设 | 控制平面 |
+|---|---|---|
+| 解决的问题 | 它像什么 | 它能做什么、什么时候做、做错了怎么办、谁来兜底 |
+| 形态 | 一篇人物小传 | 一组分层拼装的行为区块 |
+| 更接近 | 台词 | 运行时协议 |
+
+原文说，Claude Code 的 system prompt 属于后者。
+
+```tree list
+Prompt 控制平面
+  分层 | prompt 是一组 section，而不是一段字符串（B）
+  优先级 | 多个来源按固定顺序装配（C）
+  连接记忆 | CLAUDE.md 和记忆规则也进入上下文（D）
+  考虑缓存 | 区分稳定部分和会变的部分（E）
+  可覆盖但有结构 | 用户可以改内容，装配结构不变（F）
+```
+
+（这五个方面对应原文 2.7 列出的结构条件，分组是本页归纳。）
+
+本节是原文的观点，不涉及需要核对的事实。
+
+## B prompt 从一开始就是分层的 {meta=&quot;原文 2.2&quot;}
+
+原文说，`getSystemPrompt()` 返回一个由多个 section 组成的数组，而不是一段完整字符串。prompt 一旦变成多个块，系统就承认了它内部有一组职责不同的约束。原文列出三类 section：
+
+```tree list
+system prompt 的 section（按原文）
+  身份与总任务
+    交互式代理，用工具帮用户完成软件工程任务
+    夹带安全约束，例如不要乱猜 URL
+  系统级规则
+    用户能看见哪些文本
+    工具调用可能触发权限审批
+    用户拒绝后不能机械重试
+    工具结果和用户消息里可能混入 system-reminder
+    上下文会被自动压缩
+  做任务时的工程性指令
+    不要随意增加需求
+    不要越权优化
+    不要为了显得完整而隐瞒验证失败
+    不要在没必要时制造抽象
+```
+
+原文说，系统级规则不关心模型“像不像聪明助手”，而关心它是不是一个守规矩的执行体。这就是控制平面的语气：核心任务是定义边界。工程性指令看起来像写作风格要求，其实和工程约束绑得很紧。一个会“顺手优化一切”的模型，从产品角度看也许很热情，从工程角度看却相当危险。
+
+### 实测：两版 prompt 里各有哪些条目
+
+实测抓到两版 system prompt（v2.1.312）。较新模型默认用短版；设 `CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT=0` 时用完整版。下表逐条对照原文的条目：
+
+| 原文的条目 | 完整版（约 29,700 字符） | 短版（约 8,500 字符，默认） |
+|---|---|---|
+| 交互式代理，帮用户完成软件工程任务 | warn 身份句改为 “an agent working with the user toward their goals”；软件工程任务移到 “# Doing tasks” 第一条 | warn 只有身份句，没有提软件工程任务 |
+| 不要乱猜 URL | ok “You must NEVER generate or guess URLs” | no 没有 |
+| 用户能看见哪些文本 | ok 工具调用以外的文本都显示给用户 | ok 同左 |
+| 工具调用可能触发权限审批 | ok 不在自动放行范围内的调用，要请用户批准 | ok 写明工具运行在用户选的权限模式下 |
+| 用户拒绝后不能机械重试 | ok “do not re-attempt the exact same tool call” | ok “don&#39;t retry verbatim” |
+| 结果里可能混入 system-reminder | warn 改为系统会在对话中途发 “system turns”；另有一条提醒工具结果可能有提示注入 | warn 同左（没有提示注入那条） |
+| 上下文会被自动压缩 | ok “automatically compress prior messages” | ok “# Context management” 说长对话会被摘要 |
+| 不要随意增加需求、制造抽象 | ok “Don&#39;t add features, refactor, or introduce abstractions beyond what the task requires” | no 没有 |
+| 不要越权优化 | ok “Match the scope of your actions to what was actually requested” | no 没有 |
+| 不要隐瞒验证失败 | ok 测不了 UI 时要明说，不要声称成功 | ok “Report outcomes faithfully” |
+
+```callout warn 事实核对
+- 原文的源码位置（`src/constants/prompts.ts`）和 `getSystemPrompt()` 返回数组，无法核对：源码不公开。
+- 分层行为属实（实测）。主 prompt 按 Markdown 标题分节；`--exclude-dynamic-system-prompt-sections` 能把记忆那一节单独移走（见 E）。发给 API 时，system 字段是三个块：计费头、身份句、主 prompt。
+- 原文的条目在完整版里大多还在，但身份句和 system-reminder 那条措辞变了（见上表）。
+- 文档说，较新模型默认用短版，工程指令那一节 “only the full system prompt includes”。所以“工程性指令”在默认短版里只剩如实报告结果一条。
+```
+
+## C prompt 的真正价值在优先级 {meta=&quot;原文 2.3&quot;}
+
+prompt 只是写在那里，还不能算控制平面。关键是系统有没有给它定义严格的优先级。原文说，`buildEffectiveSystemPrompt()` 把 prompt 的来源排成一条链：
+
+```flow LR
+override --&gt; coordinator: 没有则看下一个
+coordinator --&gt; agent: 没有则看下一个
+agent --&gt; custom: 没有则看下一个
+custom --&gt; *default
+```
+
+（按原文的伪代码画，名字取自原文，无法核对。）
+
+- 优先级从左到右依次降低。取第一个存在的来源作为基线，它会整段替换默认 prompt。
+- 最后统一拼接 appendSystemPrompt，它永远在最后一层。
+
+原文还写了一个特例：agent prompt 和 proactive 模式同时存在时，agent prompt 不替换默认 prompt，而是附加在它后面。原文的说法是：通用制度可以叠加岗位说明书，但不能被岗位说明书直接冲掉。
+
+### 三条不变式
+
+| 不变式 | 含义 | 核对 | 依据 |
+|---|---|---|---|
+| 基线必须唯一 | 所有来源里，只有一个作为基线 | ok 行为属实 | 实测：给了 `--system-prompt` 或 `--agent`，主 prompt 都只剩一份，默认 prompt 不再出现 |
+| 顺序硬编码 | override 一定高于 default，不靠“后写为准” | ok 行为属实 | 文档：先写 `--append-system-prompt` 再写它的文件形式时，“The file&#39;s contents come first”，顺序与命令行先后无关 |
+| 追加只能附加 | appendSystemPrompt 永远不会替换基线 | ok 行为属实 | 实测：三种基线下，追加文本都在主 prompt 末尾 |
+
+原文说，任何一条被破坏，prompt 就会退化成一块谁后写谁说了算的涂鸦板。
+
+### 实测：能从外部观察的组合
+
+| 给的选项 | 主 prompt 用的是 | 依据 |
+|---|---|---|
+| 都不给 | 默认 prompt（完整版或短版） | 实测 |
+| `--system-prompt` | 自定义文本，默认 prompt 整段被替换 | 文档、实测 |
+| `--agent` | 代理 prompt，默认 prompt 整段被替换 | 文档、实测 |
+| `--agent` 加 `--system-prompt` | 自定义文本 | 实测；文档没写 |
+| 任一组合加 `--append-system-prompt` | 基线不变，末尾追加 | 文档、实测 |
+
+```callout warn 事实核对
+- `buildEffectiveSystemPrompt()` 和原文给的文件位置（`src/utils/systemPrompt.ts`）无法核对：源码不公开。
+- 文档里没有 override、coordinator 这两种来源的入口，它们的位置无法核对。
+- `--agent` 和 `--system-prompt` 同时给时，实测用的是自定义文本。若 `--system-prompt` 对应原文的 custom，这与“agent 高于 custom”不符；若它对应 override，则一致。源码不公开，无法判断。
+- proactive 模式的特例无法核对：文档没有这个模式。文档里只有一种名为 Proactive 的输出风格，不能确认是同一机制。
+- “基线唯一、追加只附加”行为属实（实测）；论点不受影响。
+```
+
+## D prompt 还连接着记忆系统 {meta=&quot;原文 2.4&quot;}
+
+原文说，在 Claude Code 里，prompt 是整个上下文治理的入口，而不只是“写给模型看的一段话”。它举了两个函数：
+
+- **getClaudeMds()**：把项目指令、个人项目指令、团队共享的 team memory 和跨会话的 auto memory 整理成统一格式。整理后的内容拼进 prompt 相关上下文。每段内容都写明来源。
+- **buildMemoryLines()**：把“怎样保存记忆”也写进 prompt。它告诉模型五件事：memory 是文件化的持久系统；MEMORY.md 是索引，不是正文；frontmatter 怎么写；哪些信息不该保存；plan 和 task 不该被误用成 memory。
+
+下图按实测和观察画出这些内容实际放在哪里（本页归纳）：
+
+```flow
+[./CLAUDE.md] -&gt; [第一条用户消息里的 system-reminder]: 标 “project instructions, checked into the codebase”
+[./CLAUDE.local.md] -&gt; 第一条用户消息里的 system-reminder: 标 “user&#39;s private project instructions, not checked in”
+[auto memory 的 MEMORY.md] -&gt; 第一条用户消息里的 system-reminder: 标 “user&#39;s auto-memory, persists across conversations”
+第一条用户消息里的 system-reminder -&gt; *(模型看到的上下文)
+[记忆的保存规则] -&gt; {用了 --exclude-dynamic-system-prompt-sections?}
+用了 --exclude-dynamic-system-prompt-sections? -&gt; [system 字段的记忆一节]: 否
+用了 --exclude-dynamic-system-prompt-sections? -&gt; 第一条用户消息里的 system-reminder: 是
+system 字段的记忆一节 -&gt; 模型看到的上下文
+```
+
+这些说明前面有一句开场：“These instructions OVERRIDE any default behavior and you MUST follow them exactly as written.”（观察）。文档说，所有找到的 CLAUDE.md 按从宽到窄的顺序拼接，而不是互相覆盖。
+
+### 记忆规则：两版 prompt 对照
+
+| 原文说 prompt 告诉模型的 | 完整版 | 短版 |
+|---|---|---|
+| memory 是文件化的持久系统 | ok “persistent, file-based memory system” | ok “persistent file-based memory” |
+| MEMORY.md 是索引，不是正文 | ok “`MEMORY.md` is an index, not a memory” | ok 写明它是索引，不要把记忆内容写进去 |
+| frontmatter 怎么写 | ok 给了模板 | ok 给了模板 |
+| 哪些信息不该保存 | ok “## What NOT to save in memory” 一节 | ok 一句话：仓库里已有的、只和本次对话有关的不存 |
+| plan 和 task 不该当成 memory | ok “## Memory and other forms of persistence” 一节 | no 没有 |
+
+原文由此说：这一步把 prompt 的职责从“约束当前行为”扩展到“约束未来知识怎样沉淀”。Claude Code 不只用 prompt 规定这一轮怎么说话，还用它规定长期记忆怎样形成。走到这一步，prompt 就不再是语气问题，而是制度问题。
+
+```callout warn 事实核对
+- `getClaudeMds()`、`buildMemoryLines()` 和原文给的文件位置（`src/utils/claudemd.ts`、`src/memdir/memdir.ts`）无法核对：源码不公开。
+- “统一格式，写明来源”行为属实（实测、观察）。项目指令、个人项目指令、auto memory 各有一句来源标签，见上图。
+- 补充位置：这些内容不进 system 字段，而是放在第一条用户消息里（实测）。文档也说 system reminder “in the conversation, not in the system prompt”。
+- team memory 本次没有观察到。CHANGELOG 提到过 team memory stores（`CLAUDE_MEMORY_STORES`），只能说明这个机制存在（旁证）。
+- 记忆规则：完整版五条都有；默认短版缺“plan 和 task 不该当成 memory”那一条（实测）。
+```
+
+## E 控制平面还要考虑缓存与计算成本 {meta=&quot;原文 2.5&quot;}
+
+多数人理解 prompt 时很少想到性能。但 prompt 同时也是计算成本：越复杂、变化越频繁，缓存命中就越差，系统就越贵、越慢。原文说，Claude Code 把 prompt section 分成两类：
+
+| section 类型 | 缓存 | 说明 |
+|---|---|---|
+| systemPromptSection | 可缓存 | resolveSystemPromptSections() 优先从缓存取，只在必要时重算 |
+| DANGEROUS_uncachedSystemPromptSection | 会打破缓存 | 名字里的 DANGEROUS 提醒使用者它的代价 |
+
+原文还说，执行 `/clear` 或 `/compact` 后，clearSystemPromptSections() 会清空这些缓存状态。`getSystemPrompt()` 用一条 boundary 把静态部分和动态部分显式分开。
+
+```flow LR
+[静态部分：会话中相对稳定] -&gt; [boundary] -&gt; [动态部分：逐轮变化]
+```
+
+（示意：按原文文字画。）
+
+原文说，这说明设计时已经承认：有些内容相对稳定，有些内容逐轮变化，两者不能混在一起消耗缓存。一个系统一旦开始关心“哪部分 prompt 会让缓存失效”，就不再把 prompt 当作文案创作：
+
+| | 文案 | 控制平面 |
+|---|---|---|
+| 追求 | 完整表达 | 可治理、可复用、可预测的行为成本 |
+
+### 文档和实测能看到的行为
+
+| 原文的说法 | 能看到的行为 | 依据 |
+|---|---|---|
+| 已算好的内容优先从缓存取 | system prompt 在会话第一次请求时构建并记录，压缩前的请求都复用它 | 文档 |
+| `/clear`、`/compact` 后清空 | 项目根和用户级的 CLAUDE.md 在会话开始时读一次；中途改了不生效，`/clear`、`/compact` 或重启后才重新读 | 文档 |
+| 静态和动态部分分开 | 用 `--exclude-dynamic-system-prompt-sections` 后，记忆那一节（约 2,400 字符）从 system 字段移到第一条用户消息；环境信息一节留在原处 | 文档、实测 |
+| 自定义 prompt 也能分开 | 在 `--system-prompt` 里加一行 `__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__`，上面的部分单独缓存 | 文档 |
+| 变化会让缓存失效 | 缓存按前缀匹配，system prompt 一变，后面全部重算 | 文档、实测 |
+
+```callout warn 事实核对
+- 两类 section 的名字和 `resolveSystemPromptSections()`、`clearSystemPromptSections()`，以及原文给的文件位置（`src/constants/systemPromptSections.ts`），无法核对：源码不公开。
+- 行为层与原文一致（见上表）。注意文档说的 API 缓存只按前缀匹配，“There is no per-file or per-segment caching”。原文说的按段缓存，指 Claude Code 自己保存算好的段落。这一层从外部看不到。
+- 实测三次运行，工具定义和身份句相同、主 prompt 不同。后两次都从缓存读了 12,542 个 token，主 prompt 及之后的内容重新写入。这与“前面不变的部分能复用缓存”一致。
+- 自定义 prompt 的边界：实测经本机网关时，边界那一行被删掉，但两部分仍在一个块里。文档写明经 LLM 网关时 “sends the whole prompt as one block”，两者一致。
+```
+
+## F 用户可以覆盖 prompt，但不能跳过结构 {meta=&quot;原文 2.6&quot;}
+
+Claude Code 没有把用户锁死在默认 prompt 上，CLI 明确支持覆盖和追加。原文列了四个选项：`--system-prompt`、`--system-prompt-file`、`--append-system-prompt`、`--append-system-prompt-file`。
+
+关键在于：无论用户怎样覆盖和追加，最终都由同一个 buildEffectiveSystemPrompt() 装配。系统允许自定义，但不放弃秩序；用户可以改内容，系统保留结构。
+
+没有结构的可定制，最后往往退化成另一种随意。今天加一段，明天减一段，后天某个 agent 又替换掉基线约束，系统行为就越来越像临时口头通知。原文说，Claude Code 的选择是：允许修改，但修改必须发生在既定的优先级和分层机制里。
+
+下图按文档和实测画出替换默认 prompt 时，哪些层变、哪些层不变（本页归纳）：
+
+```flow
+[--system-prompt 或 --system-prompt-file] -&gt; *[替换基线：主 prompt]
+[--append-system-prompt 或其文件形式] -&gt; [追加在主 prompt 末尾]
+替换基线：主 prompt -&gt; (system 字段)
+追加在主 prompt 末尾 -&gt; system 字段
+[CLAUDE.md、记忆、文件变更提示等] -&gt; [第一条及后续用户消息]: 不受替换影响
+```
+
+```callout warn 事实核对
+- 原文给的文件位置（`src/main.tsx`）无法核对：源码不公开。
+- 四个选项都存在（文档）。文档另有 `--system-prompt-snapshot` 和 `--exclude-dynamic-system-prompt-sections`，也调整这套结构。
+- “替换后结构仍在”行为属实。文档说，替换会丢掉默认 prompt 里的工具指引和安全说明；但 CLAUDE.md 等 system reminder 走对话消息，替换后大多照样送达。实测中，替换后 CLAUDE.md 仍在第一条用户消息里，追加文本仍在末尾。
+```
+
+## G prompt 更像宪法，而不是台词 {meta=&quot;原文 2.7&quot;}
+
+台词是给角色在场上说的；宪法规定权力边界、责任关系，以及例外情况怎样处理。原文说，Claude Code 的 prompt 更接近宪法，因为它满足五个结构条件：
+
+| 结构条件 | 而不是 | 核对 | 详见 |
+|---|---|---|---|
+| 分层 | 一块写到底 | ok 行为属实，命名无法核对 | B |
+| 有优先级 | 谁后写谁说了算 | ok 行为属实；agent 与 custom 的先后无法核对 | C |
+| 与 memory、CLAUDE.md、agent instructions、MCP instructions 一起组成控制平面 | 孤立的一段文字 | ok CLAUDE.md 和记忆实测属实；MCP 说明本次没配置 | D |
+| 有缓存和动态 section 机制 | 随手拼一段文本 | ok 行为属实，命名无法核对 | E |
+| 和运行时紧密耦合 | 游离于系统之外的装饰物 | ok 观点，依据见各节 | B–F |
+
+原文说，单独“写一个好 prompt”价值有限。更重要的问题是：prompt 在系统里处于什么位置，和哪些模块配合，是否参与权限、状态、上下文和长期记忆的治理。不回答这些问题，所谓好 prompt 往往只在某个顺利的场景里暂时成立。
+
+```callout warn 事实核对
+- MCP 服务器说明：文档说它会占用上下文；本次没配置 MCP 服务器，它放在哪里没有观察到。
+- 其余四条的依据见 B–F 的“事实核对”。
+```
+
+## H 从源码提炼的第二个原则 {meta=&quot;原文 2.8&quot;}
+
+```callout ok 第二个原则
+Prompt 的价值，在于它是否被纳入一套清楚的控制结构。
+```
+
+原文说，源码在五个地方共同证明了这一点。源码不公开，下表把原文的证据换成核对后的依据：
+
+| 原文的源码依据 | 说明什么 | 核对后的依据 | 详见 |
+|---|---|---|---|
+| constants/prompts.ts | 把 prompt 写成分段的控制结构，而不是一段统一宣言 | 主 prompt 按标题分节，记忆一节能单独移走（实测）；默认短版比完整版简略得多（文档、实测） | B |
+| utils/systemPrompt.ts | 明确规定 prompt 来源的优先级 | 替换、代理、追加三种来源的组合结果固定（文档、实测） | C |
+| utils/claudemd.ts | 把项目级内容和长期记忆纳入上下文装配 | CLAUDE.md、CLAUDE.local.md、MEMORY.md 带来源标签进第一条用户消息（实测、观察） | D |
+| memdir/memdir.ts | 用 prompt 规定长期记忆的保存规则 | 两版 prompt 都有记忆规则；短版缺 plan 和 task 那一条（实测） | D |
+| constants/systemPromptSections.ts | 把 prompt 变成可缓存、可失效、可按段重算的运行时对象 | 首次构建后复用，压缩或清空后重建；动态段能移出 system 字段（文档、实测） | E |
+
+原文提炼的工程原则：成熟代理系统里，prompt 不是“让模型入戏的开场白”。它更像一套运行中的制度文本。制度文本当然可以写得清楚，但最重要的始终是约束力。核对后，五处证据都能换成文档或实测依据，论点成立。需要补充两点：
+
+- 约束的密度随 prompt 版本变化，默认短版比完整版少很多条。
+- 项目说明和记忆不在 system 字段里，而在对话消息里。“prompt”在这里应理解为整个上下文，而不只是 system 字段。
+
+下一章讨论 query loop。原文说，再好的控制平面，最后都要落到执行循环里。prompt 规定边界，循环决定系统每一轮怎样继续、中断和恢复。
+
+## 附录：事实核对 {meta=&quot;本页补充&quot;}
+
+### 逐条核对
+
+| # | 原文的说法 | 核对 | 实际情况和依据 | 正文 |
+|---|---|---|---|---|
+| 1 | `getSystemPrompt()` 返回由多个 section 组成的数组（原文：`src/constants/prompts.ts:444`） | 无法核对 | 源码不公开。行为：主 prompt 按 Markdown 标题分节，记忆一节能单独移走（实测） | B |
+| 2 | 身份说明：交互式代理，用工具帮用户完成软件工程任务 | warn 措辞已变 | 实测完整版：“You are an agent working with the user toward their goals, using your own judgment along the way. Use the instructions below and the tools available to you to assist the user.” 软件工程任务写在 “# Doing tasks” 第一条。短版没有提软件工程任务 | B |
+| 3 | 身份部分夹带安全约束：不要乱猜 URL | warn 只在完整版 | 实测完整版有 “You must NEVER generate or guess URLs for the user unless you are confident that the URLs are for helping the user with programming”；短版没有 | B |
+| 4 | 系统级规则：用户能看见的文本、权限审批、拒绝后不机械重试、system-reminder、自动压缩 | ok 属实，一条措辞已变 | 实测完整版 “# System” 一节五条都有。system-reminder 那条现在是 “The system may send updates, reminders, or modifications to rules via mid-conversation system turns. These are system-controlled, unlike function results.” 短版 “# Harness” 和 “# Context management” 也覆盖这五条 | B |
+| 5 | 工程性指令：不随意加需求、不越权优化、不隐瞒验证失败、不制造抽象 | warn 完整版属实，短版只剩一条 | 实测完整版有 “Don&#39;t add features, refactor, or introduce abstractions beyond what the task requires”“Match the scope of your actions to what was actually requested”“if you can&#39;t test the UI, say so explicitly rather than claiming success”。短版只有 “Report outcomes faithfully”。[output-styles](https://code.claude.com/docs/en/output-styles)：工程指令那一节 “only the full system prompt includes” | B |
+| 6 | `buildEffectiveSystemPrompt()` 的优先级链：override、coordinator、agent、custom、default（原文：`src/utils/systemPrompt.ts:28`） | warn 部分可核对 | 命名无法核对。[cli-reference](https://code.claude.com/docs/en/cli-reference)：`--system-prompt` “Replaces the entire default prompt”；[sub-agents](https://code.claude.com/docs/en/sub-agents)：代理 prompt “replaces the default Claude Code system prompt entirely”。实测：`--agent` 加 `--system-prompt` 时用自定义文本；若它对应原文的 custom，与原文顺序不符。override、coordinator 在文档里没有入口 | C |
+| 7 | appendSystemPrompt 最后统一拼接 | ok 行为属实，命名无法核对 | cli-reference：`--append-system-prompt` “Appends to the default prompt”；实测在默认、自定义、代理三种基线下都在主 prompt 末尾 | C |
+| 8 | proactive 模式下，agent prompt 附加在默认 prompt 之后（原文：`src/utils/systemPrompt.ts:99`） | 无法核对 | 文档没有 proactive 模式。[output-styles](https://code.claude.com/docs/en/output-styles) 有名为 Proactive 的输出风格，不能确认是同一机制 | C |
+| 9 | 三条不变式：基线唯一、顺序硬编码、追加只附加 | ok 行为属实 | 实测：替换后默认 prompt 不再出现；追加总在末尾。cli-reference：同时给追加文本和追加文件时，“The file&#39;s contents come first even if you pass `--append-system-prompt` before `--append-system-prompt-file`” | C |
+| 10 | `getClaudeMds()` 把项目指令、个人项目指令、team memory、auto memory 整理成统一格式，写明来源（原文：`src/utils/claudemd.ts:1153`） | ok 行为属实，命名无法核对 | 实测：CLAUDE.md 标 “project instructions, checked into the codebase”，CLAUDE.local.md 标 “user&#39;s private project instructions, not checked in”。观察：MEMORY.md 标 “user&#39;s auto-memory, persists across conversations”。team memory 没观察到；CHANGELOG 提到 team memory stores（`CLAUDE_MEMORY_STORES`），属旁证 | D |
+| 11 | 这些内容拼进 prompt 相关的上下文 | ok 属实，需补充位置 | 实测：它们在第一条用户消息的 system-reminder 里，不在 system 字段。[modifying-system-prompts](https://code.claude.com/docs/en/agent-sdk/modifying-system-prompts)：system reminder “in the conversation, not in the system prompt”。[memory](https://code.claude.com/docs/en/memory)：各级 CLAUDE.md 拼接而不互相覆盖 | D |
+| 12 | `buildMemoryLines()` 告诉模型五条记忆规则（原文：`src/memdir/memdir.ts:187`） | warn 完整版属实，短版缺一条 | 实测完整版有 “MEMORY.md is an index, not a memory”、frontmatter 模板、“## What NOT to save in memory”、“## Memory and other forms of persistence”（plan 和 task）。短版缺 plan 和 task 那一条。命名无法核对 | D |
+| 13 | systemPromptSection 与 DANGEROUS_uncachedSystemPromptSection；resolve 优先取缓存；`/clear`、`/compact` 后 clear（原文：`src/constants/systemPromptSections.ts:16`） | 无法核对 | 源码不公开。相关行为：cli-reference 说 system prompt 在第一次请求时构建并记录，压缩前复用；[prompt-caching](https://code.claude.com/docs/en/prompt-caching) 说 CLAUDE.md 在 `/clear`、`/compact` 或重启后才重新读 | E |
+| 14 | `getSystemPrompt()` 用 boundary 分开静态和动态部分（原文：`src/constants/prompts.ts:560`） | ok 行为属实，命名无法核对 | cli-reference：`--exclude-dynamic-system-prompt-sections` 把 auto memory 位置等每个用户不同的内容移出 system prompt。实测：记忆一节（约 2,400 字符）移到第一条用户消息，环境信息一节留在原处。自定义 prompt 可用 `__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__`（v2.1.275 起） | E |
+| 15 | 动态部分逐轮变化，会消耗缓存 | ok 行为属实 | prompt-caching：缓存按前缀精确匹配，system prompt 一变，后面全部重算。实测：三次运行工具定义和身份句相同，后两次都读到 12,542 个缓存 token | E |
+| 16 | CLI 处理 `--system-prompt`、`--system-prompt-file`、`--append-system-prompt`、`--append-system-prompt-file`（原文：`src/main.tsx:1342`） | ok 选项属实，位置无法核对 | cli-reference 的 System prompt flags 表列出这四个，另有 `--system-prompt-snapshot` | F |
+| 17 | 覆盖和追加之后，仍由同一套结构装配 | ok 行为属实 | 实测：替换基线后，CLAUDE.md 仍在第一条用户消息里，追加文本仍在末尾。cli-reference：替换会丢掉默认 prompt 的工具指引和安全说明 | F |
+| 18 | MCP instructions 也是控制平面的一部分 | warn 部分可核对 | [how-claude-code-works](https://code.claude.com/docs/en/how-claude-code-works)：MCP 的工具名和 “server instructions” 会占上下文。本次没配置 MCP 服务器，位置没有观察到 | G |
+
+### 核对范围与局限
+
+- **依据版本**：本机 Claude Code 2.1.312（`claude --version`）；官方文档 2026-10-29 查阅；CHANGELOG 最新条目 2.1.312。
+- **实测做法**：在新建的空临时目录里用 `claude -p` 运行，模型 claude-haiku-5-5，请求经本机配置的 LLM 网关（`ANTHROPIC_BASE_URL`）。用 `OTEL_LOG_RAW_API_BODIES=file:&lt;目录&gt;` 抓完整请求。每个目录放一份带标记的 CLAUDE.md 和 CLAUDE.local.md。
+  - 两版 prompt：沿用第 1 章核对版的抓包，分别是默认设置和 `CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT=0`。
+  - 优先级：沿用第 1 章的 `--system-prompt`、`--agent`、`--append-system-prompt` 组合。
+  - 动态段和缓存：分别用默认设置、`--exclude-dynamic-system-prompt-sections`、带 `__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__` 的 `--system-prompt` 各跑一次。记下各段的位置，以及响应里的缓存 token 数。
+- **观察**：auto memory 的来源标签取自本会话收到的上下文。
+- **局限**：结果只代表这个版本、这个模型和这个网关下的表现，不能证明原文说的内部结构。经网关时，自定义 prompt 不按边界拆块；直连 Claude API 时可能不同。没观察到某个行为不等于没有，功能可能分批上线或按账号开关；文档也说短版和完整版可能由实验或服务端配置选择。
+- **没核对的部分**：所有源码文件名和函数名；override、coordinator、proactive 三种来源；team memory 的格式；MCP 服务器说明的位置；用户级 `~/.claude/CLAUDE.md` 的来源标签（没有改动用户的真实配置）。
+- **观点**：“控制平面”“宪法而非台词”“制度文本”等是原文的观点，不核对。
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions and the panel comments.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }].
+// Comment text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+function replyText({ title, decisions, comments, ui }) {
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   → ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) {
+      out.push(`- **${c.panel} · ${c.title}**`, ...c.text.trim().split('\n').map((l) => `  > ${l}`));
+    }
+    out.push('', `_${ui.typed}_`);
+  }
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers and the comments
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  const keyOf = (ask) => ask.querySelector('legend')?.textContent.trim() ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: panel?.querySelector('.am-panel-head h2')?.textContent.trim() ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: ask.querySelector('legend')?.textContent.trim() ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const empty = !decisions.length && !comments.some((c) => c.text.trim());
+    const title = document.querySelector('.am-head h1')?.textContent.trim() ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, ui });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg')].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+</script>
+</body>
+</html>

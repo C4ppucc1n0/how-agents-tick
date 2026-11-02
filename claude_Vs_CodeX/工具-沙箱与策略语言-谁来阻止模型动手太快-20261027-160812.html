@@ -1,0 +1,2512 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="paper" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.4.14">
+<title>工具、沙箱与策略语言：谁来阻止模型动手太快</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-right: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin: 0 6px 0 auto; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-left: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; right: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { left: 50%; }
+.am-timeline--h li:last-child::before { right: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { left: 50%; }
+.am-tree-col:last-child::before { right: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }
+.am-tree-list ul { margin-left: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }
+.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 8px 4px auto;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-right: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */
+  .am-md th, .am-md td { min-width: 6em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+
+/* Change markers (only on pages that have one). Only the Changes view (.am-view-changes) draws change styling: colors, strike-through, faded items
+   and badges. Before and After look like a plain diagram, and the items that do not exist in the view are hidden.
+   The colors are the theme's --ok, --err and --warn, so every theme and mode works. A view hides items with visibility, so nothing moves. */
+.am-view-before [data-delta="added"], .am-view-after [data-delta="removed"] { visibility: hidden; }
+.am-view-before .am-delta-badge, .am-view-after .am-delta-badge { visibility: hidden; }
+/* A list label's badge is inline and would indent the label like a nesting level, so there it takes no space; the other badges are positioned and move nothing. */
+.am-view-before .am-tree-label > .am-delta-badge, .am-view-after .am-tree-label > .am-delta-badge { display: none; }
+
+.am-delta-badge--added { --badge: var(--ok, #1f9d4d); }
+.am-delta-badge--removed { --badge: var(--err, #c62828); }
+.am-delta-badge--changed { --badge: var(--warn, #a8620a); }
+
+/* flow */
+.am-view-changes .am-node[data-delta="added"] .am-node-shape { stroke: var(--ok, #1f9d4d); }
+.am-view-changes .am-node[data-delta="removed"] .am-node-shape { stroke: var(--err, #c62828); }
+.am-view-changes .am-node[data-delta="changed"] .am-node-shape { stroke: var(--warn, #a8620a); }
+.am-view-changes .am-node[data-delta="added"] > text { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-node[data-delta="removed"] > text { fill: var(--err, #c62828); }
+.am-view-changes [data-delta="added"] > .am-edge { stroke: var(--ok, #1f9d4d); }
+.am-view-changes [data-delta="removed"] > .am-edge { stroke: var(--err, #c62828); }
+.am-view-changes .am-arrow--added { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-arrow--removed { fill: var(--err, #c62828); }
+.am-view-changes [data-delta="added"] > .am-edge-label text { fill: var(--ok, #1f9d4d); }
+.am-view-changes [data-delta="removed"] > .am-edge-label text { fill: var(--err, #c62828); }
+.am-view-changes .am-cluster[data-delta="added"] { stroke: var(--ok, #1f9d4d); }
+.am-view-changes .am-cluster[data-delta="removed"] { stroke: var(--err, #c62828); }
+.am-view-changes .am-cluster-label[data-delta="added"] { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-cluster-label[data-delta="removed"] { fill: var(--err, #c62828); }
+.am-view-changes g[data-delta="removed"]:not(.am-delta-badge), .am-view-changes .am-cluster[data-delta="removed"], .am-view-changes .am-cluster-label[data-delta="removed"] { opacity: 0.55; }
+.am-view-changes .am-node[data-delta="removed"] > text, .am-view-changes g[data-delta="removed"] > .am-edge-label text, .am-view-changes .am-cluster-label[data-delta="removed"] { text-decoration: line-through; }
+.am-diagram .am-delta-badge circle { fill: var(--badge); stroke: var(--paper, #ffffff); stroke-width: 1.5; }
+.am-diagram .am-delta-badge text { fill: var(--paper, #ffffff); font: 700 11px var(--font-sans, sans-serif); text-decoration: none; }
+
+/* tree */
+.am-tree .am-delta-badge {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 15px; height: 15px; flex: none;
+  border-radius: 50%; background: var(--badge); color: var(--paper); font: 700 11px/1 var(--font-mono, monospace); text-decoration: none;
+}
+.am-tree-box[data-delta] { position: relative; }
+.am-tree-box > .am-delta-badge { position: absolute; top: -8px; right: -8px; }
+.am-tree-label > .am-delta-badge { margin-right: 6px; vertical-align: 1px; }
+.am-view-changes .am-tree-box[data-delta="added"] { border-color: var(--ok); }
+.am-view-changes .am-tree-box[data-delta="removed"] { border-color: var(--err); opacity: 0.55; text-decoration: line-through; }
+.am-view-changes .am-tree-box[data-delta="changed"] { border-color: var(--warn); }
+.am-view-changes .am-tree-list li[data-delta="added"] > .am-tree-label { color: var(--ok); }
+.am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-label { color: var(--err); text-decoration: line-through; }
+.am-view-changes .am-tree-list li[data-delta="changed"] > .am-tree-label { color: var(--warn); }
+.am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-label, .am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-sub { opacity: 0.55; }
+
+/* Connector lines in a view that hides siblings. A hidden node keeps its stretch of the line, so the line stays whole between the nodes that remain and
+   stops at the last one; the markup (data-line-before / data-line-after, see src/components/tree.js) names the stretches that differ from the usual look. */
+.am-view-before .am-tree-list li::after, .am-view-after .am-tree-list li::after,
+.am-view-before .am-tree-col::before, .am-view-after .am-tree-col::before { visibility: visible; }
+.am-view-before .am-tree-list li[data-line-before="full"]::after, .am-view-after .am-tree-list li[data-line-after="full"]::after { bottom: 0; height: auto; }
+.am-view-before .am-tree-list li[data-line-before="short"]::after, .am-view-after .am-tree-list li[data-line-after="short"]::after { bottom: auto; height: 0.95em; }
+.am-view-before .am-tree-list li[data-line-before="none"]::after, .am-view-after .am-tree-list li[data-line-after="none"]::after,
+.am-view-before .am-tree-col[data-line-before="none"]::before, .am-view-after .am-tree-col[data-line-after="none"]::before,
+.am-view-before .am-tree-root[data-line-before="none"]::after, .am-view-after .am-tree-root[data-line-after="none"]::after { display: none; }
+.am-view-before .am-tree-col[data-line-before="full"]::before, .am-view-after .am-tree-col[data-line-after="full"]::before { left: 0; right: 0; }
+.am-view-before .am-tree-col[data-line-before="start"]::before, .am-view-after .am-tree-col[data-line-after="start"]::before { left: 50%; right: 0; }
+.am-view-before .am-tree-col[data-line-before="end"]::before, .am-view-after .am-tree-col[data-line-after="end"]::before { left: 0; right: 50%; }
+
+/* the count row and the switch */
+.am-delta-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 10px; text-align: left; font: 12px/1.3 var(--font-mono, monospace); }
+.am-delta-count--added { color: var(--ok); }
+.am-delta-count--removed { color: var(--err); }
+.am-delta-count--changed { color: var(--warn); }
+.am-delta-switch { display: inline-flex; margin-left: auto; border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius); overflow: hidden; }
+.am-delta-switch[hidden] { display: none; }
+.am-delta-switch button { font: inherit; padding: 3px 10px; color: var(--ink-2); background: var(--paper); border: 0; border-left: 1px solid var(--line-2); cursor: pointer; }
+.am-delta-switch button:first-child { border-left: 0; }
+.am-delta-switch button[aria-pressed="true"] { color: var(--ink); background: var(--accent-bg); font-weight: 600; }
+.am-delta-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media print { .am-delta-switch { display: none !important; } }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="zh-CN" data-am-root-theme="paper" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">主题<select data-am="theme"><option value="blueprint">图纸</option><option value="shadcn">卡片</option><option value="paper" selected>纸张</option></select></label>
+<label class="am-pick">明暗<select data-am="mode"><option value="auto" selected>跟随系统</option><option value="light">亮</option><option value="dark">暗</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;回复&quot;,&quot;comment&quot;:&quot;评论&quot;,&quot;commentHint&quot;:&quot;对这个面板的意见&quot;,&quot;title&quot;:&quot;你的回复&quot;,&quot;hint&quot;:&quot;复制后粘贴到对话里。&quot;,&quot;copy&quot;:&quot;复制回复&quot;,&quot;close&quot;:&quot;关闭&quot;,&quot;suggested&quot;:&quot;建议&quot;,&quot;empty&quot;:&quot;先选择选项，或在面板上写评论。&quot;,&quot;decisions&quot;:&quot;决定&quot;,&quot;comments&quot;:&quot;评论&quot;,&quot;confirmed&quot;:&quot;确认了建议&quot;,&quot;untouched&quot;:&quot;未作答，保留建议&quot;,&quot;was&quot;:&quot;原为&quot;,&quot;typed&quot;:&quot;以 \&quot;&gt;\&quot; 开头的行是读者输入的文字。&quot;,&quot;done&quot;:&quot;已复制 ✓&quot;}">回复</button>
+<button class="am-btn" type="button" data-am="copy" data-done="已复制 ✓">复制源稿</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>工具、沙箱与策略语言：谁来阻止模型动手太快</h1><p class="am-sub">《Claude Code 和 Codex 的 Harness 设计哲学》第 4 章解读（已按官方文档和官方仓库核对）</p><div class="am-head-meta"><span><b>source</b>https://harness-books.agentway.dev/book2-comparing/chapter-04-tools-sandbox-and-exec-policy.html</span></div><div class="am-intro am-md"><div class="am-md"><p>原文：<a href="https://harness-books.agentway.dev/book2-comparing/chapter-04-tools-sandbox-and-exec-policy.html">第 4 章 工具、沙箱与策略语言：谁来阻止模型动手太快</a></p>
+<p>一句话结论：原文认为，Claude Code 靠运行时编排和现场审批管住工具。Codex 则靠 schema、参数化审批和独立的策略引擎。核对后，Codex 有独立策略引擎这一点成立：execpolicy 是单独的 crate，有自己的规则语言、检查命令和改写入口。但两边的差距被说大了：</p>
+<ul>
+<li>Claude Code 也在 settings.json 里声明 allow / ask / deny 规则、沙箱和附加目录，它的 Bash 工具也有绕过沙箱的参数。</li>
+<li>Codex 也有运行时编排器，负责审批、沙箱和失败重试。</li>
+<li>原文给出的 Codex 骨架和决策树，有多处与源码不符。</li>
+</ul>
+<p>核对依据：Codex 官方仓库 openai/codex main 分支提交 2cab11c（2026-10-27）；Claude Code 官方文档 code.claude.com/docs（2026-10-27 查阅）。与原文不符的地方标“事实核对”，逐条结果见附录。</p>
+</div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="目录"><a href="#panel-A">A · 章首图：工具调用的状态</a><a href="#panel-B">B · 4.1 真正危险的是开始执行</a><a href="#panel-C">C · 4.2 Claude Code：重点在运行时编排和危险动作约束</a><a href="#panel-D">D · 4.3 Codex：重点在工具 schema、审批参数和策略引擎</a><a href="#panel-E">E · 4.4 运行时审批对照策略语言</a><a href="#panel-F">F · 骨架：两种风险闸门</a><a href="#panel-G">G · 审批决策树</a><a href="#panel-H">H · 超时与参数阈值</a><a href="#panel-I">I · 4.5 沙箱与审批：产品定义问题</a><a href="#panel-J">J · 4.6 MCP、扩展工具与边界外移</a><a href="#panel-K">K · 4.7 本章结论</a><a href="#panel-L">L · 附录：事实核对</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>章首图：工具调用的状态</h2><span class="am-panel-meta">原文章首的图，按事实重画</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文在章首放了一张对比图，标题是 “Tool Call States - Runtime Scheduling vs Schema+Policy”。图下的两条注释是原文的论点：</p>
+<ul>
+<li>Claude Code：并发、顺序、中断和 Bash 的判断，都放在所有工具共用的代码路径里。</li>
+<li>Codex：判断放在 schema、policy、沙箱配置这些声明式对象里，换掉它们不用改运行时。</li>
+</ul>
+<p>下面两张图按事实重画。+ 表示按事实补上，− 表示原图有、但与事实不符，~ 表示改过的节点。切换 Before 和 After，可以分别看原图结构和修正后的结构。</p>
+<p><strong>Claude Code：运行时调度</strong></p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 1349 168" width="1349" height="168" role="img" aria-label="流程图：tool_use 块、partitionToolCalls、并发安全批、串行批、StreamingToolExecutor · 排队→闸门→执行→完成→交出、ask / allow / deny 与 Bash 专门规则、settings.json 里的规则、PreToolUse hook" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am1-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M964.2,125.3 L975.7,125.3 Q987.2,125.3 998.7,125.3 L1010.2,125.3" marker-end="url(#am1-arrow)"/></g><g data-step="1"><path class="am-edge" d="M1147.4,136.5 L1170.9,140.4 Q1194.4,144.3 1221.5,132.1 L1248.6,120" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="1177.9" y="135.3" width="33" height="18" rx="3"/><text x="1194.4" y="144.3" text-anchor="middle" dominant-baseline="central">safe</text></g></g><g data-step="2"><path class="am-edge" d="M1135.8,107.8 L1165.1,98.8 Q1194.4,89.8 1227,69.4 L1259.7,49" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="1171.4" y="80.8" width="45.9" height="18" rx="3"/><text x="1194.4" y="89.8" text-anchor="middle" dominant-baseline="central">unsafe</text></g></g><g data-step="3"><path class="am-edge" d="M1255.1,85 L1224.7,68.8 Q1194.4,52.5 1136.6,52.5 Q1078.8,52.5 1033,52.5 Q987.2,52.5 951.5,52.5 Q915.8,52.5 862.7,52.5 Q809.6,52.5 780.7,52.5 L751.8,52.5" marker-end="url(#am1-arrow)"/></g><g data-step="4"><path class="am-edge" d="M1254.3,22.7 L1224.3,14.9 Q1194.4,7 1136.6,7 Q1078.8,7 1033,7 Q987.2,7 951.5,7 Q915.8,7 862.7,7 Q809.6,7 780.7,16.1 L751.8,25.3" marker-end="url(#am1-arrow)"/></g><g data-step="5"><path class="am-edge am-edge--dashed" d="M733.9,87 L771.7,106.1 Q809.6,125.3 838.4,125.3 L867.3,125.3" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="775.8" y="116.3" width="67.5" height="18" rx="3"/><text x="809.6" y="125.3" text-anchor="middle" dominant-baseline="central">按顺序交出</text></g></g><g data-step="6"><path class="am-edge" d="M498.5,52.5 L518.8,52.5 Q539,52.5 559.3,52.5 L579.5,52.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="522.5" y="43.5" width="33" height="18" rx="3"/><text x="539" y="52.5" text-anchor="middle" dominant-baseline="central">闸门</text></g></g><g data-step="7" data-delta="added"><path class="am-edge" d="M176.9,102.5 L217.3,102.5 Q257.7,102.5 298.1,89.9 L338.4,77.4" marker-end="url(#am1-arrow-added)"/><g class="am-edge-label"><rect x="201.7" y="93.5" width="111.9" height="18" rx="3"/><text x="257.7" y="102.5" text-anchor="middle" dominant-baseline="central">deny → ask → allow</text></g></g><g data-step="8" data-delta="added"><path class="am-edge" d="M161.6,31.5 L209.6,31.5 Q257.7,31.5 298.1,36.8 L338.4,42" marker-end="url(#am1-arrow-added)"/><g class="am-edge-label"><rect x="200.9" y="22.5" width="113.5" height="18" rx="3"/><text x="257.7" y="31.5" text-anchor="middle" dominant-baseline="central">先运行，可直接拦截</text></g></g></g><g><g class="am-node am-node--rect" data-key="tool_use 块" data-step="0"><rect class="am-node-shape" x="867.3" y="107.8" width="96.9" height="35" rx="3"/><text x="915.8" y="125.3" text-anchor="middle" dominant-baseline="central">tool_use 块</text></g><g class="am-node am-node--rect" data-key="partitionToolCalls" data-step="0"><rect class="am-node-shape" x="1010.2" y="107.8" width="137.2" height="35" rx="3"/><text x="1078.8" y="125.3" text-anchor="middle" dominant-baseline="central">partitionToolCalls</text></g><g class="am-node am-node--rect" data-key="并发安全批" data-step="1"><rect class="am-node-shape" x="1241.3" y="85" width="93" height="35" rx="3"/><text x="1287.8" y="102.5" text-anchor="middle" dominant-baseline="central">并发安全批</text></g><g class="am-node am-node--rect" data-key="串行批" data-step="2"><rect class="am-node-shape" x="1254.3" y="14" width="67" height="35" rx="3"/><text x="1287.8" y="31.5" text-anchor="middle" dominant-baseline="central">串行批</text></g><g class="am-node am-node--rect am-node--hi" data-key="StreamingToolExecutor · 排队→闸门→执行→完成→交出" data-step="3"><rect class="am-node-shape" x="579.5" y="18" width="172.3" height="69" rx="3"/><text x="665.7" y="35.5" text-anchor="middle" dominant-baseline="central">StreamingToolExecutor</text><text x="665.7" y="52.5" text-anchor="middle" dominant-baseline="central">· 排队→闸门→执行→完成→</text><text x="665.7" y="69.5" text-anchor="middle" dominant-baseline="central">交出</text></g><g class="am-node am-node--rect" data-key="ask / allow / deny 与 Bash 专门规则" data-step="6"><rect class="am-node-shape" x="338.4" y="26.5" width="160.1" height="52" rx="3"/><text x="418.5" y="44" text-anchor="middle" dominant-baseline="central">ask / allow / deny 与</text><text x="418.5" y="61" text-anchor="middle" dominant-baseline="central">Bash 专门规则</text></g><g class="am-node am-node--rect" data-key="settings.json 里的规则" data-step="7" data-delta="added"><rect class="am-node-shape" x="14" y="85" width="162.9" height="35" rx="3"/><text x="95.5" y="102.5" text-anchor="middle" dominant-baseline="central">settings.json 里的规则</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(176.9,85)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="PreToolUse hook" data-step="8" data-delta="added"><rect class="am-node-shape" x="29.3" y="14" width="132.3" height="35" rx="3"/><text x="95.5" y="31.5" text-anchor="middle" dominant-baseline="central">PreToolUse hook</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(161.6,14)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+4 新增</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-md"><p><strong>Codex：schema 加 policy</strong></p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 1721 283" width="1721" height="283" role="img" aria-label="流程图：工具调用 · ToolSpec、Schema 校验、ExecPolicy 评估、参数解析 · serde、沙箱 / 网络 / workdir 绑定、工具运行时、审批参数 / request_permissions、审批请求 · 先 hook，再 Guardian 或用户" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am2-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am2-arrow-removed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--removed" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0" data-delta="removed"><path class="am-edge" d="M856.6,136.8 L889.3,125.8 Q921.9,114.8 961.5,114.8 L1001.1,114.8" marker-end="url(#am2-arrow-removed)"/></g><g data-step="1" data-delta="removed"><path class="am-edge" d="M1108.2,114.8 L1166.8,114.8 Q1225.5,114.8 1282.4,149.9 L1339.4,185" marker-end="url(#am2-arrow-removed)"/></g><g data-step="2" data-delta="added"><path class="am-edge" d="M847.2,171.8 L884.6,187.1 Q921.9,202.5 956.2,202.5 L990.5,202.5" marker-end="url(#am2-arrow-added)"/></g><g data-step="3" data-delta="added"><path class="am-edge" d="M1118.8,202.5 L1172.1,202.5 Q1225.5,202.5 1264.7,202.5 L1304,202.5" marker-end="url(#am2-arrow-added)"/><g class="am-edge-label"><rect x="1170.9" y="193.5" width="109.1" height="18" rx="3"/><text x="1225.5" y="202.5" text-anchor="middle" dominant-baseline="central">仅 exec_command</text></g></g><g data-step="4"><path class="am-edge" d="M1317.5,220 L1271.5,236 Q1225.5,252 1140.1,252 Q1054.6,252 988.3,252 Q921.9,252 863.3,252 Q804.7,252 746.2,252 Q687.6,252 644.1,252 Q600.6,252 565.8,252 Q531.1,252 487.3,199.4 L443.4,146.8" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="784.7" y="243" width="40.1" height="18" rx="3"/><text x="804.7" y="252" text-anchor="middle" dominant-baseline="central">allow</text></g></g><g data-step="5"><path class="am-edge" d="M508.1,120.8 L519.6,120.8 Q531.1,120.8 542.6,120.8 L554.1,120.8" marker-end="url(#am2-arrow)"/></g><g data-step="6"><path class="am-edge am-edge--dashed" d="M646,138.3 L666.8,146.3 Q687.6,154.3 707.8,154.3 L728.1,154.3" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="671.1" y="145.3" width="33" height="18" rx="3"/><text x="687.6" y="154.3" text-anchor="middle" dominant-baseline="central">结果</text></g></g><g data-step="7" data-delta="removed"><path class="am-edge" d="M1404.1,220 L1444.8,239.6 Q1485.4,259.3 1515.5,255.1 L1545.5,250.9" marker-end="url(#am2-arrow-removed)"/><g class="am-edge-label"><rect x="1463.2" y="250.3" width="44.5" height="18" rx="3"/><text x="1485.4" y="259.3" text-anchor="middle" dominant-baseline="central">不确定</text></g></g><g data-step="8" data-delta="removed"><path class="am-edge" d="M1545.5,229.6 L1515.5,225.4 Q1485.4,221.3 1458.5,217 L1431.6,212.7" marker-end="url(#am2-arrow-removed)"/><g class="am-edge-label"><rect x="1457.4" y="212.3" width="56" height="18" rx="3"/><text x="1485.4" y="221.3" text-anchor="middle" dominant-baseline="central">用户决定</text></g></g><g data-step="9" data-delta="added"><path class="am-edge" d="M1386,185 L1435.7,137.1 Q1485.4,89.3 1512.4,83.1 L1539.3,77" marker-end="url(#am2-arrow-added)"/><g class="am-edge-label"><rect x="1462.2" y="80.3" width="46.6" height="18" rx="3"/><text x="1485.4" y="89.3" text-anchor="middle" dominant-baseline="central">prompt</text></g></g><g data-step="10" data-delta="added"><path class="am-edge" d="M1539.3,36.7 L1512.4,29.9 Q1485.4,23 1426.6,23 Q1367.8,23 1296.6,23 Q1225.5,23 1140.1,23 Q1054.6,23 988.3,23 Q921.9,23 863.3,23 Q804.7,23 746.2,23 Q687.6,23 644.1,23 Q600.6,23 565.8,23 Q531.1,23 491,58.9 L450.9,94.8" marker-end="url(#am2-arrow-added)"/><g class="am-edge-label"><rect x="905.4" y="14" width="33" height="18" rx="3"/><text x="921.9" y="23" text-anchor="middle" dominant-baseline="central">批准</text></g></g><g data-step="11" data-delta="added"><path class="am-edge" d="M1404.1,185 L1444.8,165.4 Q1485.4,145.8 1517.4,145.8 L1549.3,145.8" marker-end="url(#am2-arrow-added)"/><g class="am-edge-label"><rect x="1455.6" y="136.8" width="59.7" height="18" rx="3"/><text x="1485.4" y="145.8" text-anchor="middle" dominant-baseline="central">forbidden</text></g></g><g data-step="12" data-delta="added"><path class="am-edge am-edge--dashed" d="M625.7,103.3 L656.7,81.8 Q687.6,60.3 746.2,60.3 Q804.7,60.3 863.3,60.3 Q921.9,60.3 988.3,60.3 Q1054.6,60.3 1140.1,60.3 Q1225.5,60.3 1296.6,60.3 Q1367.8,60.3 1426.6,60.3 Q1485.4,60.3 1512.4,59.8 L1539.3,59.4" marker-end="url(#am2-arrow-added)"/><g class="am-edge-label"><rect x="963.4" y="51.3" width="182.5" height="18" rx="3"/><text x="1054.6" y="60.3" text-anchor="middle" dominant-baseline="central">沙箱拒绝后，视审批策略申请重试</text></g></g><g data-step="13" data-delta="added"><path class="am-edge am-edge--dashed" d="M185.5,120.8 L223,120.8 Q260.5,120.8 298,120.8 L335.5,120.8" marker-end="url(#am2-arrow-added)"/><g class="am-edge-label"><rect x="209.5" y="111.8" width="102" height="18" rx="3"/><text x="260.5" y="120.8" text-anchor="middle" dominant-baseline="central">给后续命令加权限</text></g></g></g><g><g class="am-node am-node--rect" data-key="工具调用 · ToolSpec" data-step="0"><rect class="am-node-shape" x="728.1" y="136.8" width="153.3" height="35" rx="3"/><text x="804.7" y="154.3" text-anchor="middle" dominant-baseline="central">工具调用 · ToolSpec</text></g><g class="am-node am-node--rect" data-key="Schema 校验" data-step="0" data-delta="removed"><rect class="am-node-shape" x="1001.1" y="97.3" width="107" height="35" rx="3"/><text x="1054.6" y="114.8" text-anchor="middle" dominant-baseline="central">Schema 校验</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(1108.2,97.3)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g><g class="am-node am-node--rect" data-key="ExecPolicy 评估" data-step="1" data-delta="changed"><rect class="am-node-shape" x="1304" y="185" width="127.6" height="35" rx="3"/><text x="1367.8" y="202.5" text-anchor="middle" dominant-baseline="central">ExecPolicy 评估</text><g class="am-delta-badge am-delta-badge--changed" data-delta="changed" transform="translate(1431.6,185)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">~</text></g></g><g class="am-node am-node--rect" data-key="参数解析 · serde" data-step="2" data-delta="added"><rect class="am-node-shape" x="990.5" y="185" width="128.4" height="35" rx="3"/><text x="1054.6" y="202.5" text-anchor="middle" dominant-baseline="central">参数解析 · serde</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(1118.8,185)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="沙箱 / 网络 / workdir 绑定" data-step="4"><rect class="am-node-shape" x="335.5" y="94.8" width="172.6" height="52" rx="3"/><text x="421.8" y="112.3" text-anchor="middle" dominant-baseline="central">沙箱 / 网络 / workdir 绑</text><text x="421.8" y="129.3" text-anchor="middle" dominant-baseline="central">定</text></g><g class="am-node am-node--rect" data-key="工具运行时" data-step="5"><rect class="am-node-shape" x="554.1" y="103.3" width="93" height="35" rx="3"/><text x="600.6" y="120.8" text-anchor="middle" dominant-baseline="central">工具运行时</text></g><g class="am-node am-node--rect" data-key="审批参数 / request_permissions" data-step="7" data-delta="removed"><rect class="am-node-shape" x="1545.5" y="214.3" width="154.6" height="52" rx="3"/><text x="1622.8" y="231.8" text-anchor="middle" dominant-baseline="central">审批参数 /</text><text x="1622.8" y="248.8" text-anchor="middle" dominant-baseline="central">request_permissions</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(1700.1,214.3)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g><g class="am-node am-node--rect" data-key="审批请求 · 先 hook，再 Guardian 或用户" data-step="9" data-delta="added"><rect class="am-node-shape" x="1539.3" y="32" width="167.1" height="52" rx="3"/><text x="1622.8" y="49.5" text-anchor="middle" dominant-baseline="central">审批请求 · 先 hook，再</text><text x="1622.8" y="66.5" text-anchor="middle" dominant-baseline="central">Guardian 或用户</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(1706.4,32)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="拒绝 · 原因返回模型" data-step="11" data-delta="added"><rect class="am-node-shape" x="1549.3" y="128.3" width="147.1" height="35" rx="3"/><text x="1622.8" y="145.8" text-anchor="middle" dominant-baseline="central">拒绝 · 原因返回模型</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(1696.4,128.3)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="request_permissions 工具 · 默认关闭" data-step="13" data-delta="added"><rect class="am-node-shape" x="14" y="94.8" width="171.5" height="52" rx="3"/><text x="99.8" y="112.3" text-anchor="middle" dominant-baseline="central">request_permissions 工</text><text x="99.8" y="129.3" text-anchor="middle" dominant-baseline="central">具 · 默认关闭</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(185.5,94.8)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+11 新增</span> <span class="am-delta-count am-delta-count--removed">−6 删除</span> <span class="am-delta-count am-delta-count--changed">~1 修改</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>Claude Code 一侧：partitionToolCalls、并发分批和执行器的状态名无法核对。源码不公开，官方文档也没有写工具并发。能对上文档的是：权限规则按 deny → ask → allow 的顺序生效，PreToolUse hook 在权限提示之前运行。</li>
+<li>原图注释说，Claude Code 的判断都在代码路径里。实际上，allow / ask / deny 规则和沙箱设置都写在 settings.json 里，也是声明式配置。</li>
+<li>Codex 一侧有三处与源码不符。第一，没有按 schema 校验：参数用 serde 解析，exec_command 的多余字段被忽略。第二，ExecPolicy 只评估 shell 命令，不评估所有工具。第三，需要审批时发出审批请求，先交给 hook，再交给 Guardian 或用户；批准后直接执行，不回到 ExecPolicy。</li>
+<li>request_permissions 是模型主动调用的另一个工具，功能开关默认关闭，不是审批分支。</li>
+<li>Codex 也有运行时编排：编排器 ToolOrchestrator 依次负责审批、沙箱内首次执行、沙箱拒绝后的重试。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>4.1 真正危险的是开始执行</h2></header>
+<div class="am-panel-body"><div class="am-md"><p><strong>做什么</strong>：原文说，模型说错话只浪费时间，跑错命令就可能把目录、仓库、进程和工作流一起带坏。真正把 AI coding system 区分开的，是调工具之前谁拥有最后解释权。</p>
+<p><strong>怎么做</strong>：两边都很认真，但认真得不一样。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Claude Code</th>
+<th>Codex</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>工具首先是什么</td>
+<td>运行时调度纪律里的一环</td>
+<td>类型化接口：先是规范化 API，其次才是执行单元</td>
+</tr>
+<tr>
+<td>关心的问题</td>
+<td>能不能跑、怎么跑、能不能并发、用户有没有拒绝、如何中断、结果怎么回到上下文</td>
+<td>工具有哪些参数、审批怎么表达</td>
+</tr>
+<tr>
+<td>原文给的源码</td>
+<td><code>toolOrchestration.ts</code>、<code>toolExecution.ts</code>、<code>StreamingToolExecutor.ts</code>、<code>useCanUseTool.tsx</code>、Bash 专门 prompt、allow / deny / ask 语义</td>
+<td><code>tools/src/lib.rs</code> 导出工具构造器；<code>local_tool.rs</code> 定义 <code>exec_command</code>、<code>shell</code>、<code>shell_command</code>、<code>request_permissions</code> 的 schema</td>
+</tr>
+</tbody></table></div>
+<p><strong>为什么</strong>：原文认为，工具调用才是后果发生的地方，所以秩序要放在动手之前。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>Claude Code 的源码文件名无法核对：源码不公开。allow / deny / ask 三类规则有文档依据。</li>
+<li>当前 Codex 代码里没有 <code>local_tool.rs</code>。<code>exec_command</code>、<code>write_stdin</code>、<code>request_permissions</code> 的 schema 在 <code>core/src/tools/handlers/shell_spec.rs</code>。<code>shell</code> 和 <code>shell_command</code> 已不再定义成工具，<code>shell_command</code> 只作为保留名出现。</li>
+<li><code>tools/src/lib.rs</code> 导出的是 ToolSpec、JsonSchema 这些通用类型，以及把 MCP 工具、动态工具转成 API 工具的函数。具体工具的构造函数在 core 里。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>4.2 Claude Code：重点在运行时编排和危险动作约束</h2></header>
+<div class="am-panel-body"><div class="am-md"><p><strong>做什么</strong>：原文说，Claude Code 的工具系统有很强的现场调度感。它承认工具调用是“一个带后果的过程”，不是单点动作。</p>
+<p><strong>怎么做</strong>：原文列出这些运行时职责：</p>
+<ul>
+<li><strong>并发</strong>：看 schema 和 <code>isConcurrencySafe()</code>，决定先做哪个、哪些并行、哪些串行。</li>
+<li><strong>顺序</strong>：会修改上下文的工具，要保证回放顺序稳定。</li>
+<li><strong>流式执行</strong>：处理中断、synthetic result 和 UI 反馈。</li>
+<li><strong>收尾</strong>：做完怎么记账，中途被叫停怎么办。</li>
+<li><strong>Bash</strong>：对 Bash 这类高风险工具反复提醒。</li>
+</ul>
+<p><strong>为什么</strong>：原文把它比作给模型装一个工地监工。对 Bash 的“唠叨”，是成熟工程对危险接口的态度。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>并发分批、回放顺序、synthetic result：无法核对。源码不公开，官方文档没有描述工具怎样并发。</li>
+<li>中断：成立。文档写明，按 Esc 时 “The running tool call is canceled”。</li>
+<li>对 Bash 的专门约束：成立。文档写明 Bash 规则怎样拆分复合命令、剥掉 <code>timeout</code> 这类包装命令、放行哪些只读命令。观察：本会话的 Bash 工具说明也带有大段专用指引。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>4.3 Codex：重点在工具 schema、审批参数和策略引擎</h2></header>
+<div class="am-panel-body"><div class="am-md"><p><strong>做什么</strong>：原文说，Codex 把“风险动作”的控制做成正式的接口约束。</p>
+<p><strong>怎么做</strong>：原文分三层讲。下图按当前源码整理（本页归纳）。− 表示原文提到、当前代码已没有，~ 表示与原文说法不同。</p>
+</div>
+<div class="am-tree am-view-changes"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="Codex 的风险控制接口" data-step="0">Codex 的风险控制接口<small>本页归纳，按当前源码</small></div></div><ul class="am-tree-list"><li data-key="工具 schema" data-step="1"><span class="am-tree-label">工具 schema</span><ul><li data-key="exec_command" data-step="2" data-line-after="short"><span class="am-tree-label">exec_command</span><span class="am-tree-sub">只有 cmd 必填；另有 workdir、shell、tty、yield_time_ms、max_output_tokens、login</span></li><li data-key="shell、shell_command" data-step="3" data-delta="removed" data-line-after="none"><span class="am-tree-label"><span class="am-delta-badge am-delta-badge--removed" role="img" aria-label="删除">−</span>shell、shell_command</span><span class="am-tree-sub">原文说它们要求设 workdir、提醒别滥用 cd</span></li></ul></li><li data-key="审批参数" data-step="4"><span class="am-tree-label">审批参数</span><ul><li data-key="sandbox_permissions" data-step="5"><span class="am-tree-label">sandbox_permissions</span><span class="am-tree-sub">use_default 或 require_escalated；开关打开时还有 with_additional_permissions</span></li><li data-key="justification" data-step="6"><span class="am-tree-label">justification</span><span class="am-tree-sub">申请提权时给用户看的问题</span></li><li data-key="prefix_rule" data-step="7"><span class="am-tree-label">prefix_rule</span><span class="am-tree-sub">建议一条可复用的放行前缀</span></li><li data-key="request_permissions 工具" data-step="8" data-delta="changed"><span class="am-tree-label"><span class="am-delta-badge am-delta-badge--changed" role="img" aria-label="修改">~</span>request_permissions 工具</span><span class="am-tree-sub">单独申请网络和文件权限；开关默认关闭</span></li></ul></li><li data-key="策略引擎 execpolicy" data-step="9"><span class="am-tree-label">策略引擎 execpolicy</span><ul><li data-key="规则语言" data-step="10"><span class="am-tree-label">规则语言</span><span class="am-tree-sub">prefix_rule、network_rule、host_executable</span></li><li data-key="评估" data-step="11"><span class="am-tree-label">评估</span><span class="am-tree-sub">Policy、Rule、Evaluation、Decision、PolicyParser</span></li><li data-key="改写入口" data-step="12"><span class="am-tree-label">改写入口</span><span class="am-tree-sub">blocking_append_allow_prefix_rule、blocking_append_network_rule</span></li></ul></li></ul><div class="am-delta-bar"><span class="am-delta-count am-delta-count--removed">−1 删除</span> <span class="am-delta-count am-delta-count--changed">~1 修改</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></div>
+<div class="am-md"><ul>
+<li><strong>工具 schema</strong>：<code>exec_command</code> 不是收一个命令字符串了事，参数都有名字和说明。原文说，正确的用法被嵌进了工具定义本身。</li>
+<li><strong>审批参数</strong>：审批和权限提升抽成显式参数，<code>request_permissions</code> 做成单独的工具。</li>
+<li><strong>策略引擎</strong>：execpolicy 单独做成 crate。原文说，<code>Policy</code>、<code>Rule</code>、<code>Evaluation</code>、<code>Decision</code>、parser 这套命名，说明执行边界已经是一门小型政策语言，不只是几个 if/else。</li>
+<li><strong>不是虚张</strong>：schema 的必填字段明确，<code>additional_properties</code> 关闭。execpolicy 还导出两个改写函数，所以 Codex 不只检查政策，也准备了修改和补丁的正式入口。</li>
+</ul>
+<p><strong>为什么</strong>：把规则做成接口和语言，规则就能被单独读、单独改。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>shell</code> 和 <code>shell_command</code> 已不是工具。<code>exec_command</code> 的 workdir 说明只写 “Defaults to the turn cwd”，不要求必须设，也没有提醒 cd。“用法嵌进工具定义”这个论点仍有别的依据。在 Windows 上，<code>exec_command</code> 说明里带一段安全规则，例如递归删除前先核对目标路径。</li>
+<li><code>request_permissions</code> 确实是单独的工具，但它的功能开关处在开发阶段，默认关闭。</li>
+<li>schema 里确实写了 <code>additionalProperties: false</code>，但工具同时标着 <code>strict: false</code>。Codex 解析 <code>exec_command</code> 参数时不拒绝多余字段，所以“阻止模型乱塞参数”不由 Codex 保证。</li>
+<li>两个改写函数成立：它们往规则文件追加一行规则。用户批准“以后同类命令都放行”时，core 调用它们。</li>
+<li>“小型政策语言”成立，但范围要限定。规则文件用 Starlark 语法。README 写明当前只覆盖 prefix rule 子集，“a richer language will follow”。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>4.4 运行时审批对照策略语言</h2></header>
+<div class="am-panel-body"><div class="am-md"><p><strong>做什么</strong>：原文把两边的风险闸门放在一起比。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Claude Code：运行时审批链</th>
+<th>Codex：显式策略语言和参数化审批</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>怎样判定</td>
+<td>ask / allow / deny 与调用现场紧密耦合，按上下文、工具类型、用户动作和会话状态决定</td>
+<td>exec policy 把规则抽离出来，可以单独解析和评估</td>
+</tr>
+<tr>
+<td>长处</td>
+<td>灵敏</td>
+<td>可读性和可迁移性更强，适合团队治理</td>
+</tr>
+<tr>
+<td>短处</td>
+<td>规则容易藏在运行时逻辑里</td>
+<td>系统更重，policy 设计必须当正事维护</td>
+</tr>
+</tbody></table></div>
+<p>原文的说法是：前者像“值班经理现场拍板”，后者像“公司先写好制度，再看这单是否合规”。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>Claude Code 的规则不只藏在运行时里。allow / ask / deny 规则写在 settings.json，有固定语法，例如 <code>Bash(git push *)</code>。三类规则按 deny → ask → allow 的顺序生效。</li>
+<li>确实留在运行时里的，是内置判断：只读命令清单、包装命令剥离、auto mode 分类器。文档写明包装命令清单 “is built in and is not configurable”。</li>
+<li>Codex 也不只靠策略语言。没有规则命中时，由启发式兜底：危险命令检查、审批策略和沙箱类型。运行时还有编排器和并行锁：能并行的工具共享读锁，其他工具独占写锁。</li>
+<li>两边都有参数化的提权：Codex 是 <code>sandbox_permissions: &quot;require_escalated&quot;</code>，Claude Code 的 Bash 工具是 <code>dangerouslyDisableSandbox</code>。</li>
+<li>仍然成立的差别：Codex 的规则是一门语言，放在独立 crate 里。规则可以附带 match / not_match 例子，加载时自动校验；还能用 <code>codex execpolicy check</code> 单独检查命令。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>骨架：两种风险闸门</h2><span class="am-panel-meta">原文 4.4 的骨架代码，按事实重画</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文用伪代码写了两个风险闸门的骨架。下面按事实重画成流程图，标记含义同章首图。</p>
+<p><strong>Claude Code 运行时审批</strong>（原文的源：<code>useCanUseTool.tsx</code>、<code>StreamingToolExecutor.ts</code>，无法核对）</p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 624 496" width="624" height="496" role="img" aria-label="流程图：tool_use、hasPermissionsToUseTool、PreToolUse hook、settings.json 规则、allow / deny / ask、按 isConcurrencySafe 调度、拒绝 · sticky、分派 · coordinator / swarm / 交互" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am3-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M495.6,49 L495.6,65 Q495.6,81 443.9,97 L392.3,113" marker-end="url(#am3-arrow)"/></g><g data-step="1" data-delta="added"><path class="am-edge" d="M353.4,49 L353.4,65 Q353.4,81 347.8,97 L342.1,113" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="296.7" y="72" width="113.5" height="18" rx="3"/><text x="353.4" y="81" text-anchor="middle" dominant-baseline="central">先运行，可直接拦截</text></g></g><g data-step="2" data-delta="added"><path class="am-edge" d="M182.8,49 L182.8,65 Q182.8,81 232.3,97 L281.7,113" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="126.9" y="72" width="111.9" height="18" rx="3"/><text x="182.8" y="81" text-anchor="middle" dominant-baseline="central">deny → ask → allow</text></g></g><g data-step="3"><path class="am-edge" d="M335.8,148 L335.8,159.5 Q335.8,171 335.8,182.5 L335.8,194" marker-end="url(#am3-arrow)"/></g><g data-step="4"><path class="am-edge" d="M383.8,237.5 L452.5,259.8 Q521.3,282 521.3,298 L521.3,314" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="501.3" y="273" width="40.1" height="18" rx="3"/><text x="521.3" y="282" text-anchor="middle" dominant-baseline="central">allow</text></g></g><g data-step="5"><path class="am-edge" d="M334.1,249.6 L333.1,265.8 Q332.1,282 332.1,302.3 L332.1,322.5" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="314.2" y="273" width="35.8" height="18" rx="3"/><text x="332.1" y="282" text-anchor="middle" dominant-baseline="central">deny</text></g></g><g data-step="6"><path class="am-edge" d="M290.7,238.2 L229.8,260.1 Q168.9,282 168.9,298 L168.9,314" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="154.3" y="273" width="29.3" height="18" rx="3"/><text x="168.9" y="282" text-anchor="middle" dominant-baseline="central">ask</text></g></g><g data-step="7" data-delta="added"><path class="am-edge" d="M208.4,366 L232.7,382 Q257,398 257,414 L257,430" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="217.5" y="389" width="79" height="18" rx="3"/><text x="257" y="398" text-anchor="middle" dominant-baseline="central">可代用户决定</text></g></g><g data-step="8" data-delta="added"><path class="am-edge" d="M129.5,366 L105.2,382 Q80.9,398 80.9,418.3 L80.9,438.5" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="40.6" y="389" width="80.6" height="18" rx="3"/><text x="80.9" y="398" text-anchor="middle" dominant-baseline="central">auto mode 下</text></g></g><g data-step="9"><path class="am-edge am-edge--dashed" d="M521.3,366 L521.3,382 Q521.3,398 521.3,418.3 L521.3,438.5" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="506" y="389" width="30.7" height="18" rx="3"/><text x="521.3" y="398" text-anchor="middle" dominant-baseline="central">Esc</text></g></g></g><g><g class="am-node am-node--rect" data-key="tool_use" data-step="0"><rect class="am-node-shape" x="455.6" y="14" width="80" height="35" rx="3"/><text x="495.6" y="31.5" text-anchor="middle" dominant-baseline="central">tool_use</text></g><g class="am-node am-node--rect" data-key="hasPermissionsToUseTool" data-step="0"><rect class="am-node-shape" x="239.3" y="113" width="193.1" height="35" rx="3"/><text x="335.8" y="130.5" text-anchor="middle" dominant-baseline="central">hasPermissionsToUseTool</text></g><g class="am-node am-node--rect" data-key="PreToolUse hook" data-step="1" data-delta="added"><rect class="am-node-shape" x="287.3" y="14" width="132.3" height="35" rx="3"/><text x="353.4" y="31.5" text-anchor="middle" dominant-baseline="central">PreToolUse hook</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(419.6,14)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="settings.json 规则" data-step="2" data-delta="added"><rect class="am-node-shape" x="114.4" y="14" width="136.9" height="35" rx="3"/><text x="182.8" y="31.5" text-anchor="middle" dominant-baseline="central">settings.json 规则</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(251.3,14)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--diamond" data-key="allow / deny / ask" data-step="3"><polygon class="am-node-shape" points="335.8,194 443.2,222 335.8,250 228.4,222"/><text x="335.8" y="222" text-anchor="middle" dominant-baseline="central">allow / deny / ask</text></g><g class="am-node am-node--rect" data-key="按 isConcurrencySafe 调度" data-step="4"><rect class="am-node-shape" x="433.2" y="314" width="176.2" height="52" rx="3"/><text x="521.3" y="331.5" text-anchor="middle" dominant-baseline="central">按 isConcurrencySafe 调</text><text x="521.3" y="348.5" text-anchor="middle" dominant-baseline="central">度</text></g><g class="am-node am-node--rect" data-key="拒绝 · sticky" data-step="5"><rect class="am-node-shape" x="278.9" y="322.5" width="106.5" height="35" rx="3"/><text x="332.1" y="340" text-anchor="middle" dominant-baseline="central">拒绝 · sticky</text></g><g class="am-node am-node--rect" data-key="分派 · coordinator / swarm / 交互" data-step="6" data-delta="changed"><rect class="am-node-shape" x="95" y="314" width="147.9" height="52" rx="3"/><text x="168.9" y="331.5" text-anchor="middle" dominant-baseline="central">分派 · coordinator /</text><text x="168.9" y="348.5" text-anchor="middle" dominant-baseline="central">swarm / 交互</text><g class="am-delta-badge am-delta-badge--changed" data-delta="changed" transform="translate(242.9,314)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">~</text></g></g><g class="am-node am-node--rect" data-key="PermissionRequest hook" data-step="7" data-delta="added"><rect class="am-node-shape" x="183.8" y="430" width="146.3" height="52" rx="3"/><text x="257" y="447.5" text-anchor="middle" dominant-baseline="central">PermissionRequest</text><text x="257" y="464.5" text-anchor="middle" dominant-baseline="central">hook</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(330.1,430)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="auto mode 分类器" data-step="8" data-delta="added"><rect class="am-node-shape" x="14" y="438.5" width="133.8" height="35" rx="3"/><text x="80.9" y="456" text-anchor="middle" dominant-baseline="central">auto mode 分类器</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(147.8,438.5)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="中断 · cancel / block" data-step="9"><rect class="am-node-shape" x="442.3" y="438.5" width="158" height="35" rx="3"/><text x="521.3" y="456" text-anchor="middle" dominant-baseline="central">中断 · cancel / block</text></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+8 新增</span> <span class="am-delta-count am-delta-count--changed">~1 修改</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-md"><p><strong>Codex exec policy 评估</strong>（原文的源：<code>execpolicy/src/lib.rs</code>、<code>local_tool.rs</code>）</p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 638 785" width="638" height="785" role="img" aria-label="流程图：规则文件 · rules 目录、PolicyParser.parse、Policy、逐条 rule.evaluate · 输入 exec_command 全部字段、Allow / Deny / RequestPermissions、Decision::default、按 shell 控制符拆成命令段、按 token 前缀匹配" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am4-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am4-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am4-arrow-removed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--removed" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M190.6,49 L190.6,60.5 Q190.6,72 190.6,83.5 L190.6,95" marker-end="url(#am4-arrow)"/></g><g data-step="0"><path class="am-edge" d="M190.6,130 L190.6,141.5 Q190.6,153 190.6,168.8 L190.6,184.5" marker-end="url(#am4-arrow)"/></g><g data-step="1" data-delta="removed"><path class="am-edge" d="M187.1,219.5 L183.9,235.3 Q180.6,251 180.6,262.5 L180.6,274" marker-end="url(#am4-arrow-removed)"/></g><g data-step="2" data-delta="removed"><path class="am-edge" d="M134,343 L112.4,359 Q90.8,375 90.8,391 L90.8,407" marker-end="url(#am4-arrow-removed)"/><g class="am-edge-label"><rect x="39.8" y="366" width="102" height="18" rx="3"/><text x="90.8" y="375" text-anchor="middle" dominant-baseline="central">第一条命中即返回</text></g></g><g data-step="3" data-delta="removed"><path class="am-edge" d="M227.3,343 L248.9,359 Q270.5,375 270.5,395.3 L270.5,415.5" marker-end="url(#am4-arrow-removed)"/><g class="am-edge-label"><rect x="242.5" y="366" width="56" height="18" rx="3"/><text x="270.5" y="375" text-anchor="middle" dominant-baseline="central">都没命中</text></g></g><g data-step="4" data-delta="added"><path class="am-edge" d="M538.8,228 L538.8,239.5 Q538.8,251 535.4,271 L531.9,291" marker-end="url(#am4-arrow-added)"/></g><g data-step="5" data-delta="added"><path class="am-edge" d="M224.1,210.9 L299.7,230.9 Q375.2,251 428.6,271 L482.1,291" marker-end="url(#am4-arrow-added)"/></g><g data-step="6" data-delta="added"><path class="am-edge" d="M547,326 L572.3,350.5 Q597.7,375 597.7,404 Q597.7,433 597.7,457.5 Q597.7,482 581.6,493.5 L565.4,505" marker-end="url(#am4-arrow-added)"/><g class="am-edge-label"><rect x="575.5" y="424" width="44.5" height="18" rx="3"/><text x="597.7" y="433" text-anchor="middle" dominant-baseline="central">有命中</text></g></g><g data-step="7" data-delta="added"><path class="am-edge" d="M510.7,326 L485.3,350.5 Q459.9,375 459.9,391 L459.9,407" marker-end="url(#am4-arrow-added)"/><g class="am-edge-label"><rect x="437.7" y="366" width="44.5" height="18" rx="3"/><text x="459.9" y="375" text-anchor="middle" dominant-baseline="central">无命中</text></g></g><g data-step="8" data-delta="added"><path class="am-edge" d="M459.9,459 L459.9,470.5 Q459.9,482 476.1,493.5 L492.3,505" marker-end="url(#am4-arrow-added)"/></g><g data-step="9" data-delta="added"><path class="am-edge" d="M528.8,557 L528.8,568.5 Q528.8,580 528.8,591.5 L528.8,603" marker-end="url(#am4-arrow-added)"/></g><g data-step="10" data-delta="added"><path class="am-edge" d="M528.8,655 L528.8,671 Q528.8,687 528.8,703 L528.8,719" marker-end="url(#am4-arrow-added)"/><g class="am-edge-label"><rect x="489.3" y="678" width="79" height="18" rx="3"/><text x="528.8" y="687" text-anchor="middle" dominant-baseline="central">转成审批要求</text></g></g></g><g><g class="am-node am-node--rect" data-key="规则文件 · rules 目录" data-step="0"><rect class="am-node-shape" x="113.1" y="14" width="155.1" height="35" rx="3"/><text x="190.6" y="31.5" text-anchor="middle" dominant-baseline="central">规则文件 · rules 目录</text></g><g class="am-node am-node--rect" data-key="PolicyParser.parse" data-step="0"><rect class="am-node-shape" x="118.9" y="95" width="143.4" height="35" rx="3"/><text x="190.6" y="112.5" text-anchor="middle" dominant-baseline="central">PolicyParser.parse</text></g><g class="am-node am-node--rect" data-key="Policy" data-step="0"><rect class="am-node-shape" x="157.1" y="184.5" width="67" height="35" rx="3"/><text x="190.6" y="202" text-anchor="middle" dominant-baseline="central">Policy</text></g><g class="am-node am-node--rect" data-key="逐条 rule.evaluate · 输入 exec_command 全部字段" data-step="1" data-delta="removed"><rect class="am-node-shape" x="95.7" y="274" width="170" height="69" rx="3"/><text x="180.6" y="291.5" text-anchor="middle" dominant-baseline="central">逐条 rule.evaluate · 输</text><text x="180.6" y="308.5" text-anchor="middle" dominant-baseline="central">入 exec_command 全部</text><text x="180.6" y="325.5" text-anchor="middle" dominant-baseline="central">字段</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(265.6,274)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g><g class="am-node am-node--rect" data-key="Allow / Deny / RequestPermissions" data-step="2" data-delta="removed"><rect class="am-node-shape" x="14" y="407" width="153.6" height="52" rx="3"/><text x="90.8" y="424.5" text-anchor="middle" dominant-baseline="central">Allow / Deny /</text><text x="90.8" y="441.5" text-anchor="middle" dominant-baseline="central">RequestPermissions</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(167.6,407)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g><g class="am-node am-node--rect" data-key="Decision::default" data-step="3" data-delta="removed"><rect class="am-node-shape" x="203.6" y="415.5" width="133.8" height="35" rx="3"/><text x="270.5" y="433" text-anchor="middle" dominant-baseline="central">Decision::default</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(337.4,415.5)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g><g class="am-node am-node--rect" data-key="按 shell 控制符拆成命令段" data-step="4" data-delta="added"><rect class="am-node-shape" x="453.9" y="176" width="170" height="52" rx="3"/><text x="538.8" y="193.5" text-anchor="middle" dominant-baseline="central">按 shell 控制符拆成命令</text><text x="538.8" y="210.5" text-anchor="middle" dominant-baseline="central">段</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(623.8,176)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="按 token 前缀匹配" data-step="4" data-delta="added"><rect class="am-node-shape" x="461.8" y="291" width="134.1" height="35" rx="3"/><text x="528.8" y="308.5" text-anchor="middle" dominant-baseline="central">按 token 前缀匹配</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(595.9,291)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="取最严的决定 · forbidden 最严，allow 最松" data-step="6" data-delta="added"><rect class="am-node-shape" x="440.2" y="505" width="177.2" height="52" rx="3"/><text x="528.8" y="522.5" text-anchor="middle" dominant-baseline="central">取最严的决定 · forbidden</text><text x="528.8" y="539.5" text-anchor="middle" dominant-baseline="central">最严，allow 最松</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(617.5,505)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="启发式兜底 · 危险命令、审批策略、沙箱" data-step="7" data-delta="added"><rect class="am-node-shape" x="373.4" y="407" width="173.1" height="52" rx="3"/><text x="459.9" y="424.5" text-anchor="middle" dominant-baseline="central">启发式兜底 · 危险命令、</text><text x="459.9" y="441.5" text-anchor="middle" dominant-baseline="central">审批策略、沙箱</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(546.5,407)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="Allow / Prompt / Forbidden" data-step="9" data-delta="added"><rect class="am-node-shape" x="462.4" y="603" width="132.8" height="52" rx="3"/><text x="528.8" y="620.5" text-anchor="middle" dominant-baseline="central">Allow / Prompt /</text><text x="528.8" y="637.5" text-anchor="middle" dominant-baseline="central">Forbidden</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(595.2,603)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="Skip / NeedsApproval / Forbidden" data-step="10" data-delta="added"><rect class="am-node-shape" x="442.2" y="719" width="173.3" height="52" rx="3"/><text x="528.8" y="736.5" text-anchor="middle" dominant-baseline="central">Skip / NeedsApproval /</text><text x="528.8" y="753.5" text-anchor="middle" dominant-baseline="central">Forbidden</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(615.5,719)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+13 新增</span> <span class="am-delta-count am-delta-count--removed">−6 删除</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>Claude Code：allow / deny / ask 三种结果和 deny → ask → allow 的顺序有文档依据。函数名、sticky、cancel / block 无法核对；文档只写到按 Esc 会取消正在运行的工具调用。</li>
+<li>Claude Code 的 ask 分派部分可核对：teammate 的权限提示出现在 lead 会话里，PermissionRequest hook 可以代替用户批准或拒绝。coordinator、swarm 这两个名字无法核对。</li>
+<li>Codex：规则不读 <code>exec_command</code> 的全部字段，只按命令的 token 前缀匹配。命令先在 <code>&amp;&amp;</code>、<code>|</code>、<code>;</code> 等控制符处拆成段，每段单独评估。</li>
+<li>Codex 的 <code>Decision</code> 只有 <code>Allow</code>、<code>Prompt</code>、<code>Forbidden</code> 三种，没有 <code>Deny</code> 和 <code>RequestPermissions</code>。所有命中的规则一起比较，取最严的那个，不是第一条命中就返回。</li>
+<li>没有规则命中时，不是返回默认值，而是由启发式按危险命令、审批策略和沙箱类型给出决定。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>审批决策树</h2><span class="am-panel-meta">原文 4.4 的决策树，按事实重画</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文给出一棵 Codex 审批决策树。下面按当前源码逐条改写，每条的备注写出原文的说法。</p>
+</div>
+<div class="am-tree am-view-changes"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="exec_command 调用" data-step="0">exec_command 调用<small>按当前源码重画</small></div></div><ul class="am-tree-list"><li data-key="参数解析失败 → 错误返回模型" data-step="1" data-delta="changed"><span class="am-tree-label"><span class="am-delta-badge am-delta-badge--changed" role="img" aria-label="修改">~</span>参数解析失败 → 错误返回模型</span><span class="am-tree-sub">原文：schema 校验失败 → deny</span></li><li data-key="命中 forbidden 规则 → 拒绝" data-step="2" data-delta="changed"><span class="am-tree-label"><span class="am-delta-badge am-delta-badge--changed" role="img" aria-label="修改">~</span>命中 forbidden 规则 → 拒绝</span><span class="am-tree-sub">原文：高危前缀匹配 deny rule → deny</span></li><li data-key="命中 prompt 规则 → 请求审批" data-step="3" data-delta="changed"><span class="am-tree-label"><span class="am-delta-badge am-delta-badge--changed" role="img" aria-label="修改">~</span>命中 prompt 规则 → 请求审批</span><span class="am-tree-sub">原文：网络/提权匹配 ask rule → request_permissions</span></li><li data-key="无规则命中，非危险命令 → 放行" data-step="4" data-delta="changed"><span class="am-tree-label"><span class="am-delta-badge am-delta-badge--changed" role="img" aria-label="修改">~</span>无规则命中，非危险命令 → 放行</span><span class="am-tree-sub">原文：无匹配且 sandbox 可覆盖 → allow</span></li><li data-key="无规则命中，项目不受信任或申请提权 → 请求审批" data-step="5" data-delta="changed" data-line-before="short"><span class="am-tree-label"><span class="am-delta-badge am-delta-badge--changed" role="img" aria-label="修改">~</span>无规则命中，项目不受信任或申请提权 → 请求审批</span><span class="am-tree-sub">原文：无匹配且 sandbox 保守 → ask</span></li><li data-key="无规则命中，危险命令 → 请求审批" data-step="6" data-delta="added" data-line-before="none"><span class="am-tree-label"><span class="am-delta-badge am-delta-badge--added" role="img" aria-label="新增">+</span>无规则命中，危险命令 → 请求审批</span><span class="am-tree-sub">审批策略为 never 时直接拒绝</span></li><li data-key="多个命令段 → 取最严的决定" data-step="7" data-delta="added" data-line-before="none"><span class="am-tree-label"><span class="am-delta-badge am-delta-badge--added" role="img" aria-label="新增">+</span>多个命令段 → 取最严的决定</span><span class="am-tree-sub">forbidden 最严，allow 最松</span></li></ul><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+2 新增</span> <span class="am-delta-count am-delta-count--changed">~5 修改</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></div>
+<div class="am-md"><ul>
+<li><strong>参数解析失败</strong>：错误信息作为工具结果返回模型，模型可以改了再试。多余字段不会导致失败。</li>
+<li><strong>请求审批</strong>：审批策略为 never 时，凡是要审批的命令都直接拒绝。</li>
+<li><strong>放行</strong>：审批策略为 never 或 on-request 时放行。沙箱受限时，命令仍在沙箱里运行。</li>
+<li><strong>request_permissions</strong>：它不是决策树的分支，而是模型主动调用的另一个工具。</li>
+</ul>
+</div></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>超时与参数阈值</h2><span class="am-panel-meta">原文 4.4 的表，加核对列</span></header>
+<div class="am-panel-body"><div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>原文的含义</th>
+<th>原文的源引用</th>
+<th>核对</th>
+<th>实际情况</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>yield_time_ms</code></td>
+<td>单次 exec 允许阻塞的毫秒上限</td>
+<td><code>local_tool.rs</code>（exec_command）</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分成立</span></td>
+<td>返回输出前等多久。默认 10000 ms，有效范围 250 到 30000 ms。命令没跑完就返回 session ID，之后用 <code>write_stdin</code> 继续读，命令不会被结束</td>
+</tr>
+<tr>
+<td><code>max_output_tokens</code></td>
+<td>工具输出纳入上下文的 token 上限</td>
+<td><code>local_tool.rs</code></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>说明是 “Output token budget”，默认 10000 tokens，更大的请求可能被策略截断</td>
+</tr>
+<tr>
+<td><code>additional_properties=false</code></td>
+<td>阻止模型乱塞参数</td>
+<td><code>local_tool.rs</code>（schema）</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>只写在 schema 里</span></td>
+<td>工具标着 <code>strict: false</code>，Codex 解析参数时不拒绝多余字段</td>
+</tr>
+<tr>
+<td>Bash 子命令数 cap</td>
+<td>单次 Bash 调用允许的复合子命令上限</td>
+<td><code>bashPermissions.ts</code></td>
+<td>无法核对</td>
+<td>源码不公开。文档只写到：复合命令拆开后逐段匹配；批准“不再询问”时，一条复合命令最多保存 5 条规则</td>
+</tr>
+</tbody></table></div>
+<p>前三行的源文件，当前都在 <code>core/src/tools/handlers/shell_spec.rs</code>。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-I">
+<header class="am-panel-head"><span class="am-panel-id">I</span><h2>4.5 沙箱与审批：产品定义问题</h2></header>
+<div class="am-panel-body"><div class="am-md"><p><strong>做什么</strong>：原文说，沙箱、审批、权限不是安全附属件。对 coding agent 来说，它们定义了产品是什么。</p>
+<p><strong>怎么做</strong>：系统若允许模型在用户目录直接跑任意命令，就把风险转嫁给了用户。反过来，能显式表达下面这些边界，才是同时交付能力和行为边界。原文的两种做法：</p>
+<ul>
+<li><strong>Codex</strong>：把 turn 级条件暴露在 <code>thread.ts</code> 里，当作线程语义。</li>
+<li><strong>Claude Code</strong>：把边界压到运行时现场：工具执行、中断、permission hook 和 Bash 限制。</li>
+</ul>
+<p>原文的概括是：一个“边做边看守”，一个“先给出执行契约再开始做”。下表核对原文列出的六项边界，各自在哪里表达。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>原文列出的边界</th>
+<th>Codex</th>
+<th>Claude Code</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>sandbox mode</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span><code>thread.ts</code> 的 sandboxMode：read-only、workspace-write、danger-full-access</span></td>
+<td>settings 的 <code>sandbox.enabled</code>。沙箱只管 Bash、PowerShell、Monitor 的命令，默认关闭</td>
+</tr>
+<tr>
+<td>network access</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span><code>thread.ts</code> 的 networkAccessEnabled</span></td>
+<td><code>sandbox.network.allowedDomains</code> 和 <code>deniedDomains</code></td>
+</tr>
+<tr>
+<td>approval policy</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span><code>thread.ts</code> 的 approvalPolicy</span></td>
+<td>权限模式 <code>permissions.defaultMode</code>，加上 allow / ask / deny 规则</td>
+</tr>
+<tr>
+<td>additional directories</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span><code>thread.ts</code> 的 additionalDirectories</span></td>
+<td><code>permissions.additionalDirectories</code>，或 <code>--add-dir</code></td>
+</tr>
+<tr>
+<td>state DB 位置</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>不在 <code>thread.ts</code>，是 config.toml 的 <code>sqlite_home</code></span></td>
+<td>原文没有对应说法</td>
+</tr>
+<tr>
+<td>MCP tool approvals</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>不在 <code>thread.ts</code>，是每个 MCP 工具的 <code>approval_mode</code> 配置</span></td>
+<td><code>mcp__server__tool</code> 形式的权限规则</td>
+</tr>
+</tbody></table></div>
+<p><strong>为什么</strong>：原文认为，能力和边界要一起交付，用户才不必替模型承担风险。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>thread.ts</code> 每次运行都把这些线程选项传给 <code>codex exec</code>。state DB 位置和 MCP 工具审批不在 <code>thread.ts</code> 里，而在 config.toml 里。</li>
+<li>Claude Code 也把这些边界写成配置，见上表右列。所以“边做边看守”和“先给执行契约”，只能理解为侧重点不同，不是有无之分。</li>
+<li>Codex 会把契约写给模型：它有按 sandbox_mode 和审批策略选用的说明模板，例如告诉模型 “<code>sandbox_mode</code> is <code>workspace-write</code>”。</li>
+<li>同一来源内部不一致：SDK 的审批类型仍列出 on-failure；Rust 代码里 on-failure 只是 on-request 的别名。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-J">
+<header class="am-panel-head"><span class="am-panel-id">J</span><h2>4.6 MCP、扩展工具与边界外移</h2></header>
+<div class="am-panel-body"><div class="am-md"><p><strong>做什么</strong>：两套系统都能接外部能力。原文说，差异仍在：扩展能力怎样服从总规则。</p>
+<p><strong>怎么做</strong>：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Claude Code</th>
+<th>Codex</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原文的概括</td>
+<td>skill、hook、permission、工具 prompt 拼成场景化治理链，本地规则跟着现场进主循环</td>
+<td>外部能力统一纳入工具系统，是 schema 化的工具对象，不是临时约定</td>
+</tr>
+<tr>
+<td>原文的依据</td>
+<td>未给源码</td>
+<td><code>tools/src/lib.rs</code> 的 MCP resource、dynamic tool、tool discovery</td>
+</tr>
+<tr>
+<td>MCP 工具（核对补充）</td>
+<td>名为 <code>mcp__server__tool</code>，受同一套权限规则和 hook 管</td>
+<td>转成 Responses API 工具；每个工具可配审批模式</td>
+</tr>
+<tr>
+<td>按需发现（核对补充）</td>
+<td>tool search 默认开启，先只加载工具名</td>
+<td>tool_search 和 tool discovery</td>
+</tr>
+</tbody></table></div>
+<p><strong>为什么</strong>：原文说，生态一旦变大，“扩展能力如何服从总规则”就成了压舱石。谁先想清楚边界外移，谁的扩展体系就不会变成杂物间。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>tools/src/lib.rs</code> 确实导出 MCP 工具、动态工具和工具发现的类型与转换函数。但 MCP resource 的三个工具定义在 core 的 <code>mcp_resource_spec.rs</code>，不在 tools crate。</li>
+<li>Claude Code 的扩展也纳入了工具系统：MCP 工具和内置工具用同一种规则格式，skill 也通过 Skill 工具运行。所以两边都把扩展做成了工具对象，原文的对比只能理解为侧重点不同。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-K">
+<header class="am-panel-head"><span class="am-panel-id">K</span><h2>4.7 本章结论</h2><span class="am-panel-meta">原文的结论，单独成节</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p>Claude Code 的工具治理更强地依赖运行时编排与现场审批，Codex 的工具治理更强地依赖 schema、参数化权限和独立策略系统。</p>
+</blockquote>
+<p>原文的比方：前者像经验丰富的工头；后者像施工单位，有制度处和法务部。只看“都能跑命令”，就会错过真正重要的差异：谁在工具动手之前拥有最终秩序。</p>
+<p><strong>证据（已按事实修正）</strong></p>
+<ul>
+<li>独立策略系统：成立。execpolicy 是单独的 crate，有规则语言、检查命令和改写入口（4.3）。</li>
+<li>schema：成立，但力度要降。schema 写了必填字段和 <code>additionalProperties: false</code>，但 Codex 解析时不拒绝多余字段（参数阈值表）。</li>
+<li>参数化权限：成立，但不是 Codex 独有。Claude Code 的 Bash 工具也有 <code>dangerouslyDisableSandbox</code> 参数（4.4）。</li>
+<li>运行时编排：Claude Code 的并发细节无法核对。Codex 也有运行时编排器和并行锁（章首图、4.4）。</li>
+<li>现场审批：Claude Code 的审批确实在调用时发生，但规则本身写在 settings.json 里（4.4、4.5）。</li>
+</ul>
+<p><strong>原文提炼的工程原则</strong></p>
+<ul>
+<li>区分 AI coding system 的，是调工具之前谁拥有最后解释权（4.1）。</li>
+<li>沙箱、审批、权限定义了产品是什么，不是安全附属件（4.5）。</li>
+<li>扩展能力必须服从总规则，先想清楚边界外移，扩展体系才不会变成杂物间（4.6）。</li>
+</ul>
+<p>下一章讲 skills、hooks、本地规则文件和团队制度。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-L">
+<header class="am-panel-head"><span class="am-panel-id">L</span><h2>附录：事实核对</h2></header>
+<div class="am-panel-body"><div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>原文的说法</th>
+<th>核对</th>
+<th>实际情况和依据</th>
+<th>正文</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Claude Code 源码文件 <code>toolOrchestration.ts</code>、<code>toolExecution.ts</code>、<code>StreamingToolExecutor.ts</code>、<code>useCanUseTool.tsx</code>、<code>bashPermissions.ts</code></td>
+<td>无法核对</td>
+<td>Claude Code 未公开源码</td>
+<td>4.1、骨架、参数阈值表</td>
+</tr>
+<tr>
+<td>Claude Code 有 allow / deny / ask 语义</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>permissions 文档：三类规则 “evaluated in order: deny, then ask, then allow”</td>
+<td>4.1、骨架</td>
+</tr>
+<tr>
+<td>并发看 schema 和 <code>isConcurrencySafe()</code>；partitionToolCalls 分并发批和串行批；执行器状态从 queued 到 yielded</td>
+<td>无法核对</td>
+<td>源码不公开，官方文档没有描述工具并发</td>
+<td>章首图、4.2</td>
+</tr>
+<tr>
+<td>会修改上下文的工具要保证回放顺序；流式执行处理 synthetic result</td>
+<td>无法核对</td>
+<td>同上</td>
+<td>4.2</td>
+</tr>
+<tr>
+<td>流式执行要处理中断</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>how-claude-code-works：按 Esc，“The running tool call is canceled”</td>
+<td>4.2</td>
+</tr>
+<tr>
+<td>中断语义 <code>interruptBehavior</code> 取 cancel 或 block；deny 是 sticky</td>
+<td>无法核对</td>
+<td>源码不公开。文档只写到 Esc 取消正在运行的工具调用</td>
+<td>骨架</td>
+</tr>
+<tr>
+<td>ask 分派到 coordinator、swarm 或交互</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>agent-teams：“Teammate permission prompts appear in the lead session”。hooks：PermissionRequest hook 可代用户批准或拒绝。auto mode 由分类器判断。两个名字无法核对</td>
+<td>骨架</td>
+</tr>
+<tr>
+<td>Bash 有专门 prompt，系统对 Bash 反复提醒</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>permissions 文档的 Bash 一节：复合命令拆分、包装命令剥离、只读命令。观察：本会话 Bash 工具说明带大段专用指引</td>
+<td>4.2</td>
+</tr>
+<tr>
+<td>Claude Code 的规则容易藏在运行时逻辑里</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>需要限定</span></td>
+<td>规则写在 settings.json，有固定语法和固定顺序。内置部分确实在运行时：包装命令清单 “is built in and is not configurable”</td>
+<td>4.4</td>
+</tr>
+<tr>
+<td>原图注释：Claude Code 把判断放在共用代码路径里，Codex 把判断放在可替换的声明式对象里</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>需要限定</span></td>
+<td>Claude Code 的规则和沙箱设置也是配置。Codex 也有运行时编排器（<code>core/src/tools/orchestrator.rs</code>）和并行锁（<code>core/src/tools/parallel.rs</code>）</td>
+<td>章首图</td>
+</tr>
+<tr>
+<td>原图：Codex 先做 Schema 校验</td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>不成立</span></td>
+<td>参数用 serde 解析（<code>handlers/mod.rs</code> 的 <code>parse_arguments</code>）；<code>ExecCommandArgs</code> 没有 <code>deny_unknown_fields</code></td>
+<td>章首图、决策树</td>
+</tr>
+<tr>
+<td>原图：所有工具调用都经过 ExecPolicy 评估</td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>不成立</span></td>
+<td><code>create_exec_approval_requirement_for_command</code> 只处理 shell 命令；其他工具各有审批方式，例如 MCP 工具的 <code>approval_mode</code></td>
+<td>章首图</td>
+</tr>
+<tr>
+<td>原图：不确定时走审批参数或 request_permissions，用户决定后回到 ExecPolicy</td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>不成立</span></td>
+<td><code>tools/approvals.rs</code>：审批先交给 permission request hook，再交给 Guardian 或用户。<code>orchestrator.rs</code>：批准后进入沙箱执行，沙箱拒绝时可按审批策略申请重试</td>
+<td>章首图</td>
+</tr>
+<tr>
+<td><code>local_tool.rs</code> 定义 <code>exec_command</code>、<code>shell</code>、<code>shell_command</code>、<code>request_permissions</code></td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>已过时</span></td>
+<td>当前没有这个文件。<code>exec_command</code>、<code>request_permissions</code> 定义在 <code>core/src/tools/handlers/shell_spec.rs</code>，同一文件还有 <code>write_stdin</code>。<code>shell</code>、<code>shell_command</code> 已不再定义成工具，<code>registry.rs</code> 只把 <code>shell_command</code> 当作保留名</td>
+<td>4.1、4.3</td>
+</tr>
+<tr>
+<td><code>tools/src/lib.rs</code> 导出工具构造器</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>不准确</span></td>
+<td>它导出 ToolSpec、JsonSchema、MCP 和动态工具的转换函数。具体工具的构造函数在 <code>core/src/tools/handlers/*_spec.rs</code></td>
+<td>4.1</td>
+</tr>
+<tr>
+<td><code>exec_command</code> 有 cmd、workdir、shell、tty、yield_time_ms、max_output_tokens、login 和审批字段</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td><code>shell_spec.rs</code>。审批字段是 sandbox_permissions、justification、prefix_rule；开关打开时另有 additional_permissions，多环境时另有 environment_id</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td><code>shell</code> / <code>shell_command</code> 的描述要求设 workdir、提醒别滥用 cd</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>已过时</span></td>
+<td>这两个工具已不存在。<code>exec_command</code> 的 workdir 说明是 “Working directory for the command. Defaults to the turn cwd.”。内置 prompt 文件里也没有这条</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td><code>request_permissions</code> 做成单独工具</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>但开关 <code>request_permissions_tool</code> 处在 UnderDevelopment，默认关闭（<code>features/src/lib.rs</code>）</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td>execpolicy 是单独 crate，有 Policy、Rule、Evaluation、Decision、parser、PolicyParser</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td><code>execpolicy/src/lib.rs</code></td>
+<td>4.3</td>
+</tr>
+<tr>
+<td>导出 <code>blocking_append_allow_prefix_rule</code>、<code>blocking_append_network_rule</code> 改写函数</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>定义在 <code>execpolicy/src/amend.rs</code>，往规则文件追加一行 prefix_rule 或 network_rule；<code>core/src/exec_policy.rs</code> 在用户批准改写时调用</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td>执行边界已经是一门小型政策语言</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>需要限定。README：规则用 Starlark 语法，当前只覆盖 prefix rule 子集，“a richer language will follow”</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td>schema 必填字段明确、<code>additional_properties</code> 关闭，阻止模型乱塞参数</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分成立</span></td>
+<td>schema 里 required 为 cmd，additionalProperties 为 false；但 <code>strict: false</code>，解析时多余字段被忽略。解析失败时返回 “failed to parse function arguments”</td>
+<td>4.3、参数阈值表</td>
+</tr>
+<tr>
+<td>骨架：规则对 <code>exec_command</code> 的全部字段求值</td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>不成立</span></td>
+<td>规则只按命令 token 前缀匹配。命令先在 shell 控制符处拆成段（Codex 的 on_request 提示模板写明了拆法）</td>
+<td>骨架</td>
+</tr>
+<tr>
+<td>骨架：第一条命中即返回 Allow、Deny、RequestPermissions 之一，否则返回默认值</td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>不成立</span></td>
+<td><code>decision.rs</code>：只有 Allow、Prompt、Forbidden。<code>policy.rs</code>：取所有命中里最严的。无命中时由 <code>render_decision_for_unmatched_command_for_platform</code> 按启发式决定</td>
+<td>骨架</td>
+</tr>
+<tr>
+<td>决策树五个分支</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>多处不准</span></td>
+<td>逐条见“审批决策树”节。依据：<code>core/src/exec_policy.rs</code>、<code>protocol.rs</code> 的 AskForApproval</td>
+<td>决策树</td>
+</tr>
+<tr>
+<td><code>yield_time_ms</code> 是单次 exec 允许阻塞的毫秒上限</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分成立</span></td>
+<td>说明是 “Wait before yielding output. Defaults to 10000 ms; effective range is 250-30000 ms.”；没跑完的命令返回 session ID</td>
+<td>参数阈值表</td>
+</tr>
+<tr>
+<td><code>max_output_tokens</code> 是输出纳入上下文的 token 上限</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>“Output token budget. Defaults to 10000 tokens”</td>
+<td>参数阈值表</td>
+</tr>
+<tr>
+<td>Bash 子命令数有上限</td>
+<td>无法核对</td>
+<td>源码不公开。permissions 文档只写到批准复合命令时 “Up to 5 rules may be saved”</td>
+<td>参数阈值表</td>
+</tr>
+<tr>
+<td>Codex 把 turn 级条件暴露在 <code>thread.ts</code></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td><code>threadOptions.ts</code>：sandboxMode、workingDirectory、networkAccessEnabled、approvalPolicy、additionalDirectories；<code>thread.ts</code> 每次运行都传给 <code>codex exec</code></td>
+<td>4.5</td>
+</tr>
+<tr>
+<td>Codex 能显式表达 state DB 位置和 MCP tool approvals</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>位置不在 <code>thread.ts</code>。config.toml 的 <code>sqlite_home</code>；每个 MCP 工具的 <code>approval_mode</code>，取 auto、prompt、writes、approve（<code>config/src/mcp_types.rs</code>）</td>
+<td>4.5</td>
+</tr>
+<tr>
+<td>SDK 的审批类型</td>
+<td>同一来源不一致</td>
+<td><code>threadOptions.ts</code> 列出 on-failure；<code>protocol.rs</code> 把 on-failure 作为 OnRequest 的别名</td>
+<td>4.5</td>
+</tr>
+<tr>
+<td>Claude Code 把边界压到运行时现场</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>需要限定</span></td>
+<td>文档：沙箱用 <code>sandbox.enabled</code>、<code>sandbox.network.allowedDomains</code> 配置，默认关闭；附加目录用 <code>permissions.additionalDirectories</code>；权限模式用 <code>permissions.defaultMode</code></td>
+<td>4.5</td>
+</tr>
+<tr>
+<td>审批和权限提升抽成显式参数（原文作为 Codex 的特点）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>需要补充：这不是 Codex 独有。sandboxing 文档：Claude 可用 <code>dangerouslyDisableSandbox</code> 参数申请在沙箱外重试。观察：本会话 Bash 工具的 schema 带这个参数</td>
+<td>4.4、4.7</td>
+</tr>
+<tr>
+<td><code>tools/src/lib.rs</code> 有 MCP resource、dynamic tool、tool discovery</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>基本成立</span></td>
+<td>dynamic_tool、tool_discovery、tool_search、mcp_tool 在 tools crate；MCP resource 工具在 <code>core/src/tools/handlers/mcp_resource_spec.rs</code></td>
+<td>4.6</td>
+</tr>
+<tr>
+<td>Claude Code 用 skill、hook、permission、工具 prompt 拼成治理链</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>成立</span></td>
+<td>需要补充。permissions 文档：MCP 工具规则写作 <code>mcp__server__tool</code>。mcp 文档：tool search 默认开启。tools-reference：skill 通过 Skill 工具运行</td>
+<td>4.6</td>
+</tr>
+</tbody></table></div>
+<h3>核对范围与局限</h3>
+<ul>
+<li><strong>Codex</strong>：openai/codex main 分支，提交 2cab11c（2026-10-27），只检出了要看的文件。浅克隆没有提交历史，无法确认 <code>local_tool.rs</code> 和 <code>shell_command</code> 工具在旧版本里的样子；原书很可能照旧版本写成。仓库 <code>docs/</code> 里 execpolicy 和沙箱的文档只剩外链，官方文档站返回 403，没有核对。Guardian 何时启用没有追查。</li>
+<li><strong>Claude Code</strong>：源码不公开。依据官方文档 <a href="https://code.claude.com/docs/en/permissions">permissions</a>、<a href="https://code.claude.com/docs/en/permission-modes">permission-modes</a>、<a href="https://code.claude.com/docs/en/sandboxing">sandboxing</a>、<a href="https://code.claude.com/docs/en/tools-reference">tools-reference</a>、<a href="https://code.claude.com/docs/en/hooks">hooks</a>、<a href="https://code.claude.com/docs/en/how-claude-code-works">how-claude-code-works</a>、<a href="https://code.claude.com/docs/en/interactive-mode">interactive-mode</a>、<a href="https://code.claude.com/docs/en/agent-teams">agent-teams</a>、<a href="https://code.claude.com/docs/en/mcp">mcp</a>，2026-10-27 查阅。</li>
+<li><strong>会话观察</strong>：本会话的 Bash 工具 schema 带 <code>dangerouslyDisableSandbox</code> 参数，只有 command 必填，<code>additionalProperties</code> 为 false；工具说明里有大段专用指引。</li>
+<li><strong>观点</strong>：原文的比方和价值判断不核对，例如工地监工、值班经理、工头和法务部，以及“policy 设计必须当正事维护”。</li>
+</ul>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="图表查看" data-expand="展开查看图表">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="关闭" aria-label="关闭">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.4.14 · 2026-10-27 16:09</footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+title: 工具、沙箱与策略语言：谁来阻止模型动手太快
+subtitle: 《Claude Code 和 Codex 的 Harness 设计哲学》第 4 章解读（已按官方文档和官方仓库核对）
+source: https://harness-books.agentway.dev/book2-comparing/chapter-04-tools-sandbox-and-exec-policy.html
+---
+原文：[第 4 章 工具、沙箱与策略语言：谁来阻止模型动手太快](https://harness-books.agentway.dev/book2-comparing/chapter-04-tools-sandbox-and-exec-policy.html)
+
+一句话结论：原文认为，Claude Code 靠运行时编排和现场审批管住工具。Codex 则靠 schema、参数化审批和独立的策略引擎。核对后，Codex 有独立策略引擎这一点成立：execpolicy 是单独的 crate，有自己的规则语言、检查命令和改写入口。但两边的差距被说大了：
+
+- Claude Code 也在 settings.json 里声明 allow / ask / deny 规则、沙箱和附加目录，它的 Bash 工具也有绕过沙箱的参数。
+- Codex 也有运行时编排器，负责审批、沙箱和失败重试。
+- 原文给出的 Codex 骨架和决策树，有多处与源码不符。
+
+核对依据：Codex 官方仓库 openai/codex main 分支提交 2cab11c（2026-10-27）；Claude Code 官方文档 code.claude.com/docs（2026-10-27 查阅）。与原文不符的地方标“事实核对”，逐条结果见附录。
+
+## 章首图：工具调用的状态 {meta=&quot;原文章首的图，按事实重画&quot;}
+原文在章首放了一张对比图，标题是 “Tool Call States - Runtime Scheduling vs Schema+Policy”。图下的两条注释是原文的论点：
+
+- Claude Code：并发、顺序、中断和 Bash 的判断，都放在所有工具共用的代码路径里。
+- Codex：判断放在 schema、policy、沙箱配置这些声明式对象里，换掉它们不用改运行时。
+
+下面两张图按事实重画。+ 表示按事实补上，− 表示原图有、但与事实不符，~ 表示改过的节点。切换 Before 和 After，可以分别看原图结构和修正后的结构。
+
+**Claude Code：运行时调度**
+
+```flow LR
+[tool_use 块] -&gt; [partitionToolCalls]
+partitionToolCalls -&gt; [并发安全批]: safe
+partitionToolCalls -&gt; [串行批]: unsafe
+并发安全批 -&gt; *[StreamingToolExecutor · 排队→闸门→执行→完成→交出]
+串行批 -&gt; StreamingToolExecutor · 排队→闸门→执行→完成→交出
+StreamingToolExecutor · 排队→闸门→执行→完成→交出 --&gt; tool_use 块: 按顺序交出
+[ask / allow / deny 与 Bash 专门规则] -&gt; StreamingToolExecutor · 排队→闸门→执行→完成→交出: 闸门
++ [settings.json 里的规则] -&gt; ask / allow / deny 与 Bash 专门规则: deny → ask → allow
++ [PreToolUse hook] -&gt; ask / allow / deny 与 Bash 专门规则: 先运行，可直接拦截
+```
+
+**Codex：schema 加 policy**
+
+```flow LR
+- [工具调用 · ToolSpec] -&gt; [Schema 校验]
+- Schema 校验 -&gt; [ExecPolicy 评估]
++ 工具调用 · ToolSpec -&gt; [参数解析 · serde]
++ 参数解析 · serde -&gt; ExecPolicy 评估: 仅 exec_command
+ExecPolicy 评估 -&gt; [沙箱 / 网络 / workdir 绑定]: allow
+沙箱 / 网络 / workdir 绑定 -&gt; [工具运行时]
+工具运行时 --&gt; 工具调用 · ToolSpec: 结果
+- ExecPolicy 评估 -&gt; [审批参数 / request_permissions]: 不确定
+- 审批参数 / request_permissions -&gt; ExecPolicy 评估: 用户决定
++ ExecPolicy 评估 -&gt; [审批请求 · 先 hook，再 Guardian 或用户]: prompt
++ 审批请求 · 先 hook，再 Guardian 或用户 -&gt; 沙箱 / 网络 / workdir 绑定: 批准
++ ExecPolicy 评估 -&gt; [拒绝 · 原因返回模型]: forbidden
++ 工具运行时 --&gt; 审批请求 · 先 hook，再 Guardian 或用户: 沙箱拒绝后，视审批策略申请重试
++ [request_permissions 工具 · 默认关闭] --&gt; 沙箱 / 网络 / workdir 绑定: 给后续命令加权限
+~ ExecPolicy 评估
+```
+
+```callout warn 事实核对
+- Claude Code 一侧：partitionToolCalls、并发分批和执行器的状态名无法核对。源码不公开，官方文档也没有写工具并发。能对上文档的是：权限规则按 deny → ask → allow 的顺序生效，PreToolUse hook 在权限提示之前运行。
+- 原图注释说，Claude Code 的判断都在代码路径里。实际上，allow / ask / deny 规则和沙箱设置都写在 settings.json 里，也是声明式配置。
+- Codex 一侧有三处与源码不符。第一，没有按 schema 校验：参数用 serde 解析，exec_command 的多余字段被忽略。第二，ExecPolicy 只评估 shell 命令，不评估所有工具。第三，需要审批时发出审批请求，先交给 hook，再交给 Guardian 或用户；批准后直接执行，不回到 ExecPolicy。
+- request_permissions 是模型主动调用的另一个工具，功能开关默认关闭，不是审批分支。
+- Codex 也有运行时编排：编排器 ToolOrchestrator 依次负责审批、沙箱内首次执行、沙箱拒绝后的重试。
+```
+
+## 4.1 真正危险的是开始执行
+**做什么**：原文说，模型说错话只浪费时间，跑错命令就可能把目录、仓库、进程和工作流一起带坏。真正把 AI coding system 区分开的，是调工具之前谁拥有最后解释权。
+
+**怎么做**：两边都很认真，但认真得不一样。
+
+| | Claude Code | Codex |
+|---|---|---|
+| 工具首先是什么 | 运行时调度纪律里的一环 | 类型化接口：先是规范化 API，其次才是执行单元 |
+| 关心的问题 | 能不能跑、怎么跑、能不能并发、用户有没有拒绝、如何中断、结果怎么回到上下文 | 工具有哪些参数、审批怎么表达 |
+| 原文给的源码 | `toolOrchestration.ts`、`toolExecution.ts`、`StreamingToolExecutor.ts`、`useCanUseTool.tsx`、Bash 专门 prompt、allow / deny / ask 语义 | `tools/src/lib.rs` 导出工具构造器；`local_tool.rs` 定义 `exec_command`、`shell`、`shell_command`、`request_permissions` 的 schema |
+
+**为什么**：原文认为，工具调用才是后果发生的地方，所以秩序要放在动手之前。
+
+```callout warn 事实核对
+- Claude Code 的源码文件名无法核对：源码不公开。allow / deny / ask 三类规则有文档依据。
+- 当前 Codex 代码里没有 `local_tool.rs`。`exec_command`、`write_stdin`、`request_permissions` 的 schema 在 `core/src/tools/handlers/shell_spec.rs`。`shell` 和 `shell_command` 已不再定义成工具，`shell_command` 只作为保留名出现。
+- `tools/src/lib.rs` 导出的是 ToolSpec、JsonSchema 这些通用类型，以及把 MCP 工具、动态工具转成 API 工具的函数。具体工具的构造函数在 core 里。
+```
+
+## 4.2 Claude Code：重点在运行时编排和危险动作约束
+**做什么**：原文说，Claude Code 的工具系统有很强的现场调度感。它承认工具调用是“一个带后果的过程”，不是单点动作。
+
+**怎么做**：原文列出这些运行时职责：
+
+- **并发**：看 schema 和 `isConcurrencySafe()`，决定先做哪个、哪些并行、哪些串行。
+- **顺序**：会修改上下文的工具，要保证回放顺序稳定。
+- **流式执行**：处理中断、synthetic result 和 UI 反馈。
+- **收尾**：做完怎么记账，中途被叫停怎么办。
+- **Bash**：对 Bash 这类高风险工具反复提醒。
+
+**为什么**：原文把它比作给模型装一个工地监工。对 Bash 的“唠叨”，是成熟工程对危险接口的态度。
+
+```callout warn 事实核对
+- 并发分批、回放顺序、synthetic result：无法核对。源码不公开，官方文档没有描述工具怎样并发。
+- 中断：成立。文档写明，按 Esc 时 “The running tool call is canceled”。
+- 对 Bash 的专门约束：成立。文档写明 Bash 规则怎样拆分复合命令、剥掉 `timeout` 这类包装命令、放行哪些只读命令。观察：本会话的 Bash 工具说明也带有大段专用指引。
+```
+
+## 4.3 Codex：重点在工具 schema、审批参数和策略引擎
+**做什么**：原文说，Codex 把“风险动作”的控制做成正式的接口约束。
+
+**怎么做**：原文分三层讲。下图按当前源码整理（本页归纳）。− 表示原文提到、当前代码已没有，~ 表示与原文说法不同。
+
+```tree list
+Codex 的风险控制接口 | 本页归纳，按当前源码
+  工具 schema
+    exec_command | 只有 cmd 必填；另有 workdir、shell、tty、yield_time_ms、max_output_tokens、login
+    - shell、shell_command | 原文说它们要求设 workdir、提醒别滥用 cd
+  审批参数
+    sandbox_permissions | use_default 或 require_escalated；开关打开时还有 with_additional_permissions
+    justification | 申请提权时给用户看的问题
+    prefix_rule | 建议一条可复用的放行前缀
+    ~ request_permissions 工具 | 单独申请网络和文件权限；开关默认关闭
+  策略引擎 execpolicy
+    规则语言 | prefix_rule、network_rule、host_executable
+    评估 | Policy、Rule、Evaluation、Decision、PolicyParser
+    改写入口 | blocking_append_allow_prefix_rule、blocking_append_network_rule
+```
+
+- **工具 schema**：`exec_command` 不是收一个命令字符串了事，参数都有名字和说明。原文说，正确的用法被嵌进了工具定义本身。
+- **审批参数**：审批和权限提升抽成显式参数，`request_permissions` 做成单独的工具。
+- **策略引擎**：execpolicy 单独做成 crate。原文说，`Policy`、`Rule`、`Evaluation`、`Decision`、parser 这套命名，说明执行边界已经是一门小型政策语言，不只是几个 if/else。
+- **不是虚张**：schema 的必填字段明确，`additional_properties` 关闭。execpolicy 还导出两个改写函数，所以 Codex 不只检查政策，也准备了修改和补丁的正式入口。
+
+**为什么**：把规则做成接口和语言，规则就能被单独读、单独改。
+
+```callout warn 事实核对
+- `shell` 和 `shell_command` 已不是工具。`exec_command` 的 workdir 说明只写 “Defaults to the turn cwd”，不要求必须设，也没有提醒 cd。“用法嵌进工具定义”这个论点仍有别的依据。在 Windows 上，`exec_command` 说明里带一段安全规则，例如递归删除前先核对目标路径。
+- `request_permissions` 确实是单独的工具，但它的功能开关处在开发阶段，默认关闭。
+- schema 里确实写了 `additionalProperties: false`，但工具同时标着 `strict: false`。Codex 解析 `exec_command` 参数时不拒绝多余字段，所以“阻止模型乱塞参数”不由 Codex 保证。
+- 两个改写函数成立：它们往规则文件追加一行规则。用户批准“以后同类命令都放行”时，core 调用它们。
+- “小型政策语言”成立，但范围要限定。规则文件用 Starlark 语法。README 写明当前只覆盖 prefix rule 子集，“a richer language will follow”。
+```
+
+## 4.4 运行时审批对照策略语言
+**做什么**：原文把两边的风险闸门放在一起比。
+
+| | Claude Code：运行时审批链 | Codex：显式策略语言和参数化审批 |
+|---|---|---|
+| 怎样判定 | ask / allow / deny 与调用现场紧密耦合，按上下文、工具类型、用户动作和会话状态决定 | exec policy 把规则抽离出来，可以单独解析和评估 |
+| 长处 | 灵敏 | 可读性和可迁移性更强，适合团队治理 |
+| 短处 | 规则容易藏在运行时逻辑里 | 系统更重，policy 设计必须当正事维护 |
+
+原文的说法是：前者像“值班经理现场拍板”，后者像“公司先写好制度，再看这单是否合规”。
+
+```callout warn 事实核对
+- Claude Code 的规则不只藏在运行时里。allow / ask / deny 规则写在 settings.json，有固定语法，例如 `Bash(git push *)`。三类规则按 deny → ask → allow 的顺序生效。
+- 确实留在运行时里的，是内置判断：只读命令清单、包装命令剥离、auto mode 分类器。文档写明包装命令清单 “is built in and is not configurable”。
+- Codex 也不只靠策略语言。没有规则命中时，由启发式兜底：危险命令检查、审批策略和沙箱类型。运行时还有编排器和并行锁：能并行的工具共享读锁，其他工具独占写锁。
+- 两边都有参数化的提权：Codex 是 `sandbox_permissions: &quot;require_escalated&quot;`，Claude Code 的 Bash 工具是 `dangerouslyDisableSandbox`。
+- 仍然成立的差别：Codex 的规则是一门语言，放在独立 crate 里。规则可以附带 match / not_match 例子，加载时自动校验；还能用 `codex execpolicy check` 单独检查命令。
+```
+
+## 骨架：两种风险闸门 {meta=&quot;原文 4.4 的骨架代码，按事实重画&quot;}
+原文用伪代码写了两个风险闸门的骨架。下面按事实重画成流程图，标记含义同章首图。
+
+**Claude Code 运行时审批**（原文的源：`useCanUseTool.tsx`、`StreamingToolExecutor.ts`，无法核对）
+
+```flow
+[tool_use] -&gt; [hasPermissionsToUseTool]
++ [PreToolUse hook] -&gt; hasPermissionsToUseTool: 先运行，可直接拦截
++ [settings.json 规则] -&gt; hasPermissionsToUseTool: deny → ask → allow
+hasPermissionsToUseTool -&gt; {allow / deny / ask}
+allow / deny / ask -&gt; [按 isConcurrencySafe 调度]: allow
+allow / deny / ask -&gt; [拒绝 · sticky]: deny
+allow / deny / ask -&gt; [分派 · coordinator / swarm / 交互]: ask
+~ 分派 · coordinator / swarm / 交互
++ 分派 · coordinator / swarm / 交互 -&gt; [PermissionRequest hook]: 可代用户决定
++ 分派 · coordinator / swarm / 交互 -&gt; [auto mode 分类器]: auto mode 下
+按 isConcurrencySafe 调度 --&gt; [中断 · cancel / block]: Esc
+```
+
+**Codex exec policy 评估**（原文的源：`execpolicy/src/lib.rs`、`local_tool.rs`）
+
+```flow
+[规则文件 · rules 目录] -&gt; [PolicyParser.parse] -&gt; [Policy]
+- Policy -&gt; [逐条 rule.evaluate · 输入 exec_command 全部字段]
+- 逐条 rule.evaluate · 输入 exec_command 全部字段 -&gt; [Allow / Deny / RequestPermissions]: 第一条命中即返回
+- 逐条 rule.evaluate · 输入 exec_command 全部字段 -&gt; [Decision::default]: 都没命中
++ [按 shell 控制符拆成命令段] -&gt; [按 token 前缀匹配]
++ Policy -&gt; 按 token 前缀匹配
++ 按 token 前缀匹配 -&gt; [取最严的决定 · forbidden 最严，allow 最松]: 有命中
++ 按 token 前缀匹配 -&gt; [启发式兜底 · 危险命令、审批策略、沙箱]: 无命中
++ 启发式兜底 · 危险命令、审批策略、沙箱 -&gt; 取最严的决定 · forbidden 最严，allow 最松
++ 取最严的决定 · forbidden 最严，allow 最松 -&gt; [Allow / Prompt / Forbidden]
++ Allow / Prompt / Forbidden -&gt; [Skip / NeedsApproval / Forbidden]: 转成审批要求
+```
+
+```callout warn 事实核对
+- Claude Code：allow / deny / ask 三种结果和 deny → ask → allow 的顺序有文档依据。函数名、sticky、cancel / block 无法核对；文档只写到按 Esc 会取消正在运行的工具调用。
+- Claude Code 的 ask 分派部分可核对：teammate 的权限提示出现在 lead 会话里，PermissionRequest hook 可以代替用户批准或拒绝。coordinator、swarm 这两个名字无法核对。
+- Codex：规则不读 `exec_command` 的全部字段，只按命令的 token 前缀匹配。命令先在 `&amp;&amp;`、`|`、`;` 等控制符处拆成段，每段单独评估。
+- Codex 的 `Decision` 只有 `Allow`、`Prompt`、`Forbidden` 三种，没有 `Deny` 和 `RequestPermissions`。所有命中的规则一起比较，取最严的那个，不是第一条命中就返回。
+- 没有规则命中时，不是返回默认值，而是由启发式按危险命令、审批策略和沙箱类型给出决定。
+```
+
+## 审批决策树 {meta=&quot;原文 4.4 的决策树，按事实重画&quot;}
+原文给出一棵 Codex 审批决策树。下面按当前源码逐条改写，每条的备注写出原文的说法。
+
+```tree list
+exec_command 调用 | 按当前源码重画
+  ~ 参数解析失败 → 错误返回模型 | 原文：schema 校验失败 → deny
+  ~ 命中 forbidden 规则 → 拒绝 | 原文：高危前缀匹配 deny rule → deny
+  ~ 命中 prompt 规则 → 请求审批 | 原文：网络/提权匹配 ask rule → request_permissions
+  ~ 无规则命中，非危险命令 → 放行 | 原文：无匹配且 sandbox 可覆盖 → allow
+  ~ 无规则命中，项目不受信任或申请提权 → 请求审批 | 原文：无匹配且 sandbox 保守 → ask
+  + 无规则命中，危险命令 → 请求审批 | 审批策略为 never 时直接拒绝
+  + 多个命令段 → 取最严的决定 | forbidden 最严，allow 最松
+```
+
+- **参数解析失败**：错误信息作为工具结果返回模型，模型可以改了再试。多余字段不会导致失败。
+- **请求审批**：审批策略为 never 时，凡是要审批的命令都直接拒绝。
+- **放行**：审批策略为 never 或 on-request 时放行。沙箱受限时，命令仍在沙箱里运行。
+- **request_permissions**：它不是决策树的分支，而是模型主动调用的另一个工具。
+
+## 超时与参数阈值 {meta=&quot;原文 4.4 的表，加核对列&quot;}
+| 名称 | 原文的含义 | 原文的源引用 | 核对 | 实际情况 |
+|---|---|---|---|---|
+| `yield_time_ms` | 单次 exec 允许阻塞的毫秒上限 | `local_tool.rs`（exec_command） | warn 部分成立 | 返回输出前等多久。默认 10000 ms，有效范围 250 到 30000 ms。命令没跑完就返回 session ID，之后用 `write_stdin` 继续读，命令不会被结束 |
+| `max_output_tokens` | 工具输出纳入上下文的 token 上限 | `local_tool.rs` | ok 成立 | 说明是 “Output token budget”，默认 10000 tokens，更大的请求可能被策略截断 |
+| `additional_properties=false` | 阻止模型乱塞参数 | `local_tool.rs`（schema） | warn 只写在 schema 里 | 工具标着 `strict: false`，Codex 解析参数时不拒绝多余字段 |
+| Bash 子命令数 cap | 单次 Bash 调用允许的复合子命令上限 | `bashPermissions.ts` | 无法核对 | 源码不公开。文档只写到：复合命令拆开后逐段匹配；批准“不再询问”时，一条复合命令最多保存 5 条规则 |
+
+前三行的源文件，当前都在 `core/src/tools/handlers/shell_spec.rs`。
+
+## 4.5 沙箱与审批：产品定义问题
+**做什么**：原文说，沙箱、审批、权限不是安全附属件。对 coding agent 来说，它们定义了产品是什么。
+
+**怎么做**：系统若允许模型在用户目录直接跑任意命令，就把风险转嫁给了用户。反过来，能显式表达下面这些边界，才是同时交付能力和行为边界。原文的两种做法：
+
+- **Codex**：把 turn 级条件暴露在 `thread.ts` 里，当作线程语义。
+- **Claude Code**：把边界压到运行时现场：工具执行、中断、permission hook 和 Bash 限制。
+
+原文的概括是：一个“边做边看守”，一个“先给出执行契约再开始做”。下表核对原文列出的六项边界，各自在哪里表达。
+
+| 原文列出的边界 | Codex | Claude Code |
+|---|---|---|
+| sandbox mode | ok `thread.ts` 的 sandboxMode：read-only、workspace-write、danger-full-access | settings 的 `sandbox.enabled`。沙箱只管 Bash、PowerShell、Monitor 的命令，默认关闭 |
+| network access | ok `thread.ts` 的 networkAccessEnabled | `sandbox.network.allowedDomains` 和 `deniedDomains` |
+| approval policy | ok `thread.ts` 的 approvalPolicy | 权限模式 `permissions.defaultMode`，加上 allow / ask / deny 规则 |
+| additional directories | ok `thread.ts` 的 additionalDirectories | `permissions.additionalDirectories`，或 `--add-dir` |
+| state DB 位置 | warn 不在 `thread.ts`，是 config.toml 的 `sqlite_home` | 原文没有对应说法 |
+| MCP tool approvals | warn 不在 `thread.ts`，是每个 MCP 工具的 `approval_mode` 配置 | `mcp__server__tool` 形式的权限规则 |
+
+**为什么**：原文认为，能力和边界要一起交付，用户才不必替模型承担风险。
+
+```callout warn 事实核对
+- `thread.ts` 每次运行都把这些线程选项传给 `codex exec`。state DB 位置和 MCP 工具审批不在 `thread.ts` 里，而在 config.toml 里。
+- Claude Code 也把这些边界写成配置，见上表右列。所以“边做边看守”和“先给执行契约”，只能理解为侧重点不同，不是有无之分。
+- Codex 会把契约写给模型：它有按 sandbox_mode 和审批策略选用的说明模板，例如告诉模型 “`sandbox_mode` is `workspace-write`”。
+- 同一来源内部不一致：SDK 的审批类型仍列出 on-failure；Rust 代码里 on-failure 只是 on-request 的别名。
+```
+
+## 4.6 MCP、扩展工具与边界外移
+**做什么**：两套系统都能接外部能力。原文说，差异仍在：扩展能力怎样服从总规则。
+
+**怎么做**：
+
+| | Claude Code | Codex |
+|---|---|---|
+| 原文的概括 | skill、hook、permission、工具 prompt 拼成场景化治理链，本地规则跟着现场进主循环 | 外部能力统一纳入工具系统，是 schema 化的工具对象，不是临时约定 |
+| 原文的依据 | 未给源码 | `tools/src/lib.rs` 的 MCP resource、dynamic tool、tool discovery |
+| MCP 工具（核对补充） | 名为 `mcp__server__tool`，受同一套权限规则和 hook 管 | 转成 Responses API 工具；每个工具可配审批模式 |
+| 按需发现（核对补充） | tool search 默认开启，先只加载工具名 | tool_search 和 tool discovery |
+
+**为什么**：原文说，生态一旦变大，“扩展能力如何服从总规则”就成了压舱石。谁先想清楚边界外移，谁的扩展体系就不会变成杂物间。
+
+```callout warn 事实核对
+- `tools/src/lib.rs` 确实导出 MCP 工具、动态工具和工具发现的类型与转换函数。但 MCP resource 的三个工具定义在 core 的 `mcp_resource_spec.rs`，不在 tools crate。
+- Claude Code 的扩展也纳入了工具系统：MCP 工具和内置工具用同一种规则格式，skill 也通过 Skill 工具运行。所以两边都把扩展做成了工具对象，原文的对比只能理解为侧重点不同。
+```
+
+## 4.7 本章结论 {meta=&quot;原文的结论，单独成节&quot;}
+&gt; Claude Code 的工具治理更强地依赖运行时编排与现场审批，Codex 的工具治理更强地依赖 schema、参数化权限和独立策略系统。
+
+原文的比方：前者像经验丰富的工头；后者像施工单位，有制度处和法务部。只看“都能跑命令”，就会错过真正重要的差异：谁在工具动手之前拥有最终秩序。
+
+**证据（已按事实修正）**
+
+- 独立策略系统：成立。execpolicy 是单独的 crate，有规则语言、检查命令和改写入口（4.3）。
+- schema：成立，但力度要降。schema 写了必填字段和 `additionalProperties: false`，但 Codex 解析时不拒绝多余字段（参数阈值表）。
+- 参数化权限：成立，但不是 Codex 独有。Claude Code 的 Bash 工具也有 `dangerouslyDisableSandbox` 参数（4.4）。
+- 运行时编排：Claude Code 的并发细节无法核对。Codex 也有运行时编排器和并行锁（章首图、4.4）。
+- 现场审批：Claude Code 的审批确实在调用时发生，但规则本身写在 settings.json 里（4.4、4.5）。
+
+**原文提炼的工程原则**
+
+- 区分 AI coding system 的，是调工具之前谁拥有最后解释权（4.1）。
+- 沙箱、审批、权限定义了产品是什么，不是安全附属件（4.5）。
+- 扩展能力必须服从总规则，先想清楚边界外移，扩展体系才不会变成杂物间（4.6）。
+
+下一章讲 skills、hooks、本地规则文件和团队制度。
+
+## 附录：事实核对
+| 原文的说法 | 核对 | 实际情况和依据 | 正文 |
+|---|---|---|---|
+| Claude Code 源码文件 `toolOrchestration.ts`、`toolExecution.ts`、`StreamingToolExecutor.ts`、`useCanUseTool.tsx`、`bashPermissions.ts` | 无法核对 | Claude Code 未公开源码 | 4.1、骨架、参数阈值表 |
+| Claude Code 有 allow / deny / ask 语义 | ok 成立 | permissions 文档：三类规则 “evaluated in order: deny, then ask, then allow” | 4.1、骨架 |
+| 并发看 schema 和 `isConcurrencySafe()`；partitionToolCalls 分并发批和串行批；执行器状态从 queued 到 yielded | 无法核对 | 源码不公开，官方文档没有描述工具并发 | 章首图、4.2 |
+| 会修改上下文的工具要保证回放顺序；流式执行处理 synthetic result | 无法核对 | 同上 | 4.2 |
+| 流式执行要处理中断 | ok 成立 | how-claude-code-works：按 Esc，“The running tool call is canceled” | 4.2 |
+| 中断语义 `interruptBehavior` 取 cancel 或 block；deny 是 sticky | 无法核对 | 源码不公开。文档只写到 Esc 取消正在运行的工具调用 | 骨架 |
+| ask 分派到 coordinator、swarm 或交互 | warn 部分可核对 | agent-teams：“Teammate permission prompts appear in the lead session”。hooks：PermissionRequest hook 可代用户批准或拒绝。auto mode 由分类器判断。两个名字无法核对 | 骨架 |
+| Bash 有专门 prompt，系统对 Bash 反复提醒 | ok 成立 | permissions 文档的 Bash 一节：复合命令拆分、包装命令剥离、只读命令。观察：本会话 Bash 工具说明带大段专用指引 | 4.2 |
+| Claude Code 的规则容易藏在运行时逻辑里 | warn 需要限定 | 规则写在 settings.json，有固定语法和固定顺序。内置部分确实在运行时：包装命令清单 “is built in and is not configurable” | 4.4 |
+| 原图注释：Claude Code 把判断放在共用代码路径里，Codex 把判断放在可替换的声明式对象里 | warn 需要限定 | Claude Code 的规则和沙箱设置也是配置。Codex 也有运行时编排器（`core/src/tools/orchestrator.rs`）和并行锁（`core/src/tools/parallel.rs`） | 章首图 |
+| 原图：Codex 先做 Schema 校验 | no 不成立 | 参数用 serde 解析（`handlers/mod.rs` 的 `parse_arguments`）；`ExecCommandArgs` 没有 `deny_unknown_fields` | 章首图、决策树 |
+| 原图：所有工具调用都经过 ExecPolicy 评估 | no 不成立 | `create_exec_approval_requirement_for_command` 只处理 shell 命令；其他工具各有审批方式，例如 MCP 工具的 `approval_mode` | 章首图 |
+| 原图：不确定时走审批参数或 request_permissions，用户决定后回到 ExecPolicy | no 不成立 | `tools/approvals.rs`：审批先交给 permission request hook，再交给 Guardian 或用户。`orchestrator.rs`：批准后进入沙箱执行，沙箱拒绝时可按审批策略申请重试 | 章首图 |
+| `local_tool.rs` 定义 `exec_command`、`shell`、`shell_command`、`request_permissions` | warn 已过时 | 当前没有这个文件。`exec_command`、`request_permissions` 定义在 `core/src/tools/handlers/shell_spec.rs`，同一文件还有 `write_stdin`。`shell`、`shell_command` 已不再定义成工具，`registry.rs` 只把 `shell_command` 当作保留名 | 4.1、4.3 |
+| `tools/src/lib.rs` 导出工具构造器 | warn 不准确 | 它导出 ToolSpec、JsonSchema、MCP 和动态工具的转换函数。具体工具的构造函数在 `core/src/tools/handlers/*_spec.rs` | 4.1 |
+| `exec_command` 有 cmd、workdir、shell、tty、yield_time_ms、max_output_tokens、login 和审批字段 | ok 成立 | `shell_spec.rs`。审批字段是 sandbox_permissions、justification、prefix_rule；开关打开时另有 additional_permissions，多环境时另有 environment_id | 4.3 |
+| `shell` / `shell_command` 的描述要求设 workdir、提醒别滥用 cd | warn 已过时 | 这两个工具已不存在。`exec_command` 的 workdir 说明是 “Working directory for the command. Defaults to the turn cwd.”。内置 prompt 文件里也没有这条 | 4.3 |
+| `request_permissions` 做成单独工具 | ok 成立 | 但开关 `request_permissions_tool` 处在 UnderDevelopment，默认关闭（`features/src/lib.rs`） | 4.3 |
+| execpolicy 是单独 crate，有 Policy、Rule、Evaluation、Decision、parser、PolicyParser | ok 成立 | `execpolicy/src/lib.rs` | 4.3 |
+| 导出 `blocking_append_allow_prefix_rule`、`blocking_append_network_rule` 改写函数 | ok 成立 | 定义在 `execpolicy/src/amend.rs`，往规则文件追加一行 prefix_rule 或 network_rule；`core/src/exec_policy.rs` 在用户批准改写时调用 | 4.3 |
+| 执行边界已经是一门小型政策语言 | ok 成立 | 需要限定。README：规则用 Starlark 语法，当前只覆盖 prefix rule 子集，“a richer language will follow” | 4.3 |
+| schema 必填字段明确、`additional_properties` 关闭，阻止模型乱塞参数 | warn 部分成立 | schema 里 required 为 cmd，additionalProperties 为 false；但 `strict: false`，解析时多余字段被忽略。解析失败时返回 “failed to parse function arguments” | 4.3、参数阈值表 |
+| 骨架：规则对 `exec_command` 的全部字段求值 | no 不成立 | 规则只按命令 token 前缀匹配。命令先在 shell 控制符处拆成段（Codex 的 on_request 提示模板写明了拆法） | 骨架 |
+| 骨架：第一条命中即返回 Allow、Deny、RequestPermissions 之一，否则返回默认值 | no 不成立 | `decision.rs`：只有 Allow、Prompt、Forbidden。`policy.rs`：取所有命中里最严的。无命中时由 `render_decision_for_unmatched_command_for_platform` 按启发式决定 | 骨架 |
+| 决策树五个分支 | warn 多处不准 | 逐条见“审批决策树”节。依据：`core/src/exec_policy.rs`、`protocol.rs` 的 AskForApproval | 决策树 |
+| `yield_time_ms` 是单次 exec 允许阻塞的毫秒上限 | warn 部分成立 | 说明是 “Wait before yielding output. Defaults to 10000 ms; effective range is 250-30000 ms.”；没跑完的命令返回 session ID | 参数阈值表 |
+| `max_output_tokens` 是输出纳入上下文的 token 上限 | ok 成立 | “Output token budget. Defaults to 10000 tokens” | 参数阈值表 |
+| Bash 子命令数有上限 | 无法核对 | 源码不公开。permissions 文档只写到批准复合命令时 “Up to 5 rules may be saved” | 参数阈值表 |
+| Codex 把 turn 级条件暴露在 `thread.ts` | ok 成立 | `threadOptions.ts`：sandboxMode、workingDirectory、networkAccessEnabled、approvalPolicy、additionalDirectories；`thread.ts` 每次运行都传给 `codex exec` | 4.5 |
+| Codex 能显式表达 state DB 位置和 MCP tool approvals | ok 成立 | 位置不在 `thread.ts`。config.toml 的 `sqlite_home`；每个 MCP 工具的 `approval_mode`，取 auto、prompt、writes、approve（`config/src/mcp_types.rs`） | 4.5 |
+| SDK 的审批类型 | 同一来源不一致 | `threadOptions.ts` 列出 on-failure；`protocol.rs` 把 on-failure 作为 OnRequest 的别名 | 4.5 |
+| Claude Code 把边界压到运行时现场 | warn 需要限定 | 文档：沙箱用 `sandbox.enabled`、`sandbox.network.allowedDomains` 配置，默认关闭；附加目录用 `permissions.additionalDirectories`；权限模式用 `permissions.defaultMode` | 4.5 |
+| 审批和权限提升抽成显式参数（原文作为 Codex 的特点） | ok 成立 | 需要补充：这不是 Codex 独有。sandboxing 文档：Claude 可用 `dangerouslyDisableSandbox` 参数申请在沙箱外重试。观察：本会话 Bash 工具的 schema 带这个参数 | 4.4、4.7 |
+| `tools/src/lib.rs` 有 MCP resource、dynamic tool、tool discovery | warn 基本成立 | dynamic_tool、tool_discovery、tool_search、mcp_tool 在 tools crate；MCP resource 工具在 `core/src/tools/handlers/mcp_resource_spec.rs` | 4.6 |
+| Claude Code 用 skill、hook、permission、工具 prompt 拼成治理链 | ok 成立 | 需要补充。permissions 文档：MCP 工具规则写作 `mcp__server__tool`。mcp 文档：tool search 默认开启。tools-reference：skill 通过 Skill 工具运行 | 4.6 |
+
+### 核对范围与局限
+
+- **Codex**：openai/codex main 分支，提交 2cab11c（2026-10-27），只检出了要看的文件。浅克隆没有提交历史，无法确认 `local_tool.rs` 和 `shell_command` 工具在旧版本里的样子；原书很可能照旧版本写成。仓库 `docs/` 里 execpolicy 和沙箱的文档只剩外链，官方文档站返回 403，没有核对。Guardian 何时启用没有追查。
+- **Claude Code**：源码不公开。依据官方文档 [permissions](https://code.claude.com/docs/en/permissions)、[permission-modes](https://code.claude.com/docs/en/permission-modes)、[sandboxing](https://code.claude.com/docs/en/sandboxing)、[tools-reference](https://code.claude.com/docs/en/tools-reference)、[hooks](https://code.claude.com/docs/en/hooks)、[how-claude-code-works](https://code.claude.com/docs/en/how-claude-code-works)、[interactive-mode](https://code.claude.com/docs/en/interactive-mode)、[agent-teams](https://code.claude.com/docs/en/agent-teams)、[mcp](https://code.claude.com/docs/en/mcp)，2026-10-27 查阅。
+- **会话观察**：本会话的 Bash 工具 schema 带 `dangerouslyDisableSandbox` 参数，只有 command 必填，`additionalProperties` 为 false；工具说明里有大段专用指引。
+- **观点**：原文的比方和价值判断不核对，例如工地监工、值班经理、工头和法务部，以及“policy 设计必须当正事维护”。
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions and the panel comments.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }].
+// Comment text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+function replyText({ title, decisions, comments, ui }) {
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   → ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) {
+      out.push(`- **${c.panel} · ${c.title}**`, ...c.text.trim().split('\n').map((l) => `  > ${l}`));
+    }
+    out.push('', `_${ui.typed}_`);
+  }
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers and the comments
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  const keyOf = (ask) => ask.querySelector('legend')?.textContent.trim() ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: panel?.querySelector('.am-panel-head h2')?.textContent.trim() ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: ask.querySelector('legend')?.textContent.trim() ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const empty = !decisions.length && !comments.some((c) => c.text.trim());
+    const title = document.querySelector('.am-head h1')?.textContent.trim() ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, ui });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg')].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+
+// ── Change markers: the Before / Changes / After switch ─────────────
+// The switch starts hidden because it needs this script. It swaps the am-view-* class of its diagram; the delta styles show the colors and badges only in
+// the Changes view and hide the items that do not exist in the view.
+(() => {
+  const VIEWS = ['before', 'changes', 'after'];
+  const setView = (el, view) => {
+    el.classList.remove(...VIEWS.map((v) => `am-view-${v}`));
+    el.classList.add(`am-view-${view}`);
+  };
+  for (const bar of document.querySelectorAll('.am-delta-bar')) {
+    const view = bar.parentElement;
+    const group = bar.querySelector('.am-delta-switch');
+    if (!group) continue;
+    group.hidden = false;
+    group.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-view]');
+      if (!btn) return;
+      setView(view, btn.dataset.view);
+      for (const b of group.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b === btn));
+    });
+  }
+  // The expand button copies only the drawing into the viewer; the viewer shows the view the diagram is in.
+  document.addEventListener('click', (e) => {
+    const host = e.target.closest?.('.am-diagram-expand')?.parentElement;
+    const canvas = document.querySelector('.am-lightbox-canvas');
+    const view = host && VIEWS.find((v) => host.classList.contains(`am-view-${v}`));
+    if (view && canvas) setView(canvas, view);
+  });
+})();
+</script>
+</body>
+</html>

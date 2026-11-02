@@ -1,0 +1,2023 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="paper" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.4.14">
+<title>多代理与验证：用分工和验证管理不稳定性</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-right: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin: 0 6px 0 auto; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-left: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; right: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { left: 50%; }
+.am-timeline--h li:last-child::before { right: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { left: 50%; }
+.am-tree-col:last-child::before { right: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }
+.am-tree-list ul { margin-left: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }
+.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 8px 4px auto;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-right: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */
+  .am-md th, .am-md td { min-width: 6em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="zh-CN" data-am-root-theme="paper" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">主题<select data-am="theme"><option value="blueprint">图纸</option><option value="shadcn">卡片</option><option value="paper" selected>纸张</option></select></label>
+<label class="am-pick">明暗<select data-am="mode"><option value="auto" selected>跟随系统</option><option value="light">亮</option><option value="dark">暗</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;回复&quot;,&quot;comment&quot;:&quot;评论&quot;,&quot;commentHint&quot;:&quot;对这个面板的意见&quot;,&quot;title&quot;:&quot;你的回复&quot;,&quot;hint&quot;:&quot;复制后粘贴到对话里。&quot;,&quot;copy&quot;:&quot;复制回复&quot;,&quot;close&quot;:&quot;关闭&quot;,&quot;suggested&quot;:&quot;建议&quot;,&quot;empty&quot;:&quot;先选择选项，或在面板上写评论。&quot;,&quot;decisions&quot;:&quot;决定&quot;,&quot;comments&quot;:&quot;评论&quot;,&quot;confirmed&quot;:&quot;确认了建议&quot;,&quot;untouched&quot;:&quot;未作答，保留建议&quot;,&quot;was&quot;:&quot;原为&quot;,&quot;typed&quot;:&quot;以 \&quot;&gt;\&quot; 开头的行是读者输入的文字。&quot;,&quot;done&quot;:&quot;已复制 ✓&quot;}">回复</button>
+<button class="am-btn" type="button" data-am="copy" data-done="已复制 ✓">复制源稿</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>多代理与验证：用分工和验证管理不稳定性</h1><p class="am-sub">《Harness Engineering：Claude Code 设计指南》第 7 章精读：按原文结构概括，删去行号</p><div class="am-head-meta"><span><b>source</b>https://harness-books.agentway.dev/book1-claude-code/chapter-07-multi-agent-and-verification.html</span></div><div class="am-intro am-md"><div class="am-md"><p>原文：<a href="https://harness-books.agentway.dev/book1-claude-code/chapter-07-multi-agent-and-verification.html">第 7 章 多代理与验证：用分工和验证管理不稳定性</a></p>
+<p>本章结论：多代理的价值不在并发，而在分工。研究、实现、验证、综合各自待在受约束的容器里，最后由协调者把结果缝合成可交付的成果。</p>
+</div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="目录"><a href="#panel-A">A · 核心观点：问题从“会不会做”变成“怎么分工”</a><a href="#panel-B">B · forked agent 的第一原则：不打烂缓存</a><a href="#panel-C">C · 状态隔离：子代理首先要减少污染</a><a href="#panel-D">D · 协调者模式：综合才是稀缺能力</a><a href="#panel-E">E · 验证必须独立成阶段</a><a href="#panel-F">F · 子代理不是扔出去就算了：hooks 与任务生命周期</a><a href="#panel-G">G · 验证不只针对代码，也针对记忆和建议</a><a href="#panel-H">H · 多代理真正解决的是不确定性的分区</a><a href="#panel-I">I · 从源码提炼的第七个原则</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>核心观点：问题从“会不会做”变成“怎么分工”</h2><span class="am-panel-meta">原文 7.1</span></header>
+<div class="am-panel-body"><div class="am-md"><p>任务一大，研究、实现、验证就挤在同一条上下文链上，抢预算、抢注意力、抢叙事中心。多代理看上去是自然答案，但并不便宜：不加约束的并行，只会把单代理的混乱复制几份。真正的难点是隔离各个 agent 的不稳定性，同时把结果组织回来。</p>
+<p>Claude Code 没有把 subagent 当成“另一个会说话的窗口”，而是当成一段受管的执行流程。这段流程有四条边界要管：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="子代理是受管执行流程" data-step="0">子代理是受管执行流程</div></div><ul class="am-tree-list"><li data-key="缓存边界" data-step="1"><span class="am-tree-label">缓存边界</span><span class="am-tree-sub">fork 时哪些参数必须和父代理一致（B）</span></li><li data-key="状态边界" data-step="2"><span class="am-tree-label">状态边界</span><span class="am-tree-sub">哪些状态默认隔离，哪些显式共享（C）</span></li><li data-key="验证职责" data-step="3"><span class="am-tree-label">验证职责</span><span class="am-tree-sub">综合由协调者负责，验证独立成阶段（D、E、G）</span></li><li data-key="清理责任" data-step="4"><span class="am-tree-label">清理责任</span><span class="am-tree-sub">生命周期可观测、可中止、可清理（F）</span></li></ul></div>
+<div class="am-md"><p>（分组对应关系是本页归纳。）</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>forked agent 的第一原则：不打烂缓存</h2><span class="am-panel-meta">原文 7.2 · forkedAgent.ts</span></header>
+<div class="am-panel-body"><div class="am-md"><p>forkedAgent.ts 开头的注释写明了 forked agent 工具的四项职责：</p>
+<ol>
+<li>与父代理共享影响缓存的参数，确保 prompt cache 命中。</li>
+<li>跟踪整个 query loop 的用量。</li>
+<li>记录指标。</li>
+<li>隔离可变状态，防止干扰主循环。</li>
+</ol>
+<p>排在第一的是“共享缓存参数”。在 Claude Code 眼里，fork 是运行时层面的受控分叉，必须在意哪些参数要和父请求保持一致：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 401 309" width="401" height="309" role="img" aria-label="流程图：fork 子代理、五项 CacheSafeParams 与父代理一致?、命中 prompt cache，复用父上下文、缓存失效，父上下文重新消耗 token" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M201.6,49 L201.6,60.5 Q201.6,72 201.6,83.5 L201.6,95" marker-end="url(#am1-arrow)"/></g><g data-step="1"><path class="am-edge" d="M241.3,165.2 L272.6,187.7 Q303.8,210.2 303.8,226.2 L303.8,242.2" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="293" y="201.2" width="21.5" height="18" rx="3"/><text x="303.8" y="210.2" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="2"><path class="am-edge" d="M161.9,165.2 L130.7,187.7 Q99.5,210.2 99.5,226.2 L99.5,242.2" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="88.8" y="201.2" width="21.5" height="18" rx="3"/><text x="99.5" y="210.2" text-anchor="middle" dominant-baseline="central">否</text></g></g></g><g><g class="am-node am-node--round" data-key="fork 子代理" data-step="0"><rect class="am-node-shape" x="148.7" y="14" width="105.8" height="35" rx="17.5"/><text x="201.6" y="31.5" text-anchor="middle" dominant-baseline="central">fork 子代理</text></g><g class="am-node am-node--diamond" data-key="五项 CacheSafeParams 与父代理一致?" data-step="0"><polygon class="am-node-shape" points="201.6,95 328.7,136.6 201.6,178.2 74.6,136.6"/><text x="201.6" y="128.1" text-anchor="middle" dominant-baseline="central">五项 CacheSafeParams</text><text x="201.6" y="145.1" text-anchor="middle" dominant-baseline="central">与父代理一致?</text></g><g class="am-node am-node--rect am-node--hi" data-key="命中 prompt cache，复用父上下文" data-step="1"><rect class="am-node-shape" x="221" y="242.2" width="165.5" height="52" rx="3"/><text x="303.8" y="259.7" text-anchor="middle" dominant-baseline="central">命中 prompt cache，复</text><text x="303.8" y="276.7" text-anchor="middle" dominant-baseline="central">用父上下文</text></g><g class="am-node am-node--rect" data-key="缓存失效，父上下文重新消耗 token" data-step="2"><rect class="am-node-shape" x="14" y="242.2" width="171" height="52" rx="3"/><text x="99.5" y="259.7" text-anchor="middle" dominant-baseline="central">缓存失效，父上下文重新</text><text x="99.5" y="276.7" text-anchor="middle" dominant-baseline="central">消耗 token</text></g></g></svg></figure>
+<div class="am-md"><p>五项参数是：systemPrompt、userContext、systemContext、toolUseContext、forkContextMessages。源码还专门提醒：不要随便改 maxOutputTokens，因为它会影响 thinking 配置，而 thinking 配置也是缓存 key 的一部分。</p>
+<p>原文的判断是：多代理首先是运行时经济学问题。子代理如果每次都把父上下文重新消耗一遍 token，看上去在并行提效，实际只是把浪费并行化。</p>
+<h3>五条不变式</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>不变式</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>fork 不破坏 prompt cache</td>
+<td>子代理的 CacheSafeParams 必须与父代理一致</td>
+</tr>
+<tr>
+<td>共享必须显式</td>
+<td>子代理的可变状态默认隔离，除非明确选择共享</td>
+</tr>
+<tr>
+<td>父死子亡</td>
+<td>父代理中止时，中止信号传给子代理</td>
+</tr>
+<tr>
+<td>生命周期闭合</td>
+<td>触发了 SubagentStart，最终一定触发 SubagentStop</td>
+</tr>
+<tr>
+<td>验证与实现角色分离</td>
+<td>做验证的 worker 不能是做实现的 worker</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>状态隔离：子代理首先要减少污染</h2><span class="am-panel-meta">原文 7.3 · createSubagentContext()</span></header>
+<div class="am-panel-body"><div class="am-md"><p>createSubagentContext() 的默认行为是：所有可变状态都隔离，避免干扰父代理。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>状态</th>
+<th>默认做法</th>
+<th>可选共享</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>readFileState（已读文件状态）</td>
+<td>复制一份</td>
+<td>—</td>
+</tr>
+<tr>
+<td>abortController（中止控制）</td>
+<td>新建一个子控制器，挂在父控制器下</td>
+<td>shareAbortController</td>
+</tr>
+<tr>
+<td>getAppState（读应用状态）</td>
+<td>包一层，让子代理不弹权限提示</td>
+<td>—</td>
+</tr>
+<tr>
+<td>setAppState（写应用状态）</td>
+<td>默认什么都不做</td>
+<td>shareSetAppState</td>
+</tr>
+<tr>
+<td>嵌套 memory 的相关集合</td>
+<td>重新建空集合</td>
+<td>—</td>
+</tr>
+</tbody></table></div>
+<p>另外，shareSetResponseLength 也属于需要明确选择才共享的回调。</p>
+<p>为什么默认隔离？子代理最宝贵的地方，是不把自己的局部混乱污染主线程。这些局部混乱包括：</p>
+<ul>
+<li>研究中的误判。</li>
+<li>临时读到的文件状态。</li>
+<li>一次性推理分支。</li>
+<li>进行中的工具决策。</li>
+</ul>
+<p>它们如果都直接写回主上下文，只会让主线程更快变脏。</p>
+<p>Claude Code 的态度是：共享要靠明确同意，隔离是默认规则。只要是可变状态，就先隔离，再决定共享哪部分。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>协调者模式：综合才是稀缺能力</h2><span class="am-panel-meta">原文 7.4 · coordinatorMode.ts</span></header>
+<div class="am-panel-body"><div class="am-md"><p>coordinatorMode.ts 规定了协调者的工作：</p>
+<ul>
+<li>帮用户达成目标。</li>
+<li>指挥 worker 做研究、实现和验证。</li>
+<li>综合结果，并和用户沟通。</li>
+<li>能直接回答的问题就直接回答，不要滥用委派。</li>
+</ul>
+<p>最关键的一句是 <strong>Always synthesize</strong>（始终自己综合）：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 831 177" width="831" height="177" role="img" aria-label="流程图：研究 worker 回报结果、协调者先读懂，再综合、写出具体 prompt：文件、位置、变更、实现 worker、只写“based on your findings”就转给下一个 worker" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M149.2,110 L188.3,123.3 Q227.4,136.5 251.6,136.5 L275.7,136.5" marker-end="url(#am2-arrow)"/></g><g data-step="1"><path class="am-edge" d="M433.7,136.5 L446.3,136.5 Q458.8,136.5 470.3,136.5 L481.8,136.5" marker-end="url(#am2-arrow)"/></g><g data-step="1"><path class="am-edge" d="M659,136.5 L670.5,136.5 Q682,136.5 693.5,136.5 L705,136.5" marker-end="url(#am2-arrow)"/></g><g data-step="2"><path class="am-edge am-edge--dashed" d="M149.2,75 L188.3,61.8 Q227.4,48.5 250.5,48.5 L273.6,48.5" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="205.1" y="39.5" width="44.5" height="18" rx="3"/><text x="227.4" y="48.5" text-anchor="middle" dominant-baseline="central">不允许</text></g></g></g><g><g class="am-node am-node--round" data-key="研究 worker 回报结果" data-step="0"><rect class="am-node-shape" x="14" y="75" width="167.1" height="35" rx="17.5"/><text x="97.6" y="92.5" text-anchor="middle" dominant-baseline="central">研究 worker 回报结果</text></g><g class="am-node am-node--rect am-node--hi" data-key="协调者先读懂，再综合" data-step="0"><rect class="am-node-shape" x="275.7" y="119" width="158" height="35" rx="3"/><text x="354.7" y="136.5" text-anchor="middle" dominant-baseline="central">协调者先读懂，再综合</text></g><g class="am-node am-node--rect" data-key="写出具体 prompt：文件、位置、变更" data-step="1"><rect class="am-node-shape" x="481.8" y="110.5" width="177.2" height="52" rx="3"/><text x="570.4" y="128" text-anchor="middle" dominant-baseline="central">写出具体 prompt：文件、</text><text x="570.4" y="145" text-anchor="middle" dominant-baseline="central">位置、变更</text></g><g class="am-node am-node--round" data-key="实现 worker" data-step="1"><rect class="am-node-shape" x="705" y="119" width="111.2" height="35" rx="17.5"/><text x="760.7" y="136.5" text-anchor="middle" dominant-baseline="central">实现 worker</text></g><g class="am-node am-node--rect" data-key="只写“based on your findings”就转给下一个 worker" data-step="2"><rect class="am-node-shape" x="273.6" y="14" width="162.2" height="69" rx="3"/><text x="354.7" y="31.5" text-anchor="middle" dominant-baseline="central">只写“based on your</text><text x="354.7" y="48.5" text-anchor="middle" dominant-baseline="central">findings”就转给下一个</text><text x="354.7" y="65.5" text-anchor="middle" dominant-baseline="central">worker</text></g></g></svg></figure>
+<div class="am-md"><p>协调者必须自己读懂研究结果，再写出具体的 prompt。不能说“based on your findings（根据你的发现）”，把理解继续外包给 worker。后续 prompt 里必须出现具体的文件、位置和变更。</p>
+<p>原文认为这是多代理的命门。稀缺的不是并行输出。稀缺的是有人把 worker 掌握的局部知识，重新压成下一步行动，并且清晰、可执行、可验证。缺了这一层，多代理很快退化成礼貌的任务转发机。研究可以分布式，理解必须重新收束。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>验证必须独立成阶段</h2><span class="am-panel-meta">原文 7.5 · coordinatorMode.ts</span></header>
+<div class="am-panel-body"><div class="am-md"><p>coordinatorMode.ts 把常见任务分成四个阶段：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 560 63" width="560" height="63" role="img" aria-label="流程图：Research、Synthesis、Implementation、Verification" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M98.7,31.5 L110.2,31.5 Q121.7,31.5 133.2,31.5 L144.7,31.5" marker-end="url(#am3-arrow)"/></g><g data-step="0"><path class="am-edge" d="M233.5,31.5 L245,31.5 Q256.5,31.5 268,31.5 L279.5,31.5" marker-end="url(#am3-arrow)"/></g><g data-step="0"><path class="am-edge" d="M401.6,31.5 L413.1,31.5 Q424.6,31.5 436.1,31.5 L447.6,31.5" marker-end="url(#am3-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="Research" data-step="0"><rect class="am-node-shape" x="14" y="14" width="84.7" height="35" rx="3"/><text x="56.3" y="31.5" text-anchor="middle" dominant-baseline="central">Research</text></g><g class="am-node am-node--rect" data-key="Synthesis" data-step="0"><rect class="am-node-shape" x="144.7" y="14" width="88.8" height="35" rx="3"/><text x="189.1" y="31.5" text-anchor="middle" dominant-baseline="central">Synthesis</text></g><g class="am-node am-node--rect" data-key="Implementation" data-step="0"><rect class="am-node-shape" x="279.5" y="14" width="122.1" height="35" rx="3"/><text x="340.6" y="31.5" text-anchor="middle" dominant-baseline="central">Implementation</text></g><g class="am-node am-node--rect am-node--hi" data-key="Verification" data-step="0"><rect class="am-node-shape" x="447.6" y="14" width="98.2" height="35" rx="3"/><text x="496.7" y="31.5" text-anchor="middle" dominant-baseline="central">Verification</text></g></g></svg></figure>
+<div class="am-md"><p>它强调：验证的目标是证明代码有效，而不只是确认代码存在。源码里的要求几乎不留情面：</p>
+<ul>
+<li><strong>run tests with the feature enabled</strong>：在功能开启的状态下跑测试。</li>
+<li><strong>investigate errors, don&#39;t dismiss as unrelated</strong>：调查错误，不要当成无关问题打发掉。</li>
+<li><strong>be skeptical</strong>：保持怀疑。</li>
+<li><strong>test independently, don&#39;t rubber-stamp</strong>：独立测试，不要走过场盖章。</li>
+</ul>
+<p>prompt 里明确分了两层：实现者自证，加上验证作为独立的质量关。</p>
+<p>为什么重要？“我改了代码”和“代码因此正确”之间差得很远。模型尤其擅长在这中间搭纸桥。它会给出改动、解释，甚至像样的测试输出，但这些都不等于功能真的在系统里成立。把验证单列出来，就是防止“会改代码”冒充“能交付结果”。实现专注于改，验证专门怀疑这些改动站不站得住。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>子代理不是扔出去就算了：hooks 与任务生命周期</h2><span class="am-panel-meta">原文 7.6 · hooksConfigManager.ts、LocalAgentTask.tsx</span></header>
+<div class="am-panel-body"><div class="am-md"><p>spawn 只是开头，收尾同样重要。子代理的生命周期由两套机制管理：</p>
+</div>
+<figure class="am-diagram am-seq"><svg viewBox="0 0 668 468" width="668" height="468" role="img" aria-label="时序图：父任务、子代理、hooks" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am4-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><line class="am-lifeline" x1="54" y1="42" x2="54" y2="464"/><g data-key="父任务"><rect class="am-actor" x="12" y="8" width="84" height="34" rx="2"/><text x="54" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">父任务</text></g><line class="am-lifeline" x1="361.6" y1="42" x2="361.6" y2="464"/><g data-key="子代理"><rect class="am-actor" x="319.6" y="8" width="84" height="34" rx="2"/><text x="361.6" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">子代理</text></g><line class="am-lifeline" x1="613.7" y1="42" x2="613.7" y2="464"/><g data-key="hooks"><rect class="am-actor" x="571.7" y="8" width="84" height="34" rx="2"/><text x="613.7" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">hooks</text></g><g data-step="0"><text x="207.8" y="70" text-anchor="middle">启动，并注册 cleanup handler</text><path class="am-edge" d="M54,80 L359.6,80" marker-end="url(#am4-arrow)"/></g><g data-step="1"><text x="487.7" y="110" text-anchor="middle">SubagentStart（agent_id、agent_type</text><text x="487.7" y="126" text-anchor="middle">）</text><path class="am-edge" d="M361.6,136 L611.7,136" marker-end="url(#am4-arrow)"/></g><g data-step="2"><line class="am-lifeline" x1="12" y1="170" x2="655.7" y2="170"/><rect class="am-actor" x="305.9" y="160" width="56" height="20" rx="2"/><text x="333.9" y="170" text-anchor="middle" dominant-baseline="central" font-size="12">运行中</text></g><g data-step="3"><text x="207.8" y="200" text-anchor="middle">父任务中止时，自动传播中止</text><path class="am-edge" d="M54,210 L359.6,210" marker-end="url(#am4-arrow)"/></g><g data-step="4"><line class="am-lifeline" x1="12" y1="244" x2="655.7" y2="244"/><rect class="am-actor" x="299.9" y="234" width="68" height="20" rx="2"/><text x="333.9" y="244" text-anchor="middle" dominant-baseline="central" font-size="12">即将结束</text></g><g data-step="5"><text x="487.7" y="274" text-anchor="middle">SubagentStop（附带</text><text x="487.7" y="290" text-anchor="middle">agent_transcript_path）</text><path class="am-edge" d="M361.6,300 L611.7,300" marker-end="url(#am4-arrow)"/></g><g data-step="6"><text x="487.7" y="330" text-anchor="middle">exit code 2 时，把 stderr 反馈给子代理</text><text x="487.7" y="346" text-anchor="middle">，让它继续跑</text><path class="am-edge am-edge--dashed" d="M613.7,356 L363.6,356" marker-end="url(#am4-arrow)"/></g><g data-step="7"><line class="am-lifeline" x1="12" y1="390" x2="655.7" y2="390"/><rect class="am-actor" x="305.9" y="380" width="56" height="20" rx="2"/><text x="333.9" y="390" text-anchor="middle" dominant-baseline="central" font-size="12">结束后</text></g><g data-step="8"><text x="94" y="418" dominant-baseline="central">清除输出、更新状态、取消 cleanup 注册</text><path class="am-edge" d="M54,414 H84 V434 H56" marker-end="url(#am4-arrow)"/></g></svg></figure>
+<div class="am-md"><ul>
+<li><strong>生命周期 hook</strong>：启动时可以观测，停止前可以介入，转录路径可以追踪。“子代理结束”也是需要被管理的事件。</li>
+<li><strong>异步任务注册（registerAsyncAgent）</strong>：每个异步 agent 都注册 cleanup handler，父任务中止会自动传给子代理。</li>
+</ul>
+<p>这套机制关心四个问题：这个 agent 是否还在运行；父任务死了它是否该跟着死；它的输出文件还要不要保留；它的 cleanup 回调有没有泄漏。很多多代理 demo 只做到“能再起一个 agent”。Claude Code 把 agent 当作会泄漏资源、会残留状态、会在父任务结束后变成孤儿的运行实体来看待。</p>
+<h3>子代理生命周期失败矩阵</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>事件</th>
+<th>前置状态</th>
+<th>触发</th>
+<th>下一步</th>
+<th>阈值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>父任务中止，子任务还在跑</td>
+<td>子任务未完成</td>
+<td>父任务中止</td>
+<td>传播中止给子代理，等待 cleanup</td>
+<td>不能留孤儿</td>
+</tr>
+<tr>
+<td>子代理崩溃</td>
+<td>子代理异常退出</td>
+<td>SubagentStop 退出码不为 0</td>
+<td>清除输出，触发 stop hook</td>
+<td>exit 2 允许把 stderr 反馈回去继续跑</td>
+</tr>
+<tr>
+<td>子代理超时</td>
+<td>运行超出限制</td>
+<td>registerAsyncAgent 超时</td>
+<td>中止子代理，写入 synthetic result</td>
+<td>—</td>
+</tr>
+<tr>
+<td>缓存 key 漂移</td>
+<td>CacheSafeParams 被改动</td>
+<td>fork</td>
+<td>拒绝 fork 或重新计算缓存</td>
+<td>必须完整对齐</td>
+</tr>
+<tr>
+<td>写未声明共享的状态</td>
+<td>没有选择共享</td>
+<td>子代理调用 setAppState</td>
+<td>什么都不做，不污染父代理</td>
+<td>默认隔离</td>
+</tr>
+<tr>
+<td>旧记忆与现状冲突</td>
+<td>记忆与现状不符</td>
+<td>读到旧记录</td>
+<td>相信现状，更新或删除记忆</td>
+<td>必须先核实</td>
+</tr>
+<tr>
+<td>cleanup 泄漏</td>
+<td>任务结束时没取消 handler</td>
+<td>收尾阶段</td>
+<td>强制取消注册并清除输出</td>
+<td>不能留下回调</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>验证不只针对代码，也针对记忆和建议</h2><span class="am-panel-meta">原文 7.7 · memoryTypes.ts</span></header>
+<div class="am-panel-body"><div class="am-md"><p>memoryTypes.ts 专门提醒：memory 记录会过时。根据记忆给用户建议之前，要先核实当前状态：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 951 126" width="951" height="126" role="img" aria-label="流程图：要根据记忆给建议、先核实当前状态、记忆与现状一致?、给出建议、相信现状，更新或删除旧记忆" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am5-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M158,71.5 L169.5,71.5 Q181,71.5 192.5,71.5 L204,71.5" marker-end="url(#am5-arrow)"/></g><g data-step="0"><path class="am-edge" d="M323,71.5 L334.5,71.5 Q346,71.5 357.5,71.5 L369,71.5" marker-end="url(#am5-arrow)"/></g><g data-step="1"><path class="am-edge" d="M515.7,84.1 L554.4,93.6 Q593.2,103 653.3,103 Q713.4,103 767.7,103 Q821.9,103 837.3,96 L852.6,89" marker-end="url(#am5-arrow)"/><g class="am-edge-label"><rect x="702.7" y="94" width="21.5" height="18" rx="3"/><text x="713.4" y="103" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="2"><path class="am-edge" d="M515.7,58.9 L554.4,49.4 Q593.2,40 610.5,40 L627.9,40" marker-end="url(#am5-arrow)"/><g class="am-edge-label"><rect x="582.4" y="31" width="21.5" height="18" rx="3"/><text x="593.2" y="40" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="3"><path class="am-edge" d="M798.9,40 L810.4,40 Q821.9,40 837.3,47 L852.6,54" marker-end="url(#am5-arrow)"/></g></g><g><g class="am-node am-node--round" data-key="要根据记忆给建议" data-step="0"><rect class="am-node-shape" x="14" y="54" width="144" height="35" rx="17.5"/><text x="86" y="71.5" text-anchor="middle" dominant-baseline="central">要根据记忆给建议</text></g><g class="am-node am-node--rect" data-key="先核实当前状态" data-step="0"><rect class="am-node-shape" x="204" y="54" width="119" height="35" rx="3"/><text x="263.5" y="71.5" text-anchor="middle" dominant-baseline="central">先核实当前状态</text></g><g class="am-node am-node--diamond" data-key="记忆与现状一致?" data-step="0"><polygon class="am-node-shape" points="463.7,43.5 558.4,71.5 463.7,99.5 369,71.5"/><text x="463.7" y="71.5" text-anchor="middle" dominant-baseline="central">记忆与现状一致?</text></g><g class="am-node am-node--round" data-key="给出建议" data-step="1"><rect class="am-node-shape" x="844.9" y="54" width="92" height="35" rx="17.5"/><text x="890.9" y="71.5" text-anchor="middle" dominant-baseline="central">给出建议</text></g><g class="am-node am-node--rect am-node--hi" data-key="相信现状，更新或删除旧记忆" data-step="2"><rect class="am-node-shape" x="627.9" y="14" width="171" height="52" rx="3"/><text x="713.4" y="31.5" text-anchor="middle" dominant-baseline="central">相信现状，更新或删除旧</text><text x="713.4" y="48.5" text-anchor="middle" dominant-baseline="central">记忆</text></g></g></svg></figure>
+<div class="am-md"><p>放在多代理这一章里，它说明了一个更一般的事实：验证是整个系统抵抗时间漂移和上下文漂移的基本习惯。只验证新写的代码，却不验证旧记忆、旧假设、旧索引，系统仍会被历史信息带偏。</p>
+<p>所以 verify 既是一项技能，也是一种组织纪律。工作可以分出去，信息可以存起来，其他 agent 可以先跑在前面；但在用户据此行动之前，总要有人回到当前现实，确认这些东西还是真的。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>多代理真正解决的是不确定性的分区</h2><span class="am-panel-meta">原文 7.8</span></header>
+<div class="am-panel-body"><div class="am-md"><p>Claude Code 的多代理设计围绕一个朴素的目标：给不确定性分区。</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 469 331" width="469" height="331" role="img" aria-label="流程图：用户、协调者、研究 worker、实现 worker、验证 worker" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am6-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g><rect class="am-cluster" x="14" y="224" width="440" height="81" rx="4"/><text class="am-cluster-label" x="22" y="238">各自的约束容器</text></g><g><g data-step="0"><path class="am-edge" d="M255,61 L267.6,77 Q280.2,93 267.6,109 L255,125" marker-end="url(#am6-arrow)"/><g class="am-edge-label"><rect x="263.7" y="84" width="33" height="18" rx="3"/><text x="280.2" y="93" text-anchor="middle" dominant-baseline="central">目标</text></g></g><g data-step="1"><path class="am-edge" d="M207.7,152.3 L140.2,172.2 Q72.8,192 72.8,208 Q72.8,224 82.2,235.5 L91.6,247" marker-end="url(#am6-arrow)"/></g><g data-step="1"><path class="am-edge" d="M229,160 L217.8,176 Q206.7,192 206.7,208 Q206.7,224 216.5,235.5 L226.3,247" marker-end="url(#am6-arrow)"/></g><g data-step="1"><path class="am-edge" d="M271.7,160 L299.6,176 Q327.5,192 327.5,208 Q327.5,224 341.4,235.5 L355.3,247" marker-end="url(#am6-arrow)"/></g><g data-step="2"><path class="am-edge am-edge--dashed" d="M120.8,247 L130.6,235.5 Q140.4,224 140.4,208 Q140.4,192 174.1,175.5 L207.7,159" marker-end="url(#am6-arrow)"/><g class="am-edge-label"><rect x="95.2" y="183" width="90.5" height="18" rx="3"/><text x="140.4" y="192" text-anchor="middle" dominant-baseline="central">局部探索的结果</text></g></g><g data-step="3"><path class="am-edge am-edge--dashed" d="M262.3,247 L276.2,235.5 Q290,224 290,208 Q290,192 274.2,176 L258.5,160" marker-end="url(#am6-arrow)"/><g class="am-edge-label"><rect x="273.5" y="183" width="33" height="18" rx="3"/><text x="290" y="192" text-anchor="middle" dominant-baseline="central">修改</text></g></g><g data-step="4"><path class="am-edge am-edge--dashed" d="M388.9,247 L397,235.5 Q405.2,224 405.2,208 Q405.2,192 340,172.3 L274.7,152.6" marker-end="url(#am6-arrow)"/><g class="am-edge-label"><rect x="371.5" y="183" width="67.5" height="18" rx="3"/><text x="405.2" y="192" text-anchor="middle" dominant-baseline="central">怀疑与证据</text></g></g><g data-step="5"><path class="am-edge am-edge--dashed" d="M227.4,125 L214.8,109 Q202.2,93 214.8,77 L227.4,61" marker-end="url(#am6-arrow)"/><g class="am-edge-label"><rect x="162.7" y="84" width="79" height="18" rx="3"/><text x="202.2" y="93" text-anchor="middle" dominant-baseline="central">综合后的结果</text></g></g></g><g><g class="am-node am-node--round" data-key="用户" data-step="0"><rect class="am-node-shape" x="203.2" y="26" width="76" height="35" rx="17.5"/><text x="241.2" y="43.5" text-anchor="middle" dominant-baseline="central">用户</text></g><g class="am-node am-node--rect am-node--hi" data-key="协调者" data-step="0"><rect class="am-node-shape" x="207.7" y="125" width="67" height="35" rx="3"/><text x="241.2" y="142.5" text-anchor="middle" dominant-baseline="central">协调者</text></g><g class="am-node am-node--rect" data-key="研究 worker" data-step="1"><rect class="am-node-shape" x="56.3" y="247" width="99.2" height="35" rx="3"/><text x="105.9" y="264.5" text-anchor="middle" dominant-baseline="central">研究 worker</text></g><g class="am-node am-node--rect" data-key="实现 worker" data-step="1"><rect class="am-node-shape" x="191.6" y="247" width="99.2" height="35" rx="3"/><text x="241.2" y="264.5" text-anchor="middle" dominant-baseline="central">实现 worker</text></g><g class="am-node am-node--rect" data-key="验证 worker" data-step="1"><rect class="am-node-shape" x="326.8" y="247" width="99.2" height="35" rx="3"/><text x="376.4" y="264.5" text-anchor="middle" dominant-baseline="central">验证 worker</text></g></g></svg></figure>
+<div class="am-md"><p>分区的最大好处是职责清晰、错误可以定位：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>环节</th>
+<th>可能出的错</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>研究</td>
+<td>漏了线索</td>
+</tr>
+<tr>
+<td>综合</td>
+<td>没吃透研究结果</td>
+</tr>
+<tr>
+<td>实现</td>
+<td>写错了</td>
+</tr>
+<tr>
+<td>验证</td>
+<td>放水</td>
+</tr>
+</tbody></table></div>
+<p>每一种错误都能被指认。单代理把所有事混在一起，出了问题只能整体返工。多代理真正的价值不是并发，而是把各类不确定性分别关进不同容器，再由协调者组织回来。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-I">
+<header class="am-panel-head"><span class="am-panel-id">I</span><h2>从源码提炼的第七个原则</h2><span class="am-panel-meta">原文 7.9</span></header>
+<div class="am-panel-body"><div class="am-callout am-callout--ok" role="note"><div class="am-callout-title">第七个原则</div><div class="am-callout-body am-md"><p>多代理依赖清晰分工：研究、实现、验证和综合各自处在不同约束容器里，最后由协调者把结果重新缝合成可交付结果。</p>
+</div></div>
+<div class="am-md"><p>源码在六个地方共同支持这个判断：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>源码</th>
+<th>做了什么</th>
+<th>说明什么</th>
+<th>详见</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>forkedAgent.ts</td>
+<td>把缓存安全参数、用量跟踪和状态隔离放在第一位</td>
+<td>fork 首先是运行时控制问题</td>
+<td>B</td>
+</tr>
+<tr>
+<td>createSubagentContext()</td>
+<td>默认隔离可变状态，只允许显式共享</td>
+<td>多代理先防污染，再谈协作</td>
+<td>C</td>
+</tr>
+<tr>
+<td>coordinatorMode.ts</td>
+<td>要求协调者自己综合，而不是转发研究结果</td>
+<td>综合理解不能外包</td>
+<td>D</td>
+</tr>
+<tr>
+<td>coordinatorMode.ts</td>
+<td>把验证独立成阶段，要求独立证明变更有效</td>
+<td>实现与验证必须角色分离</td>
+<td>E</td>
+</tr>
+<tr>
+<td>hooksConfigManager.ts</td>
+<td>提供 SubagentStart / SubagentStop 生命周期 hook</td>
+<td>子代理是可观测对象，不是黑箱线程</td>
+<td>F</td>
+</tr>
+<tr>
+<td>LocalAgentTask.tsx</td>
+<td>处理父任务中止、cleanup、输出清除</td>
+<td>agent 生命周期需要回收机制</td>
+<td>F</td>
+</tr>
+</tbody></table></div>
+<p>提炼成六条工程原则：</p>
+<ol>
+<li>fork 先看缓存与状态边界，再谈角色分工。</li>
+<li>子代理默认隔离，共享必须显式声明。</li>
+<li>研究可以委派，综合不能外包。</li>
+<li>验证必须与实现解耦，否则系统会奖励自证正确。</li>
+<li>agent 生命周期必须可观测、可中止、可清理。</li>
+<li>并行的真正价值，在于职责更清楚。</li>
+</ol>
+<p>下一章讨论这套机制落到团队里时，怎样从个人技巧变成组织制度。也就是 CLAUDE.md、skills、审批、hook、memory 怎样从“某个高手自己会用”，变成“团队可以稳定复用”的工程实践。</p>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="图表查看" data-expand="展开查看图表">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="关闭" aria-label="关闭">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.4.14 · 2026-10-22 16:44</footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+title: 多代理与验证：用分工和验证管理不稳定性
+subtitle: 《Harness Engineering：Claude Code 设计指南》第 7 章精读：按原文结构概括，删去行号
+source: https://harness-books.agentway.dev/book1-claude-code/chapter-07-multi-agent-and-verification.html
+---
+原文：[第 7 章 多代理与验证：用分工和验证管理不稳定性](https://harness-books.agentway.dev/book1-claude-code/chapter-07-multi-agent-and-verification.html)
+
+本章结论：多代理的价值不在并发，而在分工。研究、实现、验证、综合各自待在受约束的容器里，最后由协调者把结果缝合成可交付的成果。
+
+## A 核心观点：问题从“会不会做”变成“怎么分工” {meta=&quot;原文 7.1&quot;}
+
+任务一大，研究、实现、验证就挤在同一条上下文链上，抢预算、抢注意力、抢叙事中心。多代理看上去是自然答案，但并不便宜：不加约束的并行，只会把单代理的混乱复制几份。真正的难点是隔离各个 agent 的不稳定性，同时把结果组织回来。
+
+Claude Code 没有把 subagent 当成“另一个会说话的窗口”，而是当成一段受管的执行流程。这段流程有四条边界要管：
+
+```tree list
+子代理是受管执行流程
+  缓存边界 | fork 时哪些参数必须和父代理一致（B）
+  状态边界 | 哪些状态默认隔离，哪些显式共享（C）
+  验证职责 | 综合由协调者负责，验证独立成阶段（D、E、G）
+  清理责任 | 生命周期可观测、可中止、可清理（F）
+```
+
+（分组对应关系是本页归纳。）
+
+## B forked agent 的第一原则：不打烂缓存 {meta=&quot;原文 7.2 · forkedAgent.ts&quot;}
+
+forkedAgent.ts 开头的注释写明了 forked agent 工具的四项职责：
+
+1. 与父代理共享影响缓存的参数，确保 prompt cache 命中。
+2. 跟踪整个 query loop 的用量。
+3. 记录指标。
+4. 隔离可变状态，防止干扰主循环。
+
+排在第一的是“共享缓存参数”。在 Claude Code 眼里，fork 是运行时层面的受控分叉，必须在意哪些参数要和父请求保持一致：
+
+```flow
+(fork 子代理) -&gt; {五项 CacheSafeParams 与父代理一致?}
+五项 CacheSafeParams 与父代理一致? -&gt; *[命中 prompt cache，复用父上下文]: 是
+五项 CacheSafeParams 与父代理一致? -&gt; [缓存失效，父上下文重新消耗 token]: 否
+```
+
+五项参数是：systemPrompt、userContext、systemContext、toolUseContext、forkContextMessages。源码还专门提醒：不要随便改 maxOutputTokens，因为它会影响 thinking 配置，而 thinking 配置也是缓存 key 的一部分。
+
+原文的判断是：多代理首先是运行时经济学问题。子代理如果每次都把父上下文重新消耗一遍 token，看上去在并行提效，实际只是把浪费并行化。
+
+### 五条不变式
+
+| 不变式 | 含义 |
+|---|---|
+| fork 不破坏 prompt cache | 子代理的 CacheSafeParams 必须与父代理一致 |
+| 共享必须显式 | 子代理的可变状态默认隔离，除非明确选择共享 |
+| 父死子亡 | 父代理中止时，中止信号传给子代理 |
+| 生命周期闭合 | 触发了 SubagentStart，最终一定触发 SubagentStop |
+| 验证与实现角色分离 | 做验证的 worker 不能是做实现的 worker |
+
+## C 状态隔离：子代理首先要减少污染 {meta=&quot;原文 7.3 · createSubagentContext()&quot;}
+
+createSubagentContext() 的默认行为是：所有可变状态都隔离，避免干扰父代理。
+
+| 状态 | 默认做法 | 可选共享 |
+|---|---|---|
+| readFileState（已读文件状态） | 复制一份 | — |
+| abortController（中止控制） | 新建一个子控制器，挂在父控制器下 | shareAbortController |
+| getAppState（读应用状态） | 包一层，让子代理不弹权限提示 | — |
+| setAppState（写应用状态） | 默认什么都不做 | shareSetAppState |
+| 嵌套 memory 的相关集合 | 重新建空集合 | — |
+
+另外，shareSetResponseLength 也属于需要明确选择才共享的回调。
+
+为什么默认隔离？子代理最宝贵的地方，是不把自己的局部混乱污染主线程。这些局部混乱包括：
+
+- 研究中的误判。
+- 临时读到的文件状态。
+- 一次性推理分支。
+- 进行中的工具决策。
+
+它们如果都直接写回主上下文，只会让主线程更快变脏。
+
+Claude Code 的态度是：共享要靠明确同意，隔离是默认规则。只要是可变状态，就先隔离，再决定共享哪部分。
+
+## D 协调者模式：综合才是稀缺能力 {meta=&quot;原文 7.4 · coordinatorMode.ts&quot;}
+
+coordinatorMode.ts 规定了协调者的工作：
+
+- 帮用户达成目标。
+- 指挥 worker 做研究、实现和验证。
+- 综合结果，并和用户沟通。
+- 能直接回答的问题就直接回答，不要滥用委派。
+
+最关键的一句是 **Always synthesize**（始终自己综合）：
+
+```flow LR
+(研究 worker 回报结果) -&gt; *[协调者先读懂，再综合]
+协调者先读懂，再综合 -&gt; [写出具体 prompt：文件、位置、变更] -&gt; (实现 worker)
+研究 worker 回报结果 --&gt; [只写“based on your findings”就转给下一个 worker]: 不允许
+```
+
+协调者必须自己读懂研究结果，再写出具体的 prompt。不能说“based on your findings（根据你的发现）”，把理解继续外包给 worker。后续 prompt 里必须出现具体的文件、位置和变更。
+
+原文认为这是多代理的命门。稀缺的不是并行输出。稀缺的是有人把 worker 掌握的局部知识，重新压成下一步行动，并且清晰、可执行、可验证。缺了这一层，多代理很快退化成礼貌的任务转发机。研究可以分布式，理解必须重新收束。
+
+## E 验证必须独立成阶段 {meta=&quot;原文 7.5 · coordinatorMode.ts&quot;}
+
+coordinatorMode.ts 把常见任务分成四个阶段：
+
+```flow LR
+Research -&gt; Synthesis -&gt; Implementation -&gt; *Verification
+```
+
+它强调：验证的目标是证明代码有效，而不只是确认代码存在。源码里的要求几乎不留情面：
+
+- **run tests with the feature enabled**：在功能开启的状态下跑测试。
+- **investigate errors, don&#39;t dismiss as unrelated**：调查错误，不要当成无关问题打发掉。
+- **be skeptical**：保持怀疑。
+- **test independently, don&#39;t rubber-stamp**：独立测试，不要走过场盖章。
+
+prompt 里明确分了两层：实现者自证，加上验证作为独立的质量关。
+
+为什么重要？“我改了代码”和“代码因此正确”之间差得很远。模型尤其擅长在这中间搭纸桥。它会给出改动、解释，甚至像样的测试输出，但这些都不等于功能真的在系统里成立。把验证单列出来，就是防止“会改代码”冒充“能交付结果”。实现专注于改，验证专门怀疑这些改动站不站得住。
+
+## F 子代理不是扔出去就算了：hooks 与任务生命周期 {meta=&quot;原文 7.6 · hooksConfigManager.ts、LocalAgentTask.tsx&quot;}
+
+spawn 只是开头，收尾同样重要。子代理的生命周期由两套机制管理：
+
+```sequence
+participants: 父任务, 子代理, hooks
+父任务 -&gt; 子代理: 启动，并注册 cleanup handler
+子代理 -&gt; hooks: SubagentStart（agent_id、agent_type）
+== 运行中 ==
+父任务 -&gt; 子代理: 父任务中止时，自动传播中止
+== 即将结束 ==
+子代理 -&gt; hooks: SubagentStop（附带 agent_transcript_path）
+hooks --&gt; 子代理: exit code 2 时，把 stderr 反馈给子代理，让它继续跑
+== 结束后 ==
+父任务 -&gt; 父任务: 清除输出、更新状态、取消 cleanup 注册
+```
+
+- **生命周期 hook**：启动时可以观测，停止前可以介入，转录路径可以追踪。“子代理结束”也是需要被管理的事件。
+- **异步任务注册（registerAsyncAgent）**：每个异步 agent 都注册 cleanup handler，父任务中止会自动传给子代理。
+
+这套机制关心四个问题：这个 agent 是否还在运行；父任务死了它是否该跟着死；它的输出文件还要不要保留；它的 cleanup 回调有没有泄漏。很多多代理 demo 只做到“能再起一个 agent”。Claude Code 把 agent 当作会泄漏资源、会残留状态、会在父任务结束后变成孤儿的运行实体来看待。
+
+### 子代理生命周期失败矩阵
+
+| 事件 | 前置状态 | 触发 | 下一步 | 阈值 |
+|---|---|---|---|---|
+| 父任务中止，子任务还在跑 | 子任务未完成 | 父任务中止 | 传播中止给子代理，等待 cleanup | 不能留孤儿 |
+| 子代理崩溃 | 子代理异常退出 | SubagentStop 退出码不为 0 | 清除输出，触发 stop hook | exit 2 允许把 stderr 反馈回去继续跑 |
+| 子代理超时 | 运行超出限制 | registerAsyncAgent 超时 | 中止子代理，写入 synthetic result | — |
+| 缓存 key 漂移 | CacheSafeParams 被改动 | fork | 拒绝 fork 或重新计算缓存 | 必须完整对齐 |
+| 写未声明共享的状态 | 没有选择共享 | 子代理调用 setAppState | 什么都不做，不污染父代理 | 默认隔离 |
+| 旧记忆与现状冲突 | 记忆与现状不符 | 读到旧记录 | 相信现状，更新或删除记忆 | 必须先核实 |
+| cleanup 泄漏 | 任务结束时没取消 handler | 收尾阶段 | 强制取消注册并清除输出 | 不能留下回调 |
+
+## G 验证不只针对代码，也针对记忆和建议 {meta=&quot;原文 7.7 · memoryTypes.ts&quot;}
+
+memoryTypes.ts 专门提醒：memory 记录会过时。根据记忆给用户建议之前，要先核实当前状态：
+
+```flow LR
+(要根据记忆给建议) -&gt; [先核实当前状态] -&gt; {记忆与现状一致?}
+记忆与现状一致? -&gt; (给出建议): 是
+记忆与现状一致? -&gt; *[相信现状，更新或删除旧记忆]: 否
+相信现状，更新或删除旧记忆 -&gt; 给出建议
+```
+
+放在多代理这一章里，它说明了一个更一般的事实：验证是整个系统抵抗时间漂移和上下文漂移的基本习惯。只验证新写的代码，却不验证旧记忆、旧假设、旧索引，系统仍会被历史信息带偏。
+
+所以 verify 既是一项技能，也是一种组织纪律。工作可以分出去，信息可以存起来，其他 agent 可以先跑在前面；但在用户据此行动之前，总要有人回到当前现实，确认这些东西还是真的。
+
+## H 多代理真正解决的是不确定性的分区 {meta=&quot;原文 7.8&quot;}
+
+Claude Code 的多代理设计围绕一个朴素的目标：给不确定性分区。
+
+```flow
+(用户) -&gt; *协调者: 目标
+协调者 -&gt; 研究 worker &amp; 实现 worker &amp; 验证 worker
+研究 worker --&gt; 协调者: 局部探索的结果
+实现 worker --&gt; 协调者: 修改
+验证 worker --&gt; 协调者: 怀疑与证据
+协调者 --&gt; 用户: 综合后的结果
+group 各自的约束容器: 研究 worker, 实现 worker, 验证 worker
+```
+
+分区的最大好处是职责清晰、错误可以定位：
+
+| 环节 | 可能出的错 |
+|---|---|
+| 研究 | 漏了线索 |
+| 综合 | 没吃透研究结果 |
+| 实现 | 写错了 |
+| 验证 | 放水 |
+
+每一种错误都能被指认。单代理把所有事混在一起，出了问题只能整体返工。多代理真正的价值不是并发，而是把各类不确定性分别关进不同容器，再由协调者组织回来。
+
+## I 从源码提炼的第七个原则 {meta=&quot;原文 7.9&quot;}
+
+```callout ok 第七个原则
+多代理依赖清晰分工：研究、实现、验证和综合各自处在不同约束容器里，最后由协调者把结果重新缝合成可交付结果。
+```
+
+源码在六个地方共同支持这个判断：
+
+| 源码 | 做了什么 | 说明什么 | 详见 |
+|---|---|---|---|
+| forkedAgent.ts | 把缓存安全参数、用量跟踪和状态隔离放在第一位 | fork 首先是运行时控制问题 | B |
+| createSubagentContext() | 默认隔离可变状态，只允许显式共享 | 多代理先防污染，再谈协作 | C |
+| coordinatorMode.ts | 要求协调者自己综合，而不是转发研究结果 | 综合理解不能外包 | D |
+| coordinatorMode.ts | 把验证独立成阶段，要求独立证明变更有效 | 实现与验证必须角色分离 | E |
+| hooksConfigManager.ts | 提供 SubagentStart / SubagentStop 生命周期 hook | 子代理是可观测对象，不是黑箱线程 | F |
+| LocalAgentTask.tsx | 处理父任务中止、cleanup、输出清除 | agent 生命周期需要回收机制 | F |
+
+提炼成六条工程原则：
+
+1. fork 先看缓存与状态边界，再谈角色分工。
+2. 子代理默认隔离，共享必须显式声明。
+3. 研究可以委派，综合不能外包。
+4. 验证必须与实现解耦，否则系统会奖励自证正确。
+5. agent 生命周期必须可观测、可中止、可清理。
+6. 并行的真正价值，在于职责更清楚。
+
+下一章讨论这套机制落到团队里时，怎样从个人技巧变成组织制度。也就是 CLAUDE.md、skills、审批、hook、memory 怎样从“某个高手自己会用”，变成“团队可以稳定复用”的工程实践。
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions and the panel comments.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }].
+// Comment text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+function replyText({ title, decisions, comments, ui }) {
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   → ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) {
+      out.push(`- **${c.panel} · ${c.title}**`, ...c.text.trim().split('\n').map((l) => `  > ${l}`));
+    }
+    out.push('', `_${ui.typed}_`);
+  }
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers and the comments
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  const keyOf = (ask) => ask.querySelector('legend')?.textContent.trim() ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: panel?.querySelector('.am-panel-head h2')?.textContent.trim() ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: ask.querySelector('legend')?.textContent.trim() ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const empty = !decisions.length && !comments.some((c) => c.text.trim());
+    const title = document.querySelector('.am-head h1')?.textContent.trim() ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, ui });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg')].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+</script>
+</body>
+</html>

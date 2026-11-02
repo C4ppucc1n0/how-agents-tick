@@ -1,0 +1,2459 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="paper" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.4.14">
+<title>上下文治理：Memory、CLAUDE.md 与 Compact 是预算制度（核对试点版）</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-right: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin: 0 6px 0 auto; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-left: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; right: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { left: 50%; }
+.am-timeline--h li:last-child::before { right: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { left: 50%; }
+.am-tree-col:last-child::before { right: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }
+.am-tree-list ul { margin-left: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }
+.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 8px 4px auto;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-right: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */
+  .am-md th, .am-md td { min-width: 6em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="zh-CN" data-am-root-theme="paper" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">主题<select data-am="theme"><option value="blueprint">图纸</option><option value="shadcn">卡片</option><option value="paper" selected>纸张</option></select></label>
+<label class="am-pick">明暗<select data-am="mode"><option value="auto" selected>跟随系统</option><option value="light">亮</option><option value="dark">暗</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;回复&quot;,&quot;comment&quot;:&quot;评论&quot;,&quot;commentHint&quot;:&quot;对这个面板的意见&quot;,&quot;title&quot;:&quot;你的回复&quot;,&quot;hint&quot;:&quot;复制后粘贴到对话里。&quot;,&quot;copy&quot;:&quot;复制回复&quot;,&quot;close&quot;:&quot;关闭&quot;,&quot;suggested&quot;:&quot;建议&quot;,&quot;empty&quot;:&quot;先选择选项，或在面板上写评论。&quot;,&quot;decisions&quot;:&quot;决定&quot;,&quot;comments&quot;:&quot;评论&quot;,&quot;confirmed&quot;:&quot;确认了建议&quot;,&quot;untouched&quot;:&quot;未作答，保留建议&quot;,&quot;was&quot;:&quot;原为&quot;,&quot;typed&quot;:&quot;以 \&quot;&gt;\&quot; 开头的行是读者输入的文字。&quot;,&quot;done&quot;:&quot;已复制 ✓&quot;}">回复</button>
+<button class="am-btn" type="button" data-am="copy" data-done="已复制 ✓">复制源稿</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>上下文治理：Memory、CLAUDE.md 与 Compact 是预算制度（核对试点版）</h1><p class="am-sub">《Harness Engineering：Claude Code 设计指南》第 5 章解读，已按官方文档、本机观察和实测核对</p><div class="am-head-meta"><span><b>source</b>https://harness-books.agentway.dev/book1-claude-code/chapter-05-context-memory-compact.html</span></div><div class="am-intro am-md"><div class="am-md"><p>原文：<a href="https://harness-books.agentway.dev/book1-claude-code/chapter-05-context-memory-compact.html">第 5 章 上下文治理：Memory、CLAUDE.md 与 Compact 是预算制度</a></p>
+<p>一句话结论：原文认为，上下文是工作内存，治理它的目标是支持系统继续工作。长期规则、长期记忆、会话连续性分层管理，入口记忆必须短，compact 要重建工作环境。</p>
+<p>核对后，论点成立。在 v2.1.312 上，下面四项都有文档、实测或本机记录作依据：CLAUDE.md 分层；MEMORY.md 的 200 行和 25,000 字节上限；自动压缩的预留空间和熔断；压缩后补回文件和技能。源码文件和函数名无法核对。</p>
+<p>需要修正三点：</p>
+<ul>
+<li>原文说越靠后加载的规则优先级越高。文档说各级 CLAUDE.md 只是拼接，不互相覆盖；两条说明冲突时，Claude 可能任选一条。</li>
+<li>session memory 的模板和预算无法核对：文档没有写，本机也没有找到这类文件。CHANGELOG 只能证明这个机制存在。</li>
+<li>压缩后补回 plan 模式状态，本机没有观察到。补回 MCP 说明，本机没有条件观察。</li>
+</ul>
+<p>核对依据：Claude Code 官方文档 code.claude.com/docs（2026-10-29 查阅）；anthropics/claude-code 仓库的 CHANGELOG（最新条目 2.1.312）；本机 Claude Code 2.1.312 的实测；本机会话记录（<code>~/.claude/projects/*.jsonl</code>，含 88 次压缩）。依据分四种标签：文档、观察、实测（v2.1.312）、旁证（CHANGELOG）。逐条结果见附录。</p>
+</div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">试点说明</div><div class="am-callout-body am-md"><p>本页是第 5 章的核对试点版，原页面保留不动。原文本章没有图片。与原页面相比，本页每节加了“事实核对”，最后加了附录。</p>
+</div></div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="目录"><a href="#panel-A">A · 核心观点：上下文是预算，不是仓库</a><a href="#panel-B">B · CLAUDE.md 体系：长期指令不和临场对话混在一起</a><a href="#panel-C">C · MEMORY.md 是索引，不是日记本</a><a href="#panel-D">D · Session memory：短期连续性也不能靠聊天记录硬扛</a><a href="#panel-E">E · 自动 compact：上下文治理首先是预算治理</a><a href="#panel-F">F · compactConversation()：摘要要重建可继续工作的上下文</a><a href="#panel-G">G · 上下文治理的关键是保留工作语义</a><a href="#panel-H">H · 从源码提炼的第五个原则</a><a href="#panel-I">I · 附录：事实核对</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>核心观点：上下文是预算，不是仓库</h2><span class="am-panel-meta">原文 5.1</span></header>
+<div class="am-panel-body"><div class="am-md"><p>“信息越多，系统越聪明”是一个危险的神话。代理系统不是图书馆，上下文也不是“存进去就算拥有”的仓库。原文说，上下文首先是一笔昂贵、易膨胀、会自我污染的预算。</p>
+<p>Claude Code 在这件事上很不浪漫。该加载什么、该截断什么、什么要长期保留、什么只能短期摘要，全是运行时要严肃治理的事。本章讨论的是：Claude Code 怎样防止自己被记住的东西拖死。“记住更多”和“治理记忆”看起来相近，在工程上是两种制度。</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="上下文治理的四层（本页归纳）" data-step="0">上下文治理的四层（本页归纳）</div></div><ul class="am-tree-list"><li data-key="长期规则" data-step="1"><span class="am-tree-label">长期规则</span><span class="am-tree-sub">CLAUDE.md 体系，分层加载（B）</span></li><li data-key="长期记忆" data-step="2"><span class="am-tree-label">长期记忆</span><span class="am-tree-sub">MEMORY.md 当索引，正文放主题文件（C）</span></li><li data-key="会话连续性" data-step="3"><span class="am-tree-label">会话连续性</span><span class="am-tree-sub">session memory 模板（D）</span></li><li data-key="窗口预算" data-step="4"><span class="am-tree-label">窗口预算</span><span class="am-tree-sub">自动压缩，压缩后重建工作环境（E、F、G）</span></li></ul></div>
+<div class="am-md"><p>本节是原文的观点，不涉及需要核对的事实。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>CLAUDE.md 体系：长期指令不和临场对话混在一起</h2><span class="am-panel-meta">原文 5.2</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，<code>claudemd.ts</code> 开头就把记忆层次说清楚了。指令来源分四层：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="指令来源" data-step="0">指令来源</div></div><ul class="am-tree-list"><li data-key="managed memory" data-step="1"><span class="am-tree-label">managed memory</span><span class="am-tree-sub">例如 /etc/claude-code/CLAUDE.md</span></li><li data-key="user memory" data-step="2"><span class="am-tree-label">user memory</span><span class="am-tree-sub">例如 ~/.claude/CLAUDE.md</span></li><li data-key="project memory" data-step="3"><span class="am-tree-label">project memory</span><span class="am-tree-sub">项目根目录的 CLAUDE.md、.claude/CLAUDE.md、.claude/rules/*.md</span></li><li data-key="local memory" data-step="4"><span class="am-tree-label">local memory</span><span class="am-tree-sub">例如 CLAUDE.local.md</span></li></ul></div>
+<div class="am-md"><p>原文说，这些文件按优先级和目录距离加载。离当前工作目录越近的项目规则，优先级越高；越私有、越本地的规则越晚加载，因而越靠近模型的注意力前沿。</p>
+<p>这说明 Claude Code 拒绝把“长期协作规则”和“本轮临时对话”混在一起。团队规范、个人偏好、仓库约束，寿命远长于某一轮用户消息。全塞进聊天记录，系统就会在两个极端之间摇摆：要么每轮重复注入，浪费上下文；要么靠模型自己回忆，迟早失手。<code>claudemd.ts</code> 的答案，是把稳定规则做成可发现、可分层、可组合的持久指令系统。</p>
+<p>原文还提到一个细节：它支持 @include，并且只允许一批明确列出的文本扩展名。这说明工程师在提防另一种事故：有人把二进制文件、巨型文档，甚至不该进 prompt 的东西糊里糊涂带进来。原文说，这是一种克制：系统先问什么值得进入记忆，什么一进入就是污染。</p>
+<h3>实测：加载顺序和 @ 导入</h3>
+<p>下图按文档和实测画出一次会话开始时各层的加载顺序（本页归纳）：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 1000 80" width="1000" height="80" role="img" aria-label="流程图：managed、user、上层目录的 CLAUDE.md、项目的 CLAUDE.md、项目的 CLAUDE.local.md、第一条用户消息" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M96.9,40 L108.4,40 Q119.9,40 131.4,40 L142.9,40" marker-end="url(#am1-arrow)"/></g><g data-step="0"><path class="am-edge" d="M206.9,40 L218.4,40 Q229.9,40 241.4,40 L252.9,40" marker-end="url(#am1-arrow)"/></g><g data-step="0"><path class="am-edge" d="M427.8,40 L439.3,40 Q450.8,40 462.3,40 L473.8,40" marker-end="url(#am1-arrow)"/></g><g data-step="0"><path class="am-edge" d="M622.7,40 L634.2,40 Q645.7,40 657.2,40 L668.7,40" marker-end="url(#am1-arrow)"/></g><g data-step="0"><path class="am-edge" d="M809,40 L820.5,40 Q832,40 843.5,40 L855,40" marker-end="url(#am1-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="managed" data-step="0"><rect class="am-node-shape" x="14" y="22.5" width="82.9" height="35" rx="3"/><text x="55.4" y="40" text-anchor="middle" dominant-baseline="central">managed</text></g><g class="am-node am-node--rect" data-key="user" data-step="0"><rect class="am-node-shape" x="142.9" y="22.5" width="64" height="35" rx="3"/><text x="174.9" y="40" text-anchor="middle" dominant-baseline="central">user</text></g><g class="am-node am-node--rect" data-key="上层目录的 CLAUDE.md" data-step="0"><rect class="am-node-shape" x="252.9" y="22.5" width="174.9" height="35" rx="3"/><text x="340.3" y="40" text-anchor="middle" dominant-baseline="central">上层目录的 CLAUDE.md</text></g><g class="am-node am-node--rect" data-key="项目的 CLAUDE.md" data-step="0"><rect class="am-node-shape" x="473.8" y="22.5" width="148.9" height="35" rx="3"/><text x="548.2" y="40" text-anchor="middle" dominant-baseline="central">项目的 CLAUDE.md</text></g><g class="am-node am-node--rect am-node--hi" data-key="项目的 CLAUDE.local.md" data-step="0"><rect class="am-node-shape" x="668.7" y="14" width="140.3" height="52" rx="3"/><text x="738.8" y="31.5" text-anchor="middle" dominant-baseline="central">项目的</text><text x="738.8" y="48.5" text-anchor="middle" dominant-baseline="central">CLAUDE.local.md</text></g><g class="am-node am-node--round" data-key="第一条用户消息" data-step="0"><rect class="am-node-shape" x="855" y="22.5" width="131" height="35" rx="17.5"/><text x="920.5" y="40" text-anchor="middle" dominant-baseline="central">第一条用户消息</text></g></g></svg></figure>
+<div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>在 CLAUDE.md 里导入的文件</th>
+<th>是否载入</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>@notes.txt</code></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>载入，标为项目指令</span></td>
+</tr>
+<tr>
+<td><code>@code.py</code></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>载入</span></td>
+</tr>
+<tr>
+<td><code>@noext</code>（没有扩展名）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>载入</span></td>
+</tr>
+<tr>
+<td><code>@data.bin</code></td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>没有载入</span></td>
+</tr>
+<tr>
+<td><code>@img.png</code></td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>没有载入</span></td>
+</tr>
+<tr>
+<td><code>@doc.pdf</code></td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>没有载入</span></td>
+</tr>
+</tbody></table></div>
+<p>（六个文件的内容都是一行纯文本，只有扩展名不同。）</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>原文给的文件位置（<code>src/utils/claudemd.ts</code>）无法核对：源码不公开。</li>
+<li>四层来源属实（文档）。文档列出的路径与原文一致；Windows 上 managed 的位置是 <code>C:\Program Files\ClaudeCode\CLAUDE.md</code>。</li>
+<li>加载顺序属实（文档、实测）。文档说文件按从文件系统根到工作目录的顺序排列，同一目录里 CLAUDE.local.md 排在 CLAUDE.md 之后。实测中，上层目录的 CLAUDE.md、项目的 CLAUDE.md、CLAUDE.local.md 依次出现。</li>
+<li>“优先级越高”与文档不符。文档说所有文件 “are concatenated into context rather than overriding each other”；两条说明冲突时，“Claude may pick one arbitrarily”。靠后的说明更靠近对话，但不保证胜出。</li>
+<li>@ 导入属实（文档）。只认文本扩展名：实测 .txt、.py 和无扩展名的文件被载入，.bin、.png、.pdf 没有载入。文档没有列出允许的扩展名。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>MEMORY.md 是索引，不是日记本</h2><span class="am-panel-meta">原文 5.3</span></header>
+<div class="am-panel-body"><div class="am-md"><p>如果 CLAUDE.md 管规则，memdir 管的就是另一类更细的长期记忆。原文说，<code>memdir.ts</code> 把入口文件 <code>ENTRYPOINT_NAME</code> 定为 MEMORY.md，但不鼓励往里堆内容，而是把它定义为索引。<code>buildMemoryLines()</code> 告诉模型，保存 memory 分两步：</p>
+<ol>
+<li>把具体内容写进一个独立文件。</li>
+<li>在 MEMORY.md 里加一行指向它。</li>
+</ol>
+<p>为什么这么麻烦？原文说，入口文件会被频繁加载，一旦变胖，整套上下文就会被它慢慢拖垮。所以 <code>memdir.ts</code> 设了 <code>MAX_ENTRYPOINT_LINES = 200</code> 和 <code>MAX_ENTRYPOINT_BYTES = 25_000</code>。超过时，<code>truncateEntrypointContent()</code> 直接截断，并在末尾追加警告：只加载了一部分，请把细节移到主题文件。</p>
+<p>原文说，这是把“入口必须短”做成硬约束。入口文件一旦既当目录又当正文，最后既不是目录，也不是正文。由此得出的原则是：长期记忆必须分成“入口”和“正文”。入口负责低成本寻址，正文负责高密度承载。</p>
+<h3>实测：MEMORY.md 超限时怎样截断</h3>
+<p>实测把 auto memory 目录指向临时目录，放进两份超限的 MEMORY.md：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>MEMORY.md</th>
+<th>载入的部分</th>
+<th>末尾追加的警告（原话摘录）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>260 行，约 9.6KB</td>
+<td>前 200 行</td>
+<td>“MEMORY.md is 260 lines (limit: 200). Only part of it was loaded: 60 of 260 lines were cut off”</td>
+</tr>
+<tr>
+<td>150 行，约 37.5KB</td>
+<td>前 98 行</td>
+<td>“MEMORY.md is 37.5KB (limit: 24.4KB) — index entries are too long”</td>
+</tr>
+</tbody></table></div>
+<p>两条警告都以 “Keep index entries to one line under ~200 chars; move detail into topic files.” 结尾。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>常量名、<code>truncateEntrypointContent()</code> 和原文给的文件位置（<code>src/memdir/memdir.ts</code>）无法核对：源码不公开。</li>
+<li>两步保存属实（实测）。完整版和短版 system prompt 都要求先写独立文件，再在 MEMORY.md 加一行指针。</li>
+<li>200 行和 25,000 字节两个上限属实（文档、实测）。文档写作 “first 200 lines or 25KB”；实测警告写 “limit: 24.4KB”，正好是 25,000 字节。</li>
+<li>截断后追加警告属实（实测），警告原话见上表。</li>
+<li>文档还写到一层约束。Claude 写 MEMORY.md 后，Claude Code 会量一下大小：接近上限时提醒缩短，超过上限时返回错误，要求重写索引。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>Session memory：短期连续性也不能靠聊天记录硬扛</h2><span class="am-panel-meta">原文 5.4</span></header>
+<div class="am-panel-body"><div class="am-md"><p>只有长期 memory 还不够。代理系统真正难受的地方，常常是“这轮之前我们做到哪一步了”，这是会话内部的连续性问题。原文说，<code>SessionMemory/prompts.ts</code> 专门为此建了一套模板，默认有九个栏目：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="session memory 模板（按原文）" data-step="0">session memory 模板（按原文）</div></div><ul class="am-tree-list"><li data-key="进度" data-step="1"><span class="am-tree-label">进度</span><span class="am-tree-sub">Current State、Worklog、Key results</span></li><li data-key="任务与代码" data-step="2"><span class="am-tree-label">任务与代码</span><span class="am-tree-sub">Task specification、Files and Functions、Workflow</span></li><li data-key="经验" data-step="3"><span class="am-tree-label">经验</span><span class="am-tree-sub">Errors &amp; Corrections、Learnings、Codebase and System Documentation</span></li></ul></div>
+<div class="am-md"><p>（分组是本页归纳，栏目名取自原文。）</p>
+<p>原文说，更新 notes 的 prompt 有五条要求：</p>
+<ul>
+<li>只能用 Edit 工具更新 notes 文件。</li>
+<li>不要提记笔记这件事本身。</li>
+<li>不要改模板结构。</li>
+<li>Current State 必须始终反映最近的工作。</li>
+<li>每节都要信息密集，但要控制预算。</li>
+</ul>
+<p>所以 session memory 不是“另存一份聊天记录”，而是把当前会话提炼成一份能继续工作的操作说明。原文还说，<code>MAX_SECTION_LENGTH = 2000</code>，<code>MAX_TOTAL_SESSION_MEMORY_TOKENS = 12000</code>。超过预算时，系统要求 aggressively condense，优先保住 Current State 和 Errors &amp; Corrections。原文的判断是：上下文预算是工作内存，工作内存的第一职责是可操作。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>模板、五条要求、两个预算常量和原文给的文件位置（<code>src/services/SessionMemory/prompts.ts</code>），都无法核对。源码不公开，文档没有写 session memory，本机也没有找到 session memory 文件。</li>
+<li>CHANGELOG 2.1.50 写到 <code>CLAUDE_CODE_SIMPLE</code> 会去掉 “skills, session memory, custom agents”，只能说明这个机制存在（旁证）。没观察到不等于没有，功能可能按账号或实验开关。</li>
+<li>本机能看到的是另一种机制：压缩摘要（观察）。压缩请求要求摘要按九节写，包括 Errors and fixes、Pending Tasks、Current Work、Optional Next Step。它同样服务“继续工作”，但不是原文说的 session memory。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>自动 compact：上下文治理首先是预算治理</h2><span class="am-panel-meta">原文 5.5</span></header>
+<div class="am-panel-body"><div class="am-md"><p>到这里，长期规则、持久 memory、session memory 都有了，但上下文还是会膨胀。原文说，<code>autoCompact.ts</code> 承认一个现实：对话够长，总会逼近窗口边缘。</p>
+<ul>
+<li><code>getEffectiveContextWindowSize()</code> 先从模型窗口里减去一笔给摘要输出的预算，<code>MAX_OUTPUT_TOKENS_FOR_SUMMARY</code> 预留 20,000 tokens。系统先假定 compact 本身要花钱，不会等窗口只剩一口气才想起求生。</li>
+<li><code>getAutoCompactThreshold()</code> 再从有效窗口里扣掉 <code>AUTOCOMPACT_BUFFER_TOKENS = 13_000</code>。警告阈值、错误阈值、手动 compact 也各自留有缓冲。</li>
+</ul>
+<p>原文说，道理很朴素：上下文治理要提前为失败和恢复留出余地。不留余地的系统，平时看着节俭，出事时才暴露真相：风险账单留给了下一轮。</p>
+<h3>预算阈值表</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>值</th>
+<th>作用</th>
+<th>源引用（原文）</th>
+<th>核对</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MAX_ENTRYPOINT_LINES</td>
+<td>200</td>
+<td>MEMORY.md 行数上限</td>
+<td>memdir/memdir.ts</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>实测：260 行只载入前 200 行</span></td>
+</tr>
+<tr>
+<td>MAX_ENTRYPOINT_BYTES</td>
+<td>25_000</td>
+<td>入口文件字节上限</td>
+<td>memdir/memdir.ts</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>实测：警告写 “limit: 24.4KB”</span></td>
+</tr>
+<tr>
+<td>MAX_SECTION_LENGTH</td>
+<td>2_000</td>
+<td>session memory 单节上限</td>
+<td>SessionMemory/prompts.ts</td>
+<td>无法核对</td>
+</tr>
+<tr>
+<td>MAX_TOTAL_SESSION_MEMORY_TOKENS</td>
+<td>12_000</td>
+<td>session memory 总预算</td>
+<td>SessionMemory/prompts.ts</td>
+<td>无法核对</td>
+</tr>
+<tr>
+<td>MAX_OUTPUT_TOKENS_FOR_SUMMARY</td>
+<td>20_000</td>
+<td>compact 预留输出空间</td>
+<td>compact/autoCompact.ts</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>两项合计 33K 与观察吻合，单项无法拆分</span></td>
+</tr>
+<tr>
+<td>AUTOCOMPACT_BUFFER_TOKENS</td>
+<td>13_000</td>
+<td>autocompact 警戒缓冲</td>
+<td>compact/autoCompact.ts</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>同上</span></td>
+</tr>
+<tr>
+<td>MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES</td>
+<td>3</td>
+<td>连续失败熔断阈值</td>
+<td>compact/autoCompact.ts</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>旁证：2.1.76 “a circuit breaker now stops after 3 attempts”</span></td>
+</tr>
+</tbody></table></div>
+<p>原文还说，<code>AutoCompactTrackingState</code> 不只记是否压缩过，还记 turnCounter、turnId 和 consecutiveFailures。autocompact 是一段会被追踪、会失败、会被限流的运行时行为。源码注释写得很直白：全球每天曾浪费大量 API 调用在连续失败的 autocompact 上，所以失败 3 次就触发熔断。原文说，你可以失败，但不能无限次、无记忆地失败。</p>
+<h3>观察：本机 87 次自动压缩在哪里触发</h3>
+<p>本机会话记录里有 87 次自动压缩，每次都记下了压缩前的 token 数。触发点集中在两处：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>触发时的 token 数</th>
+<th>次数</th>
+<th>对应的窗口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>166K–172K</td>
+<td>55</td>
+<td>200K 窗口减 33K，约 167K</td>
+</tr>
+<tr>
+<td>172K–190K</td>
+<td>17</td>
+<td>同上，越过阈值后才检查到</td>
+</tr>
+<tr>
+<td>317K–321K</td>
+<td>7</td>
+<td>本机设的 350K 压缩窗口减 33K，约 317K</td>
+</tr>
+<tr>
+<td>其余</td>
+<td>8</td>
+<td>窗口设置不明</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>函数名、常量名、<code>AutoCompactTrackingState</code> 的字段、注释原话和原文给的文件位置（<code>src/services/compact/autoCompact.ts</code>），无法核对：源码不公开。</li>
+<li>预留空间：文档说 1M 窗口的模型约在 967K 时压缩，正好是 1M 减去 20K 和 13K。本机观察到的触发点也在窗口减 33K 附近（上表）。两笔预算的合计有依据，各自多少无法拆分。</li>
+<li>实测的压缩请求 <code>max_tokens</code> 是 128,000，不是 20,000。20K 如果存在，只用于计算阈值，不是摘要输出的上限。</li>
+<li>熔断属实（旁证）：CHANGELOG 2.1.76 写到，自动压缩连续失败后会无限重试的问题已修复，“a circuit breaker now stops after 3 attempts”。</li>
+<li>文档另写了一种保护：压缩成功、但上下文立刻又满，连续几次后报 “Autocompact is thrashing”，停止重试 “to avoid wasting API calls”。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>compactConversation()：摘要要重建可继续工作的上下文</h2><span class="am-panel-meta">原文 5.6</span></header>
+<div class="am-panel-body"><div class="am-md"><p>很多人以为 compact 就是“把前面聊天摘要一下”。原文说，<code>compactConversation()</code> 先把原有上下文拆开、摘要，再注入必要附件，重新搭出一个还能工作的环境。下表按原文的顺序列出每一步，并给出核对结果：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>原文说的动作</th>
+<th>核对</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>压缩前</td>
+<td>把图片、文档替换成 [image]、[document] 等标记</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>旁证：2.1.47 起压缩前 “stripping document blocks alongside images”</span></td>
+</tr>
+<tr>
+<td>压缩前</td>
+<td>剥掉之后会重新注入的附件</td>
+<td>无法核对：实测的压缩请求里，第一条消息的 CLAUDE.md 内容仍在</td>
+</tr>
+<tr>
+<td>摘要失败</td>
+<td>压缩请求本身 prompt too long 时，截掉开头重试</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>旁证：摘要请求过长时会重试；另观察到格式不对时的重试</span></td>
+</tr>
+<tr>
+<td>压缩后</td>
+<td>清空旧的文件读取状态，重新生成最近文件的附件</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>文档、观察：最多重读五个最近改过的文件</span></td>
+</tr>
+<tr>
+<td>压缩后</td>
+<td>补回 plan 附件</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>文档、观察</span></td>
+</tr>
+<tr>
+<td>压缩后</td>
+<td>补回 plan mode 附件</td>
+<td>无法核对：本机压缩后没有观察到</td>
+</tr>
+<tr>
+<td>压缩后</td>
+<td>补回已调用技能的附件</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>文档、观察</span></td>
+</tr>
+<tr>
+<td>压缩后</td>
+<td>补回 deferred tools、agent listing、MCP instructions 的增量附件</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>前两种观察到；MCP 没有条件观察</span></td>
+</tr>
+<tr>
+<td>压缩后</td>
+<td>运行 session start hooks 和 post-compact hooks</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>文档、观察</span></td>
+</tr>
+<tr>
+<td>压缩后</td>
+<td>写 compact boundary，记录压缩前的 token 数和边界信息</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>观察</span></td>
+</tr>
+</tbody></table></div>
+<p>原文说，这些动作合起来，目标是把“继续干活所需的运行时环境”重新铺平，摘要只是中间产物。所以 compact 更像一次受控重启，而不是一次聊天总结。很多系统只做前半截，压缩后虽然“还记得个大意”，却丢了工具状态、计划状态、附件状态，还得再花几轮找回自己。</p>
+<h3>观察：压缩后紧跟着补回了什么</h3>
+<p>本机会话记录里有 88 次压缩（87 次自动、1 次手动）。统计每次压缩边界之后、模型下一次回答之前出现的附件：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>附件类型</th>
+<th>次数</th>
+<th>对应原文的动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>file</td>
+<td>244</td>
+<td>最近文件的内容</td>
+</tr>
+<tr>
+<td>compact_file_reference</td>
+<td>152</td>
+<td>大文件只给路径</td>
+</tr>
+<tr>
+<td>agent_listing_delta</td>
+<td>85</td>
+<td>agent listing</td>
+</tr>
+<tr>
+<td>SessionStart 的 compact hook 输出</td>
+<td>72</td>
+<td>session start hooks</td>
+</tr>
+<tr>
+<td>instructions</td>
+<td>55</td>
+<td>CLAUDE.md</td>
+</tr>
+<tr>
+<td>invoked_skills</td>
+<td>35</td>
+<td>已调用的技能</td>
+</tr>
+<tr>
+<td>deferred_tools_delta</td>
+<td>9</td>
+<td>deferred tools</td>
+</tr>
+<tr>
+<td>plan_file_reference</td>
+<td>2</td>
+<td>plan</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>compactConversation()</code>、<code>stripImagesFromMessages()</code>、<code>stripReinjectedAttachments()</code>、<code>truncateHeadForPTLRetry()</code> 和原文给的文件位置（<code>src/services/compact/compact.ts</code>），无法核对：源码不公开。</li>
+<li>文档的 “What survives compaction” 表与原文的清单基本一致：项目根 CLAUDE.md、auto memory 从磁盘重新注入；技能说明重建；plan 从磁盘重新注入；最多重读五个最近改过的文件，超过 5,000 tokens 的只给路径；SessionStart hook 用 <code>compact</code> 作为 source 运行。文档另有 PostCompact hook。</li>
+<li>压缩边界（观察）：会话记录里每次压缩都有一条 compact_boundary，记录触发方式、压缩前后的 token 数和保留的消息段。</li>
+<li>摘要请求出错时会重试（旁证）：CHANGELOG 写到 reactive compaction “the first summarize attempt now seeds from the original request&#39;s overflow size”。另外，第 3 章实测的手动压缩里，模型第一次没有按要求写摘要；Claude Code 又发了一次请求，在指令末尾要求把摘要放进 summary 标签（观察）。这不是 prompt too long，但同样说明“救火工具本身也会出错”。</li>
+<li>压缩请求（实测）：沿用会话的 system prompt 和工具定义，末尾附上摘要指令，与文档一致。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>上下文治理的关键是保留工作语义</h2><span class="am-panel-meta">原文 5.7</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，<code>compact.ts</code> 的后半段有一个贯穿始终的倾向：保住工作语义。</p>
+<ul>
+<li>恢复最近访问文件的附件，因为这些文件往往是当前工作面的局部现实。</li>
+<li>恢复 plan mode，否则模型压缩完可能忘了自己还在 plan 的纪律里。</li>
+<li>保留已调用技能的内容，但给每个技能设 token 上限，免得技能在压缩后反客为主。</li>
+</ul>
+<p>源码里有一句话：per-skill truncation beats dropping。即使要裁，也优先保住开头那段最关键的指令，而不是整个扔掉。原文说，这就是治理，不是纯粹节流：节流是砍，治理是知道该砍哪里、该保什么。</p>
+<p>由此得出一条经验：上下文系统应该优先保留能维持行动语义的东西，而不是看起来信息量最大的东西。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>应该保留</th>
+<th>不必再占位置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>文件细节、当前计划、错误修正、技能约束</td>
+<td>冗长历史对话、重复附件、运行时随时能重新拿到的内容</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>注释原话 “per-skill truncation beats dropping” 无法核对：源码不公开。</li>
+<li>技能截断属实（文档）：已调用技能压缩后重新注入，每个最多 5,000 tokens，合计最多 25,000 tokens，超出时先丢最早的；截断 “keeps the start of the file”。这与“优先保住开头”一致。</li>
+<li>最近文件属实（文档、观察），见 F。</li>
+<li>恢复 plan mode 无法核对：文档只说 plan 文件会重新注入，没说 plan 模式状态；本机压缩后没有观察到 plan mode 附件。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>从源码提炼的第五个原则</h2><span class="am-panel-meta">原文 5.8</span></header>
+<div class="am-panel-body"><div class="am-callout am-callout--ok" role="note"><div class="am-callout-title">第五个原则</div><div class="am-callout-body am-md"><p>上下文是工作内存。治理它的目标是支持系统继续工作。</p>
+</div></div>
+<div class="am-md"><p>原文说，源码在五个层面共同支持这个判断。源码不公开，下表把原文的证据换成核对后的依据：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>原文的源码依据</th>
+<th>说明什么</th>
+<th>核对后的依据</th>
+<th>详见</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>claudemd.ts</td>
+<td>长期指令分层加载，稳定规则和临时对话分开</td>
+<td>四层来源、加载顺序（文档、实测）；@ 导入只认文本扩展名（实测）</td>
+<td>B</td>
+</tr>
+<tr>
+<td>memdir.ts</td>
+<td>MEMORY.md 是索引并强制截断，入口必须短</td>
+<td>200 行、25,000 字节截断并追加警告（文档、实测）</td>
+<td>C</td>
+</tr>
+<tr>
+<td>SessionMemory/prompts.ts</td>
+<td>固定模板加预算，短期记忆也要结构化</td>
+<td>无法核对；只能证明 session memory 存在（旁证）。压缩摘要有固定的九节格式（观察）</td>
+<td>D</td>
+</tr>
+<tr>
+<td>autoCompact.ts</td>
+<td>预留输出预算、缓冲区和失败熔断</td>
+<td>触发点在窗口减 33K 附近（文档、观察）；3 次熔断（旁证）</td>
+<td>E</td>
+</tr>
+<tr>
+<td>compact.ts</td>
+<td>压缩后恢复计划、文件、技能、工具附件和 hook 状态</td>
+<td>文档的 What survives compaction 表；本机 88 次压缩后的附件统计（观察）</td>
+<td>F、G</td>
+</tr>
+</tbody></table></div>
+<p>原文提炼的工程原则：</p>
+<ul>
+<li>长期规则、长期记忆、会话连续性应分层，不混写。</li>
+<li>入口型记忆必须短小。</li>
+<li>session summary 服务“继续工作”，不是“回忆完整”。</li>
+<li>compact 是主路径，不是异常。</li>
+<li>压缩后必须保住运行语义。</li>
+</ul>
+<p>核对后，五处证据有四处能换成文档、实测或本机记录，论点成立。session memory 那一处只能证明机制存在，细节无法核对；压缩摘要的九节格式能支持同一条原则。</p>
+<p>下一章讲这套治理系统碰到极限时怎么办：prompt too long、max output tokens、hook 死循环、恢复分支相互打架。原文说，到那时才看得出，一个代理系统是在“赌不出事”，还是认真设计了出事之后怎样继续运行。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-I">
+<header class="am-panel-head"><span class="am-panel-id">I</span><h2>附录：事实核对</h2><span class="am-panel-meta">本页补充</span></header>
+<div class="am-panel-body"><div class="am-md"><h3>逐条核对</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>原文的说法</th>
+<th>核对</th>
+<th>实际情况和依据</th>
+<th>正文</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>指令来源分 managed、user、project、local 四层，路径如原文所列（原文：<code>src/utils/claudemd.ts</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td><a href="https://code.claude.com/docs/en/memory">memory</a>：Managed policy、User instructions、Project instructions、Local instructions 四种范围，路径与原文一致；项目规则在 <code>.claude/rules/</code></td>
+<td>B</td>
+</tr>
+<tr>
+<td>2</td>
+<td>按目录距离加载，越近、越本地越晚加载</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>memory：“content is ordered from the filesystem root down to your working directory”，“<code>CLAUDE.local.md</code> is appended after <code>CLAUDE.md</code>”。实测：上层 CLAUDE.md、项目 CLAUDE.md、CLAUDE.local.md 依次出现</td>
+<td>B</td>
+</tr>
+<tr>
+<td>3</td>
+<td>越近的项目规则优先级越高</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>与文档不符</span></td>
+<td>memory：文件 “are concatenated into context rather than overriding each other”；冲突时 “Claude may pick one arbitrarily”</td>
+<td>B</td>
+</tr>
+<tr>
+<td>4</td>
+<td>支持 @include，只允许明确列出的文本扩展名</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>memory：<code>@path/to/import</code> 语法，最多四层。实测：.txt、.py、无扩展名的文件载入；.bin、.png、.pdf 不载入。文档没有列出扩展名</td>
+<td>B</td>
+</tr>
+<tr>
+<td>5</td>
+<td>MEMORY.md 是索引；保存分两步：写独立文件，再加一行指针（原文：<code>src/memdir/memdir.ts</code>、<code>buildMemoryLines()</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>实测：完整版 prompt 有 “Step 2 — add a pointer to that file in <code>MEMORY.md</code>”；短版有 “After writing the file, add a one-line pointer in <code>MEMORY.md</code>”</td>
+<td>C</td>
+</tr>
+<tr>
+<td>6</td>
+<td>MAX_ENTRYPOINT_LINES = 200，MAX_ENTRYPOINT_BYTES = 25_000</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>数值属实，命名无法核对</span></td>
+<td>memory：“first 200 lines of <code>MEMORY.md</code>, or the first 25KB”。实测：260 行只载入 200 行；37.5KB 时警告写 “limit: 24.4KB”</td>
+<td>C、E</td>
+</tr>
+<tr>
+<td>7</td>
+<td>超限时截断，末尾追加警告，要求把细节移到主题文件</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测警告：“Only part of it was loaded … Keep index entries to one line under ~200 chars; move detail into topic files.” memory：写 MEMORY.md 超限时还会返回错误</td>
+<td>C</td>
+</tr>
+<tr>
+<td>8</td>
+<td>session memory 模板有九个栏目；更新时只能用 Edit 等五条要求（原文：<code>src/services/SessionMemory/prompts.ts</code>）</td>
+<td>无法核对</td>
+<td>文档没写；本机没有 session memory 文件。CHANGELOG 2.1.50 提到 session memory（旁证）</td>
+<td>D</td>
+</tr>
+<tr>
+<td>9</td>
+<td>MAX_SECTION_LENGTH = 2000，MAX_TOTAL_SESSION_MEMORY_TOKENS = 12000，超出时 aggressively condense</td>
+<td>无法核对</td>
+<td>同上</td>
+<td>D、E</td>
+</tr>
+<tr>
+<td>10</td>
+<td>有效窗口先减去 20,000 的摘要输出预留，阈值再减 13,000 缓冲（原文：<code>src/services/compact/autoCompact.ts</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>合计吻合，单项无法核对</span></td>
+<td><a href="https://code.claude.com/docs/en/model-config">model-config</a>：1M 窗口模型 “at about 967K tokens”。观察：本机 87 次自动压缩，55 次在 166K–172K，7 次在 317K–321K，分别接近 200K、350K 窗口减 33K。实测压缩请求的 <code>max_tokens</code> 为 128,000</td>
+<td>E</td>
+</tr>
+<tr>
+<td>11</td>
+<td>警告阈值、错误阈值、手动 compact 各有缓冲</td>
+<td>无法核对</td>
+<td>文档没有给出这几个阈值</td>
+<td>E</td>
+</tr>
+<tr>
+<td>12</td>
+<td>MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3，超过即熔断；注释说曾每天浪费大量 API 调用</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实（旁证），注释无法核对</span></td>
+<td>CHANGELOG 2.1.76：“a circuit breaker now stops after 3 attempts”。<a href="https://code.claude.com/docs/en/troubleshooting">troubleshooting</a>：thrashing 时停止重试 “to avoid wasting API calls”</td>
+<td>E</td>
+</tr>
+<tr>
+<td>13</td>
+<td>AutoCompactTrackingState 记 compacted、turnCounter、turnId、consecutiveFailures</td>
+<td>无法核对</td>
+<td>源码不公开</td>
+<td>E</td>
+</tr>
+<tr>
+<td>14</td>
+<td>压缩前把图片和文档替换成标记（<code>stripImagesFromMessages()</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实（旁证），命名无法核对</span></td>
+<td>CHANGELOG 2.1.47：“stripping document blocks alongside images before sending to the compaction API”</td>
+<td>F</td>
+</tr>
+<tr>
+<td>15</td>
+<td>压缩前剥掉之后会重新注入的附件（<code>stripReinjectedAttachments()</code>）</td>
+<td>无法核对</td>
+<td>实测的压缩请求里，第一条消息的 CLAUDE.md 内容仍在；哪些附件被剥掉看不出来</td>
+<td>F</td>
+</tr>
+<tr>
+<td>16</td>
+<td>压缩请求本身 prompt too long 时截掉开头重试（<code>truncateHeadForPTLRetry()</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>部分可核对（旁证）</span></td>
+<td>CHANGELOG：reactive compaction 的第一次摘要尝试 “seeds from the original request&#39;s overflow size”，说明摘要会重试。本页没有触发压缩请求过长</td>
+<td>F</td>
+</tr>
+<tr>
+<td>17</td>
+<td>压缩后清空文件读取状态，重新生成最近文件的附件</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td><a href="https://code.claude.com/docs/en/context-window">context-window</a>：“re-reads up to five of the files Claude has read or edited”，超过 5,000 tokens 只给路径。观察：88 次压缩后共 244 个 file、152 个 compact_file_reference 附件</td>
+<td>F、G</td>
+</tr>
+<tr>
+<td>18</td>
+<td>压缩后补回 plan 附件</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>context-window：plan “Re-injected from disk”。观察：2 次 plan_file_reference</td>
+<td>F</td>
+</tr>
+<tr>
+<td>19</td>
+<td>压缩后补回 plan mode 附件</td>
+<td>无法核对</td>
+<td>文档没写；本机压缩后没有观察到</td>
+<td>F、G</td>
+</tr>
+<tr>
+<td>20</td>
+<td>压缩后补回已调用技能，每个技能有 token 上限，截断优于丢弃</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>context-window：每个技能最多 5,000 tokens，合计 25,000，截断 “keeps the start of the file”。观察：35 次 invoked_skills</td>
+<td>F、G</td>
+</tr>
+<tr>
+<td>21</td>
+<td>补回 deferred tools、agent listing、MCP instructions 的增量附件</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>观察：agent_listing_delta 85 次、deferred_tools_delta 9 次。本机没有配置 MCP 服务器，MCP 部分没有条件观察</td>
+<td>F</td>
+</tr>
+<tr>
+<td>22</td>
+<td>运行 session start hooks 和 post-compact hooks</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td><a href="https://code.claude.com/docs/en/hooks">hooks</a>：SessionStart 的 source 可为 <code>compact</code>；有 PostCompact 事件。观察：72 次压缩后运行了 SessionStart:compact hook</td>
+<td>F</td>
+</tr>
+<tr>
+<td>23</td>
+<td>写 compact boundary，记录压缩前 token 数和边界信息</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>观察：会话记录里的 compact_boundary 带 trigger、preTokens、postTokens、preservedSegment 等字段</td>
+<td>F</td>
+</tr>
+</tbody></table></div>
+<h3>核对范围与局限</h3>
+<ul>
+<li><strong>依据版本</strong>：本机 Claude Code 2.1.312（<code>claude --version</code>）；官方文档 2026-10-29 查阅；CHANGELOG 最新条目 2.1.312。</li>
+<li><strong>实测做法</strong>：在新建的空临时目录里用 <code>claude -p</code> 运行，模型 claude-haiku-5-5，请求经本机配置的 LLM 网关。用 <code>OTEL_LOG_RAW_API_BODIES=file:&lt;目录&gt;</code> 抓完整请求。<ul>
+<li>@ 导入：CLAUDE.md 导入六个只有扩展名不同的文本文件，看哪些出现在请求里。</li>
+<li>MEMORY.md：用 <code>--settings</code> 把 <code>autoMemoryDirectory</code> 指向临时目录，分别放 260 行和约 37.5KB 的 MEMORY.md。没有改动用户真实的记忆目录。</li>
+<li>压缩请求：沿用第 3 章核对版的手动压缩抓包。</li>
+</ul>
+</li>
+<li><strong>观察做法</strong>：统计本机 <code>~/.claude/projects/*.jsonl</code> 里的 compact_boundary 记录，以及紧跟其后的附件类型。会话版本从 2.1.252 到 2.1.312。只统计类型和数量，不读取内容。</li>
+<li><strong>局限</strong>：结果只代表这些版本、这个模型和这个网关下的表现，不能证明原文说的内部结构。没观察到某个行为不等于没有，功能可能分批上线或按账号开关。本机设过 350K 的压缩窗口；早期会话用什么窗口，记录里看不出来，触发点和窗口的对应是推断。本机没有配置 MCP 服务器，也很少用 plan 模式。</li>
+<li><strong>没核对的部分</strong>：所有源码文件名、函数名和常量名；session memory 的模板和预算；警告阈值和错误阈值；压缩前剥掉哪些附件；plan mode 附件；MCP 说明的增量附件。</li>
+<li><strong>观点</strong>：“预算制度”“受控重启”“节流和治理”等是原文的观点，不核对。</li>
+</ul>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="图表查看" data-expand="展开查看图表">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="关闭" aria-label="关闭">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.4.14 · 2026-10-29 17:35</footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+title: 上下文治理：Memory、CLAUDE.md 与 Compact 是预算制度（核对试点版）
+subtitle: 《Harness Engineering：Claude Code 设计指南》第 5 章解读，已按官方文档、本机观察和实测核对
+source: https://harness-books.agentway.dev/book1-claude-code/chapter-05-context-memory-compact.html
+---
+原文：[第 5 章 上下文治理：Memory、CLAUDE.md 与 Compact 是预算制度](https://harness-books.agentway.dev/book1-claude-code/chapter-05-context-memory-compact.html)
+
+一句话结论：原文认为，上下文是工作内存，治理它的目标是支持系统继续工作。长期规则、长期记忆、会话连续性分层管理，入口记忆必须短，compact 要重建工作环境。
+
+核对后，论点成立。在 v2.1.312 上，下面四项都有文档、实测或本机记录作依据：CLAUDE.md 分层；MEMORY.md 的 200 行和 25,000 字节上限；自动压缩的预留空间和熔断；压缩后补回文件和技能。源码文件和函数名无法核对。
+
+需要修正三点：
+
+- 原文说越靠后加载的规则优先级越高。文档说各级 CLAUDE.md 只是拼接，不互相覆盖；两条说明冲突时，Claude 可能任选一条。
+- session memory 的模板和预算无法核对：文档没有写，本机也没有找到这类文件。CHANGELOG 只能证明这个机制存在。
+- 压缩后补回 plan 模式状态，本机没有观察到。补回 MCP 说明，本机没有条件观察。
+
+核对依据：Claude Code 官方文档 code.claude.com/docs（2026-10-29 查阅）；anthropics/claude-code 仓库的 CHANGELOG（最新条目 2.1.312）；本机 Claude Code 2.1.312 的实测；本机会话记录（`~/.claude/projects/*.jsonl`，含 88 次压缩）。依据分四种标签：文档、观察、实测（v2.1.312）、旁证（CHANGELOG）。逐条结果见附录。
+
+```callout info 试点说明
+本页是第 5 章的核对试点版，原页面保留不动。原文本章没有图片。与原页面相比，本页每节加了“事实核对”，最后加了附录。
+```
+
+## A 核心观点：上下文是预算，不是仓库 {meta=&quot;原文 5.1&quot;}
+
+“信息越多，系统越聪明”是一个危险的神话。代理系统不是图书馆，上下文也不是“存进去就算拥有”的仓库。原文说，上下文首先是一笔昂贵、易膨胀、会自我污染的预算。
+
+Claude Code 在这件事上很不浪漫。该加载什么、该截断什么、什么要长期保留、什么只能短期摘要，全是运行时要严肃治理的事。本章讨论的是：Claude Code 怎样防止自己被记住的东西拖死。“记住更多”和“治理记忆”看起来相近，在工程上是两种制度。
+
+```tree list
+上下文治理的四层（本页归纳）
+  长期规则 | CLAUDE.md 体系，分层加载（B）
+  长期记忆 | MEMORY.md 当索引，正文放主题文件（C）
+  会话连续性 | session memory 模板（D）
+  窗口预算 | 自动压缩，压缩后重建工作环境（E、F、G）
+```
+
+本节是原文的观点，不涉及需要核对的事实。
+
+## B CLAUDE.md 体系：长期指令不和临场对话混在一起 {meta=&quot;原文 5.2&quot;}
+
+原文说，`claudemd.ts` 开头就把记忆层次说清楚了。指令来源分四层：
+
+```tree list
+指令来源
+  managed memory | 例如 /etc/claude-code/CLAUDE.md
+  user memory | 例如 ~/.claude/CLAUDE.md
+  project memory | 项目根目录的 CLAUDE.md、.claude/CLAUDE.md、.claude/rules/*.md
+  local memory | 例如 CLAUDE.local.md
+```
+
+原文说，这些文件按优先级和目录距离加载。离当前工作目录越近的项目规则，优先级越高；越私有、越本地的规则越晚加载，因而越靠近模型的注意力前沿。
+
+这说明 Claude Code 拒绝把“长期协作规则”和“本轮临时对话”混在一起。团队规范、个人偏好、仓库约束，寿命远长于某一轮用户消息。全塞进聊天记录，系统就会在两个极端之间摇摆：要么每轮重复注入，浪费上下文；要么靠模型自己回忆，迟早失手。`claudemd.ts` 的答案，是把稳定规则做成可发现、可分层、可组合的持久指令系统。
+
+原文还提到一个细节：它支持 @include，并且只允许一批明确列出的文本扩展名。这说明工程师在提防另一种事故：有人把二进制文件、巨型文档，甚至不该进 prompt 的东西糊里糊涂带进来。原文说，这是一种克制：系统先问什么值得进入记忆，什么一进入就是污染。
+
+### 实测：加载顺序和 @ 导入
+
+下图按文档和实测画出一次会话开始时各层的加载顺序（本页归纳）：
+
+```flow LR
+[managed] -&gt; [user] -&gt; [上层目录的 CLAUDE.md] -&gt; [项目的 CLAUDE.md] -&gt; *[项目的 CLAUDE.local.md] -&gt; (第一条用户消息)
+```
+
+| 在 CLAUDE.md 里导入的文件 | 是否载入 |
+|---|---|
+| `@notes.txt` | ok 载入，标为项目指令 |
+| `@code.py` | ok 载入 |
+| `@noext`（没有扩展名） | ok 载入 |
+| `@data.bin` | no 没有载入 |
+| `@img.png` | no 没有载入 |
+| `@doc.pdf` | no 没有载入 |
+
+（六个文件的内容都是一行纯文本，只有扩展名不同。）
+
+```callout warn 事实核对
+- 原文给的文件位置（`src/utils/claudemd.ts`）无法核对：源码不公开。
+- 四层来源属实（文档）。文档列出的路径与原文一致；Windows 上 managed 的位置是 `C:\Program Files\ClaudeCode\CLAUDE.md`。
+- 加载顺序属实（文档、实测）。文档说文件按从文件系统根到工作目录的顺序排列，同一目录里 CLAUDE.local.md 排在 CLAUDE.md 之后。实测中，上层目录的 CLAUDE.md、项目的 CLAUDE.md、CLAUDE.local.md 依次出现。
+- “优先级越高”与文档不符。文档说所有文件 “are concatenated into context rather than overriding each other”；两条说明冲突时，“Claude may pick one arbitrarily”。靠后的说明更靠近对话，但不保证胜出。
+- @ 导入属实（文档）。只认文本扩展名：实测 .txt、.py 和无扩展名的文件被载入，.bin、.png、.pdf 没有载入。文档没有列出允许的扩展名。
+```
+
+## C MEMORY.md 是索引，不是日记本 {meta=&quot;原文 5.3&quot;}
+
+如果 CLAUDE.md 管规则，memdir 管的就是另一类更细的长期记忆。原文说，`memdir.ts` 把入口文件 `ENTRYPOINT_NAME` 定为 MEMORY.md，但不鼓励往里堆内容，而是把它定义为索引。`buildMemoryLines()` 告诉模型，保存 memory 分两步：
+
+1. 把具体内容写进一个独立文件。
+2. 在 MEMORY.md 里加一行指向它。
+
+为什么这么麻烦？原文说，入口文件会被频繁加载，一旦变胖，整套上下文就会被它慢慢拖垮。所以 `memdir.ts` 设了 `MAX_ENTRYPOINT_LINES = 200` 和 `MAX_ENTRYPOINT_BYTES = 25_000`。超过时，`truncateEntrypointContent()` 直接截断，并在末尾追加警告：只加载了一部分，请把细节移到主题文件。
+
+原文说，这是把“入口必须短”做成硬约束。入口文件一旦既当目录又当正文，最后既不是目录，也不是正文。由此得出的原则是：长期记忆必须分成“入口”和“正文”。入口负责低成本寻址，正文负责高密度承载。
+
+### 实测：MEMORY.md 超限时怎样截断
+
+实测把 auto memory 目录指向临时目录，放进两份超限的 MEMORY.md：
+
+| MEMORY.md | 载入的部分 | 末尾追加的警告（原话摘录） |
+|---|---|---|
+| 260 行，约 9.6KB | 前 200 行 | “MEMORY.md is 260 lines (limit: 200). Only part of it was loaded: 60 of 260 lines were cut off” |
+| 150 行，约 37.5KB | 前 98 行 | “MEMORY.md is 37.5KB (limit: 24.4KB) — index entries are too long” |
+
+两条警告都以 “Keep index entries to one line under ~200 chars; move detail into topic files.” 结尾。
+
+```callout warn 事实核对
+- 常量名、`truncateEntrypointContent()` 和原文给的文件位置（`src/memdir/memdir.ts`）无法核对：源码不公开。
+- 两步保存属实（实测）。完整版和短版 system prompt 都要求先写独立文件，再在 MEMORY.md 加一行指针。
+- 200 行和 25,000 字节两个上限属实（文档、实测）。文档写作 “first 200 lines or 25KB”；实测警告写 “limit: 24.4KB”，正好是 25,000 字节。
+- 截断后追加警告属实（实测），警告原话见上表。
+- 文档还写到一层约束。Claude 写 MEMORY.md 后，Claude Code 会量一下大小：接近上限时提醒缩短，超过上限时返回错误，要求重写索引。
+```
+
+## D Session memory：短期连续性也不能靠聊天记录硬扛 {meta=&quot;原文 5.4&quot;}
+
+只有长期 memory 还不够。代理系统真正难受的地方，常常是“这轮之前我们做到哪一步了”，这是会话内部的连续性问题。原文说，`SessionMemory/prompts.ts` 专门为此建了一套模板，默认有九个栏目：
+
+```tree list
+session memory 模板（按原文）
+  进度 | Current State、Worklog、Key results
+  任务与代码 | Task specification、Files and Functions、Workflow
+  经验 | Errors &amp; Corrections、Learnings、Codebase and System Documentation
+```
+
+（分组是本页归纳，栏目名取自原文。）
+
+原文说，更新 notes 的 prompt 有五条要求：
+
+- 只能用 Edit 工具更新 notes 文件。
+- 不要提记笔记这件事本身。
+- 不要改模板结构。
+- Current State 必须始终反映最近的工作。
+- 每节都要信息密集，但要控制预算。
+
+所以 session memory 不是“另存一份聊天记录”，而是把当前会话提炼成一份能继续工作的操作说明。原文还说，`MAX_SECTION_LENGTH = 2000`，`MAX_TOTAL_SESSION_MEMORY_TOKENS = 12000`。超过预算时，系统要求 aggressively condense，优先保住 Current State 和 Errors &amp; Corrections。原文的判断是：上下文预算是工作内存，工作内存的第一职责是可操作。
+
+```callout warn 事实核对
+- 模板、五条要求、两个预算常量和原文给的文件位置（`src/services/SessionMemory/prompts.ts`），都无法核对。源码不公开，文档没有写 session memory，本机也没有找到 session memory 文件。
+- CHANGELOG 2.1.50 写到 `CLAUDE_CODE_SIMPLE` 会去掉 “skills, session memory, custom agents”，只能说明这个机制存在（旁证）。没观察到不等于没有，功能可能按账号或实验开关。
+- 本机能看到的是另一种机制：压缩摘要（观察）。压缩请求要求摘要按九节写，包括 Errors and fixes、Pending Tasks、Current Work、Optional Next Step。它同样服务“继续工作”，但不是原文说的 session memory。
+```
+
+## E 自动 compact：上下文治理首先是预算治理 {meta=&quot;原文 5.5&quot;}
+
+到这里，长期规则、持久 memory、session memory 都有了，但上下文还是会膨胀。原文说，`autoCompact.ts` 承认一个现实：对话够长，总会逼近窗口边缘。
+
+- `getEffectiveContextWindowSize()` 先从模型窗口里减去一笔给摘要输出的预算，`MAX_OUTPUT_TOKENS_FOR_SUMMARY` 预留 20,000 tokens。系统先假定 compact 本身要花钱，不会等窗口只剩一口气才想起求生。
+- `getAutoCompactThreshold()` 再从有效窗口里扣掉 `AUTOCOMPACT_BUFFER_TOKENS = 13_000`。警告阈值、错误阈值、手动 compact 也各自留有缓冲。
+
+原文说，道理很朴素：上下文治理要提前为失败和恢复留出余地。不留余地的系统，平时看着节俭，出事时才暴露真相：风险账单留给了下一轮。
+
+### 预算阈值表
+
+| 名称 | 值 | 作用 | 源引用（原文） | 核对 |
+|---|---|---|---|---|
+| MAX_ENTRYPOINT_LINES | 200 | MEMORY.md 行数上限 | memdir/memdir.ts | ok 实测：260 行只载入前 200 行 |
+| MAX_ENTRYPOINT_BYTES | 25_000 | 入口文件字节上限 | memdir/memdir.ts | ok 实测：警告写 “limit: 24.4KB” |
+| MAX_SECTION_LENGTH | 2_000 | session memory 单节上限 | SessionMemory/prompts.ts | 无法核对 |
+| MAX_TOTAL_SESSION_MEMORY_TOKENS | 12_000 | session memory 总预算 | SessionMemory/prompts.ts | 无法核对 |
+| MAX_OUTPUT_TOKENS_FOR_SUMMARY | 20_000 | compact 预留输出空间 | compact/autoCompact.ts | ok 两项合计 33K 与观察吻合，单项无法拆分 |
+| AUTOCOMPACT_BUFFER_TOKENS | 13_000 | autocompact 警戒缓冲 | compact/autoCompact.ts | ok 同上 |
+| MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES | 3 | 连续失败熔断阈值 | compact/autoCompact.ts | ok 旁证：2.1.76 “a circuit breaker now stops after 3 attempts” |
+
+原文还说，`AutoCompactTrackingState` 不只记是否压缩过，还记 turnCounter、turnId 和 consecutiveFailures。autocompact 是一段会被追踪、会失败、会被限流的运行时行为。源码注释写得很直白：全球每天曾浪费大量 API 调用在连续失败的 autocompact 上，所以失败 3 次就触发熔断。原文说，你可以失败，但不能无限次、无记忆地失败。
+
+### 观察：本机 87 次自动压缩在哪里触发
+
+本机会话记录里有 87 次自动压缩，每次都记下了压缩前的 token 数。触发点集中在两处：
+
+| 触发时的 token 数 | 次数 | 对应的窗口 |
+|---|---|---|
+| 166K–172K | 55 | 200K 窗口减 33K，约 167K |
+| 172K–190K | 17 | 同上，越过阈值后才检查到 |
+| 317K–321K | 7 | 本机设的 350K 压缩窗口减 33K，约 317K |
+| 其余 | 8 | 窗口设置不明 |
+
+```callout warn 事实核对
+- 函数名、常量名、`AutoCompactTrackingState` 的字段、注释原话和原文给的文件位置（`src/services/compact/autoCompact.ts`），无法核对：源码不公开。
+- 预留空间：文档说 1M 窗口的模型约在 967K 时压缩，正好是 1M 减去 20K 和 13K。本机观察到的触发点也在窗口减 33K 附近（上表）。两笔预算的合计有依据，各自多少无法拆分。
+- 实测的压缩请求 `max_tokens` 是 128,000，不是 20,000。20K 如果存在，只用于计算阈值，不是摘要输出的上限。
+- 熔断属实（旁证）：CHANGELOG 2.1.76 写到，自动压缩连续失败后会无限重试的问题已修复，“a circuit breaker now stops after 3 attempts”。
+- 文档另写了一种保护：压缩成功、但上下文立刻又满，连续几次后报 “Autocompact is thrashing”，停止重试 “to avoid wasting API calls”。
+```
+
+## F compactConversation()：摘要要重建可继续工作的上下文 {meta=&quot;原文 5.6&quot;}
+
+很多人以为 compact 就是“把前面聊天摘要一下”。原文说，`compactConversation()` 先把原有上下文拆开、摘要，再注入必要附件，重新搭出一个还能工作的环境。下表按原文的顺序列出每一步，并给出核对结果：
+
+| 阶段 | 原文说的动作 | 核对 |
+|---|---|---|
+| 压缩前 | 把图片、文档替换成 [image]、[document] 等标记 | ok 旁证：2.1.47 起压缩前 “stripping document blocks alongside images” |
+| 压缩前 | 剥掉之后会重新注入的附件 | 无法核对：实测的压缩请求里，第一条消息的 CLAUDE.md 内容仍在 |
+| 摘要失败 | 压缩请求本身 prompt too long 时，截掉开头重试 | ok 旁证：摘要请求过长时会重试；另观察到格式不对时的重试 |
+| 压缩后 | 清空旧的文件读取状态，重新生成最近文件的附件 | ok 文档、观察：最多重读五个最近改过的文件 |
+| 压缩后 | 补回 plan 附件 | ok 文档、观察 |
+| 压缩后 | 补回 plan mode 附件 | 无法核对：本机压缩后没有观察到 |
+| 压缩后 | 补回已调用技能的附件 | ok 文档、观察 |
+| 压缩后 | 补回 deferred tools、agent listing、MCP instructions 的增量附件 | warn 前两种观察到；MCP 没有条件观察 |
+| 压缩后 | 运行 session start hooks 和 post-compact hooks | ok 文档、观察 |
+| 压缩后 | 写 compact boundary，记录压缩前的 token 数和边界信息 | ok 观察 |
+
+原文说，这些动作合起来，目标是把“继续干活所需的运行时环境”重新铺平，摘要只是中间产物。所以 compact 更像一次受控重启，而不是一次聊天总结。很多系统只做前半截，压缩后虽然“还记得个大意”，却丢了工具状态、计划状态、附件状态，还得再花几轮找回自己。
+
+### 观察：压缩后紧跟着补回了什么
+
+本机会话记录里有 88 次压缩（87 次自动、1 次手动）。统计每次压缩边界之后、模型下一次回答之前出现的附件：
+
+| 附件类型 | 次数 | 对应原文的动作 |
+|---|---|---|
+| file | 244 | 最近文件的内容 |
+| compact_file_reference | 152 | 大文件只给路径 |
+| agent_listing_delta | 85 | agent listing |
+| SessionStart 的 compact hook 输出 | 72 | session start hooks |
+| instructions | 55 | CLAUDE.md |
+| invoked_skills | 35 | 已调用的技能 |
+| deferred_tools_delta | 9 | deferred tools |
+| plan_file_reference | 2 | plan |
+
+```callout warn 事实核对
+- `compactConversation()`、`stripImagesFromMessages()`、`stripReinjectedAttachments()`、`truncateHeadForPTLRetry()` 和原文给的文件位置（`src/services/compact/compact.ts`），无法核对：源码不公开。
+- 文档的 “What survives compaction” 表与原文的清单基本一致：项目根 CLAUDE.md、auto memory 从磁盘重新注入；技能说明重建；plan 从磁盘重新注入；最多重读五个最近改过的文件，超过 5,000 tokens 的只给路径；SessionStart hook 用 `compact` 作为 source 运行。文档另有 PostCompact hook。
+- 压缩边界（观察）：会话记录里每次压缩都有一条 compact_boundary，记录触发方式、压缩前后的 token 数和保留的消息段。
+- 摘要请求出错时会重试（旁证）：CHANGELOG 写到 reactive compaction “the first summarize attempt now seeds from the original request&#39;s overflow size”。另外，第 3 章实测的手动压缩里，模型第一次没有按要求写摘要；Claude Code 又发了一次请求，在指令末尾要求把摘要放进 summary 标签（观察）。这不是 prompt too long，但同样说明“救火工具本身也会出错”。
+- 压缩请求（实测）：沿用会话的 system prompt 和工具定义，末尾附上摘要指令，与文档一致。
+```
+
+## G 上下文治理的关键是保留工作语义 {meta=&quot;原文 5.7&quot;}
+
+原文说，`compact.ts` 的后半段有一个贯穿始终的倾向：保住工作语义。
+
+- 恢复最近访问文件的附件，因为这些文件往往是当前工作面的局部现实。
+- 恢复 plan mode，否则模型压缩完可能忘了自己还在 plan 的纪律里。
+- 保留已调用技能的内容，但给每个技能设 token 上限，免得技能在压缩后反客为主。
+
+源码里有一句话：per-skill truncation beats dropping。即使要裁，也优先保住开头那段最关键的指令，而不是整个扔掉。原文说，这就是治理，不是纯粹节流：节流是砍，治理是知道该砍哪里、该保什么。
+
+由此得出一条经验：上下文系统应该优先保留能维持行动语义的东西，而不是看起来信息量最大的东西。
+
+| 应该保留 | 不必再占位置 |
+|---|---|
+| 文件细节、当前计划、错误修正、技能约束 | 冗长历史对话、重复附件、运行时随时能重新拿到的内容 |
+
+```callout warn 事实核对
+- 注释原话 “per-skill truncation beats dropping” 无法核对：源码不公开。
+- 技能截断属实（文档）：已调用技能压缩后重新注入，每个最多 5,000 tokens，合计最多 25,000 tokens，超出时先丢最早的；截断 “keeps the start of the file”。这与“优先保住开头”一致。
+- 最近文件属实（文档、观察），见 F。
+- 恢复 plan mode 无法核对：文档只说 plan 文件会重新注入，没说 plan 模式状态；本机压缩后没有观察到 plan mode 附件。
+```
+
+## H 从源码提炼的第五个原则 {meta=&quot;原文 5.8&quot;}
+
+```callout ok 第五个原则
+上下文是工作内存。治理它的目标是支持系统继续工作。
+```
+
+原文说，源码在五个层面共同支持这个判断。源码不公开，下表把原文的证据换成核对后的依据：
+
+| 原文的源码依据 | 说明什么 | 核对后的依据 | 详见 |
+|---|---|---|---|
+| claudemd.ts | 长期指令分层加载，稳定规则和临时对话分开 | 四层来源、加载顺序（文档、实测）；@ 导入只认文本扩展名（实测） | B |
+| memdir.ts | MEMORY.md 是索引并强制截断，入口必须短 | 200 行、25,000 字节截断并追加警告（文档、实测） | C |
+| SessionMemory/prompts.ts | 固定模板加预算，短期记忆也要结构化 | 无法核对；只能证明 session memory 存在（旁证）。压缩摘要有固定的九节格式（观察） | D |
+| autoCompact.ts | 预留输出预算、缓冲区和失败熔断 | 触发点在窗口减 33K 附近（文档、观察）；3 次熔断（旁证） | E |
+| compact.ts | 压缩后恢复计划、文件、技能、工具附件和 hook 状态 | 文档的 What survives compaction 表；本机 88 次压缩后的附件统计（观察） | F、G |
+
+原文提炼的工程原则：
+
+- 长期规则、长期记忆、会话连续性应分层，不混写。
+- 入口型记忆必须短小。
+- session summary 服务“继续工作”，不是“回忆完整”。
+- compact 是主路径，不是异常。
+- 压缩后必须保住运行语义。
+
+核对后，五处证据有四处能换成文档、实测或本机记录，论点成立。session memory 那一处只能证明机制存在，细节无法核对；压缩摘要的九节格式能支持同一条原则。
+
+下一章讲这套治理系统碰到极限时怎么办：prompt too long、max output tokens、hook 死循环、恢复分支相互打架。原文说，到那时才看得出，一个代理系统是在“赌不出事”，还是认真设计了出事之后怎样继续运行。
+
+## 附录：事实核对 {meta=&quot;本页补充&quot;}
+
+### 逐条核对
+
+| # | 原文的说法 | 核对 | 实际情况和依据 | 正文 |
+|---|---|---|---|---|
+| 1 | 指令来源分 managed、user、project、local 四层，路径如原文所列（原文：`src/utils/claudemd.ts`） | ok 行为属实，命名无法核对 | [memory](https://code.claude.com/docs/en/memory)：Managed policy、User instructions、Project instructions、Local instructions 四种范围，路径与原文一致；项目规则在 `.claude/rules/` | B |
+| 2 | 按目录距离加载，越近、越本地越晚加载 | ok 行为属实 | memory：“content is ordered from the filesystem root down to your working directory”，“`CLAUDE.local.md` is appended after `CLAUDE.md`”。实测：上层 CLAUDE.md、项目 CLAUDE.md、CLAUDE.local.md 依次出现 | B |
+| 3 | 越近的项目规则优先级越高 | warn 与文档不符 | memory：文件 “are concatenated into context rather than overriding each other”；冲突时 “Claude may pick one arbitrarily” | B |
+| 4 | 支持 @include，只允许明确列出的文本扩展名 | ok 行为属实 | memory：`@path/to/import` 语法，最多四层。实测：.txt、.py、无扩展名的文件载入；.bin、.png、.pdf 不载入。文档没有列出扩展名 | B |
+| 5 | MEMORY.md 是索引；保存分两步：写独立文件，再加一行指针（原文：`src/memdir/memdir.ts`、`buildMemoryLines()`） | ok 行为属实，命名无法核对 | 实测：完整版 prompt 有 “Step 2 — add a pointer to that file in `MEMORY.md`”；短版有 “After writing the file, add a one-line pointer in `MEMORY.md`” | C |
+| 6 | MAX_ENTRYPOINT_LINES = 200，MAX_ENTRYPOINT_BYTES = 25_000 | ok 数值属实，命名无法核对 | memory：“first 200 lines of `MEMORY.md`, or the first 25KB”。实测：260 行只载入 200 行；37.5KB 时警告写 “limit: 24.4KB” | C、E |
+| 7 | 超限时截断，末尾追加警告，要求把细节移到主题文件 | ok 行为属实 | 实测警告：“Only part of it was loaded … Keep index entries to one line under ~200 chars; move detail into topic files.” memory：写 MEMORY.md 超限时还会返回错误 | C |
+| 8 | session memory 模板有九个栏目；更新时只能用 Edit 等五条要求（原文：`src/services/SessionMemory/prompts.ts`） | 无法核对 | 文档没写；本机没有 session memory 文件。CHANGELOG 2.1.50 提到 session memory（旁证） | D |
+| 9 | MAX_SECTION_LENGTH = 2000，MAX_TOTAL_SESSION_MEMORY_TOKENS = 12000，超出时 aggressively condense | 无法核对 | 同上 | D、E |
+| 10 | 有效窗口先减去 20,000 的摘要输出预留，阈值再减 13,000 缓冲（原文：`src/services/compact/autoCompact.ts`） | ok 合计吻合，单项无法核对 | [model-config](https://code.claude.com/docs/en/model-config)：1M 窗口模型 “at about 967K tokens”。观察：本机 87 次自动压缩，55 次在 166K–172K，7 次在 317K–321K，分别接近 200K、350K 窗口减 33K。实测压缩请求的 `max_tokens` 为 128,000 | E |
+| 11 | 警告阈值、错误阈值、手动 compact 各有缓冲 | 无法核对 | 文档没有给出这几个阈值 | E |
+| 12 | MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3，超过即熔断；注释说曾每天浪费大量 API 调用 | ok 行为属实（旁证），注释无法核对 | CHANGELOG 2.1.76：“a circuit breaker now stops after 3 attempts”。[troubleshooting](https://code.claude.com/docs/en/troubleshooting)：thrashing 时停止重试 “to avoid wasting API calls” | E |
+| 13 | AutoCompactTrackingState 记 compacted、turnCounter、turnId、consecutiveFailures | 无法核对 | 源码不公开 | E |
+| 14 | 压缩前把图片和文档替换成标记（`stripImagesFromMessages()`） | ok 行为属实（旁证），命名无法核对 | CHANGELOG 2.1.47：“stripping document blocks alongside images before sending to the compaction API” | F |
+| 15 | 压缩前剥掉之后会重新注入的附件（`stripReinjectedAttachments()`） | 无法核对 | 实测的压缩请求里，第一条消息的 CLAUDE.md 内容仍在；哪些附件被剥掉看不出来 | F |
+| 16 | 压缩请求本身 prompt too long 时截掉开头重试（`truncateHeadForPTLRetry()`） | ok 部分可核对（旁证） | CHANGELOG：reactive compaction 的第一次摘要尝试 “seeds from the original request&#39;s overflow size”，说明摘要会重试。本页没有触发压缩请求过长 | F |
+| 17 | 压缩后清空文件读取状态，重新生成最近文件的附件 | ok 行为属实 | [context-window](https://code.claude.com/docs/en/context-window)：“re-reads up to five of the files Claude has read or edited”，超过 5,000 tokens 只给路径。观察：88 次压缩后共 244 个 file、152 个 compact_file_reference 附件 | F、G |
+| 18 | 压缩后补回 plan 附件 | ok 行为属实 | context-window：plan “Re-injected from disk”。观察：2 次 plan_file_reference | F |
+| 19 | 压缩后补回 plan mode 附件 | 无法核对 | 文档没写；本机压缩后没有观察到 | F、G |
+| 20 | 压缩后补回已调用技能，每个技能有 token 上限，截断优于丢弃 | ok 行为属实 | context-window：每个技能最多 5,000 tokens，合计 25,000，截断 “keeps the start of the file”。观察：35 次 invoked_skills | F、G |
+| 21 | 补回 deferred tools、agent listing、MCP instructions 的增量附件 | warn 部分可核对 | 观察：agent_listing_delta 85 次、deferred_tools_delta 9 次。本机没有配置 MCP 服务器，MCP 部分没有条件观察 | F |
+| 22 | 运行 session start hooks 和 post-compact hooks | ok 行为属实 | [hooks](https://code.claude.com/docs/en/hooks)：SessionStart 的 source 可为 `compact`；有 PostCompact 事件。观察：72 次压缩后运行了 SessionStart:compact hook | F |
+| 23 | 写 compact boundary，记录压缩前 token 数和边界信息 | ok 行为属实，命名无法核对 | 观察：会话记录里的 compact_boundary 带 trigger、preTokens、postTokens、preservedSegment 等字段 | F |
+
+### 核对范围与局限
+
+- **依据版本**：本机 Claude Code 2.1.312（`claude --version`）；官方文档 2026-10-29 查阅；CHANGELOG 最新条目 2.1.312。
+- **实测做法**：在新建的空临时目录里用 `claude -p` 运行，模型 claude-haiku-5-5，请求经本机配置的 LLM 网关。用 `OTEL_LOG_RAW_API_BODIES=file:&lt;目录&gt;` 抓完整请求。
+  - @ 导入：CLAUDE.md 导入六个只有扩展名不同的文本文件，看哪些出现在请求里。
+  - MEMORY.md：用 `--settings` 把 `autoMemoryDirectory` 指向临时目录，分别放 260 行和约 37.5KB 的 MEMORY.md。没有改动用户真实的记忆目录。
+  - 压缩请求：沿用第 3 章核对版的手动压缩抓包。
+- **观察做法**：统计本机 `~/.claude/projects/*.jsonl` 里的 compact_boundary 记录，以及紧跟其后的附件类型。会话版本从 2.1.252 到 2.1.312。只统计类型和数量，不读取内容。
+- **局限**：结果只代表这些版本、这个模型和这个网关下的表现，不能证明原文说的内部结构。没观察到某个行为不等于没有，功能可能分批上线或按账号开关。本机设过 350K 的压缩窗口；早期会话用什么窗口，记录里看不出来，触发点和窗口的对应是推断。本机没有配置 MCP 服务器，也很少用 plan 模式。
+- **没核对的部分**：所有源码文件名、函数名和常量名；session memory 的模板和预算；警告阈值和错误阈值；压缩前剥掉哪些附件；plan mode 附件；MCP 说明的增量附件。
+- **观点**：“预算制度”“受控重启”“节流和治理”等是原文的观点，不核对。
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions and the panel comments.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }].
+// Comment text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+function replyText({ title, decisions, comments, ui }) {
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   → ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) {
+      out.push(`- **${c.panel} · ${c.title}**`, ...c.text.trim().split('\n').map((l) => `  > ${l}`));
+    }
+    out.push('', `_${ui.typed}_`);
+  }
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers and the comments
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  const keyOf = (ask) => ask.querySelector('legend')?.textContent.trim() ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: panel?.querySelector('.am-panel-head h2')?.textContent.trim() ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: ask.querySelector('legend')?.textContent.trim() ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const empty = !decisions.length && !comments.some((c) => c.text.trim());
+    const title = document.querySelector('.am-head h1')?.textContent.trim() ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, ui });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg')].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+</script>
+</body>
+</html>

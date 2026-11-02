@@ -1,0 +1,2552 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="paper" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.4.14">
+<title>工具、权限与中断：为什么代理不能直接碰世界（核对试点版）</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-right: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin: 0 6px 0 auto; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-left: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; right: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { left: 50%; }
+.am-timeline--h li:last-child::before { right: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { left: 50%; }
+.am-tree-col:last-child::before { right: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }
+.am-tree-list ul { margin-left: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }
+.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 8px 4px auto;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-right: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */
+  .am-md th, .am-md td { min-width: 6em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+
+/* Change markers (only on pages that have one). Only the Changes view (.am-view-changes) draws change styling: colors, strike-through, faded items
+   and badges. Before and After look like a plain diagram, and the items that do not exist in the view are hidden.
+   The colors are the theme's --ok, --err and --warn, so every theme and mode works. A view hides items with visibility, so nothing moves. */
+.am-view-before [data-delta="added"], .am-view-after [data-delta="removed"] { visibility: hidden; }
+.am-view-before .am-delta-badge, .am-view-after .am-delta-badge { visibility: hidden; }
+/* A list label's badge is inline and would indent the label like a nesting level, so there it takes no space; the other badges are positioned and move nothing. */
+.am-view-before .am-tree-label > .am-delta-badge, .am-view-after .am-tree-label > .am-delta-badge { display: none; }
+
+.am-delta-badge--added { --badge: var(--ok, #1f9d4d); }
+.am-delta-badge--removed { --badge: var(--err, #c62828); }
+.am-delta-badge--changed { --badge: var(--warn, #a8620a); }
+
+/* flow */
+.am-view-changes .am-node[data-delta="added"] .am-node-shape { stroke: var(--ok, #1f9d4d); }
+.am-view-changes .am-node[data-delta="removed"] .am-node-shape { stroke: var(--err, #c62828); }
+.am-view-changes .am-node[data-delta="changed"] .am-node-shape { stroke: var(--warn, #a8620a); }
+.am-view-changes .am-node[data-delta="added"] > text { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-node[data-delta="removed"] > text { fill: var(--err, #c62828); }
+.am-view-changes [data-delta="added"] > .am-edge { stroke: var(--ok, #1f9d4d); }
+.am-view-changes [data-delta="removed"] > .am-edge { stroke: var(--err, #c62828); }
+.am-view-changes .am-arrow--added { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-arrow--removed { fill: var(--err, #c62828); }
+.am-view-changes [data-delta="added"] > .am-edge-label text { fill: var(--ok, #1f9d4d); }
+.am-view-changes [data-delta="removed"] > .am-edge-label text { fill: var(--err, #c62828); }
+.am-view-changes .am-cluster[data-delta="added"] { stroke: var(--ok, #1f9d4d); }
+.am-view-changes .am-cluster[data-delta="removed"] { stroke: var(--err, #c62828); }
+.am-view-changes .am-cluster-label[data-delta="added"] { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-cluster-label[data-delta="removed"] { fill: var(--err, #c62828); }
+.am-view-changes g[data-delta="removed"]:not(.am-delta-badge), .am-view-changes .am-cluster[data-delta="removed"], .am-view-changes .am-cluster-label[data-delta="removed"] { opacity: 0.55; }
+.am-view-changes .am-node[data-delta="removed"] > text, .am-view-changes g[data-delta="removed"] > .am-edge-label text, .am-view-changes .am-cluster-label[data-delta="removed"] { text-decoration: line-through; }
+.am-diagram .am-delta-badge circle { fill: var(--badge); stroke: var(--paper, #ffffff); stroke-width: 1.5; }
+.am-diagram .am-delta-badge text { fill: var(--paper, #ffffff); font: 700 11px var(--font-sans, sans-serif); text-decoration: none; }
+
+/* tree */
+.am-tree .am-delta-badge {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 15px; height: 15px; flex: none;
+  border-radius: 50%; background: var(--badge); color: var(--paper); font: 700 11px/1 var(--font-mono, monospace); text-decoration: none;
+}
+.am-tree-box[data-delta] { position: relative; }
+.am-tree-box > .am-delta-badge { position: absolute; top: -8px; right: -8px; }
+.am-tree-label > .am-delta-badge { margin-right: 6px; vertical-align: 1px; }
+.am-view-changes .am-tree-box[data-delta="added"] { border-color: var(--ok); }
+.am-view-changes .am-tree-box[data-delta="removed"] { border-color: var(--err); opacity: 0.55; text-decoration: line-through; }
+.am-view-changes .am-tree-box[data-delta="changed"] { border-color: var(--warn); }
+.am-view-changes .am-tree-list li[data-delta="added"] > .am-tree-label { color: var(--ok); }
+.am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-label { color: var(--err); text-decoration: line-through; }
+.am-view-changes .am-tree-list li[data-delta="changed"] > .am-tree-label { color: var(--warn); }
+.am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-label, .am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-sub { opacity: 0.55; }
+
+/* Connector lines in a view that hides siblings. A hidden node keeps its stretch of the line, so the line stays whole between the nodes that remain and
+   stops at the last one; the markup (data-line-before / data-line-after, see src/components/tree.js) names the stretches that differ from the usual look. */
+.am-view-before .am-tree-list li::after, .am-view-after .am-tree-list li::after,
+.am-view-before .am-tree-col::before, .am-view-after .am-tree-col::before { visibility: visible; }
+.am-view-before .am-tree-list li[data-line-before="full"]::after, .am-view-after .am-tree-list li[data-line-after="full"]::after { bottom: 0; height: auto; }
+.am-view-before .am-tree-list li[data-line-before="short"]::after, .am-view-after .am-tree-list li[data-line-after="short"]::after { bottom: auto; height: 0.95em; }
+.am-view-before .am-tree-list li[data-line-before="none"]::after, .am-view-after .am-tree-list li[data-line-after="none"]::after,
+.am-view-before .am-tree-col[data-line-before="none"]::before, .am-view-after .am-tree-col[data-line-after="none"]::before,
+.am-view-before .am-tree-root[data-line-before="none"]::after, .am-view-after .am-tree-root[data-line-after="none"]::after { display: none; }
+.am-view-before .am-tree-col[data-line-before="full"]::before, .am-view-after .am-tree-col[data-line-after="full"]::before { left: 0; right: 0; }
+.am-view-before .am-tree-col[data-line-before="start"]::before, .am-view-after .am-tree-col[data-line-after="start"]::before { left: 50%; right: 0; }
+.am-view-before .am-tree-col[data-line-before="end"]::before, .am-view-after .am-tree-col[data-line-after="end"]::before { left: 0; right: 50%; }
+
+/* the count row and the switch */
+.am-delta-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 10px; text-align: left; font: 12px/1.3 var(--font-mono, monospace); }
+.am-delta-count--added { color: var(--ok); }
+.am-delta-count--removed { color: var(--err); }
+.am-delta-count--changed { color: var(--warn); }
+.am-delta-switch { display: inline-flex; margin-left: auto; border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius); overflow: hidden; }
+.am-delta-switch[hidden] { display: none; }
+.am-delta-switch button { font: inherit; padding: 3px 10px; color: var(--ink-2); background: var(--paper); border: 0; border-left: 1px solid var(--line-2); cursor: pointer; }
+.am-delta-switch button:first-child { border-left: 0; }
+.am-delta-switch button[aria-pressed="true"] { color: var(--ink); background: var(--accent-bg); font-weight: 600; }
+.am-delta-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media print { .am-delta-switch { display: none !important; } }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="zh-CN" data-am-root-theme="paper" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">主题<select data-am="theme"><option value="blueprint">图纸</option><option value="shadcn">卡片</option><option value="paper" selected>纸张</option></select></label>
+<label class="am-pick">明暗<select data-am="mode"><option value="auto" selected>跟随系统</option><option value="light">亮</option><option value="dark">暗</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;回复&quot;,&quot;comment&quot;:&quot;评论&quot;,&quot;commentHint&quot;:&quot;对这个面板的意见&quot;,&quot;title&quot;:&quot;你的回复&quot;,&quot;hint&quot;:&quot;复制后粘贴到对话里。&quot;,&quot;copy&quot;:&quot;复制回复&quot;,&quot;close&quot;:&quot;关闭&quot;,&quot;suggested&quot;:&quot;建议&quot;,&quot;empty&quot;:&quot;先选择选项，或在面板上写评论。&quot;,&quot;decisions&quot;:&quot;决定&quot;,&quot;comments&quot;:&quot;评论&quot;,&quot;confirmed&quot;:&quot;确认了建议&quot;,&quot;untouched&quot;:&quot;未作答，保留建议&quot;,&quot;was&quot;:&quot;原为&quot;,&quot;typed&quot;:&quot;以 \&quot;&gt;\&quot; 开头的行是读者输入的文字。&quot;,&quot;done&quot;:&quot;已复制 ✓&quot;}">回复</button>
+<button class="am-btn" type="button" data-am="copy" data-done="已复制 ✓">复制源稿</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>工具、权限与中断：为什么代理不能直接碰世界（核对试点版）</h1><p class="am-sub">《Harness Engineering：Claude Code 设计指南》第 4 章解读，已按官方文档、本机观察和实测核对</p><div class="am-head-meta"><span><b>source</b>https://harness-books.agentway.dev/book1-claude-code/chapter-04-tools-permissions-interrupts.html</span></div><div class="am-intro am-md"><div class="am-md"><p>原文：<a href="https://harness-books.agentway.dev/book1-claude-code/chapter-04-tools-permissions-interrupts.html">第 4 章 工具、权限与中断：为什么代理不能直接碰世界</a></p>
+<p>一句话结论：原文认为，工具是受管执行接口，权限是代理系统的基本器官。具体说：调度先于执行，授权与理解分开，中断有专门语义，Bash 按特例治理。核对后，论点成立。在 v2.1.312 上，权限三态、规则优先于 hook 放行、中断后补结果、Bash 的专门规则，都有文档或实测依据。源码文件和函数名无法核对。</p>
+<p>需要修正四点：</p>
+<ul>
+<li>权限判定的顺序与原图不同。PreToolUse hook 最先运行；规则层不只能拒绝，ask 规则在任何模式下都要人批准，allow 规则也能直接放行。</li>
+<li>并行工具里一个失败，不再取消其他工具（CHANGELOG 2.1.161 起；实测）。原文正文说会取消，原文矩阵说其他工具照常，两处本身不一致。</li>
+<li>并行工具的结果按完成先后进入下一次请求，不按调用顺序（实测）。</li>
+<li>实测 200 段的复合命令照常执行，没有观察到 subcommand 上限。文档写的兜底是请求批准，不是直接拒绝。</li>
+</ul>
+<p>核对依据：Claude Code 官方文档 code.claude.com/docs（2026-10-29 查阅）；anthropics/claude-code 仓库的 CHANGELOG（最新条目 2.1.312）；本机 Claude Code 2.1.312 的实测和本机会话记录。依据分四种标签：文档、观察、实测（v2.1.312）、旁证（CHANGELOG）。逐条结果见附录。</p>
+</div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">试点说明</div><div class="am-callout-body am-md"><p>本页是第 4 章的核对试点版，原页面保留不动。原文本章有两张图，本页按事实重画，放在原位置。与原页面相比，本页每节加了“事实核对”，最后加了附录。</p>
+</div></div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="目录"><a href="#panel-A">A · 核心观点：工具不是意见，是动作</a><a href="#panel-B">B · 工具调度属于行为宪法</a><a href="#panel-C">C · 真正执行前已经发生了很多事</a><a href="#panel-D">D · 权限先于能力</a><a href="#panel-E">E · 权限结果本身也是运行时语义</a><a href="#panel-F">F · 中断是一等语义</a><a href="#panel-G">G · Bash 为什么永远比别的工具更可疑</a><a href="#panel-H">H · 工具系统也在保护系统自己</a><a href="#panel-I">I · 从源码提炼的第四个原则</a><a href="#panel-J">J · 附录：事实核对</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>核心观点：工具不是意见，是动作</h2><span class="am-panel-meta">原文 4.1</span></header>
+<div class="am-panel-body"><div class="am-md"><p>只输出文本的模型，出错时主要增加沟通成本。一旦开始调用工具，问题的性质就变了：工具不是意见，是动作，动作接触真实世界。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>只输出文本</th>
+<th>调用工具</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>出错的后果</td>
+<td>停在理解层面</td>
+<td>文件被删、进程被中止、Git 历史被搞乱</td>
+</tr>
+<tr>
+<td>风险类型</td>
+<td>沟通成本</td>
+<td>执行后果</td>
+</tr>
+</tbody></table></div>
+<p>所以工具系统最重要的问题只有一个：谁来约束这些工具。原文说，Claude Code 的回答是把工具变成受管执行接口，不让模型直接伸手碰世界。</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="受管执行接口（本页归纳）" data-step="0">受管执行接口（本页归纳）</div></div><ul class="am-tree-list"><li data-key="调度" data-step="1"><span class="am-tree-label">调度</span><span class="am-tree-sub">先按并发安全性分批，再执行（B）</span></li><li data-key="执行流程" data-step="2"><span class="am-tree-label">执行流程</span><span class="am-tree-sub">执行前后都有包裹层（C）</span></li><li data-key="权限" data-step="3"><span class="am-tree-label">权限</span><span class="am-tree-sub">allow、deny、ask 三态，授权与理解分开（D、E）</span></li><li data-key="中断" data-step="4"><span class="am-tree-label">中断</span><span class="am-tree-sub">停下也有专门语义（F）</span></li><li data-key="Bash 特例" data-step="5"><span class="am-tree-label">Bash 特例</span><span class="am-tree-sub">最通用的工具受最严的看管（G）</span></li></ul></div>
+<div class="am-md"><p>本节是原文的观点，不涉及需要核对的事实。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>工具调度属于行为宪法</h2><span class="am-panel-meta">原文 4.2</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，<code>runTools()</code> 不直接执行一串 tool_use，而是先按并发安全性分批。<code>partitionToolCalls()</code> 先读取工具的输入定义，再调用 <code>isConcurrencySafe()</code> 判断这类调用能否并发。能并发的归入并发批次，不能并发的拆成串行单元。</p>
+<p>这看上去像性能优化，原文说它更接近一致性设计。一旦允许并发，就要回答一个老问题：上下文变化由谁决定、按什么顺序生效。原文说，Claude Code 在并发路径里先缓存 contextModifier，再按原始 block 顺序回放。最先完成的工具不能抢先改上下文，所以执行虽然并发，上下文演化仍有确定顺序。</p>
+<p>原文的判断是：并发可以提高吞吐，但不能破坏因果秩序。成熟代理系统把并发当成需要证明自身无害的例外，而不是默认的自由。</p>
+<h3>实测：谁并发、结果按什么顺序回来</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>实验</th>
+<th>结果</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一条回复里调用 Read、Read、Glob、Write、Write</td>
+<td>三个只读工具同时运行；两个 Write 一个接一个</td>
+<td>实测（第 1 章核对版）</td>
+</tr>
+<tr>
+<td>一条回复里并行三个只读 Bash：慢的 find、快的 cat、ls</td>
+<td>三个同时开始；下一次请求里的结果顺序是 cat、ls、find，即完成先后</td>
+<td>实测</td>
+</tr>
+<tr>
+<td>一条回复里并行两个 Bash：慢的 find、会失败的 cat</td>
+<td>cat 先失败，find 照常跑完；结果顺序是 cat、find</td>
+<td>实测</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>runTools()</code>、<code>partitionToolCalls()</code>、<code>isConcurrencySafe()</code> 和原文给的文件位置（<code>src/services/tools/toolOrchestration.ts</code>）无法核对：源码不公开。文档没有写工具怎样并发。</li>
+<li>“按工具属性决定并发还是串行”行为属实（实测）。</li>
+<li>“上下文演化保持确定顺序”需要区分两件事。contextModifier 从外部看不到，无法核对。但 tool_result 本身也进入上下文，实测中它们按完成先后排列，不按调用顺序。第 1 章核对版里结果“按调用顺序”，是因为那次完成顺序恰好与调用顺序相同。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>真正执行前已经发生了很多事</h2><span class="am-panel-meta">原文 4.3</span></header>
+<div class="am-panel-body"><div class="am-md"><p>很多人以为 tool_use 一出现，下一步就是执行。原文说，<code>runToolUse()</code> 依赖的执行逻辑已经接入 permission、hooks、telemetry、合成错误结果（synthetic error）。工具执行是一段完整的流程，包含四部分：</p>
+<ol>
+<li>前置校验。</li>
+<li>执行中事件。</li>
+<li>执行后修正。</li>
+<li>失败补偿。</li>
+</ol>
+<p>工具的地位和普通库函数不一样。库函数属于程序内部，调用者自己承担后果；工具是模型与外部世界之间的接口，系统不能假设调用者判断稳定。原文说，包裹层这么多，是因为调用者本身就是最不稳定的变量。所以工具应该被建模为“需要运行时代为管理风险的外部能力”，而不是“模型能力的延长线”。接受这一点，permission、hooks、interrupt、synthetic result 就是常识，而不是负担。</p>
+<h3>实测：一次工具调用周围的事件</h3>
+<p>下图按文档和实测画出一次工具调用前后会发生的事（本页归纳）：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 484 739" width="484" height="739" role="img" aria-label="流程图：模型发出 tool_use、PreToolUse hook、权限判定、PermissionRequest hook 或审批、执行工具、错误结果、PostToolUse hook、PostToolUseFailure hook" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M234.1,49 L234.1,60.5 Q234.1,72 234.1,83.5 L234.1,95" marker-end="url(#am1-arrow)"/></g><g data-step="1"><path class="am-edge" d="M234.1,130 L234.1,141.5 Q234.1,153 234.1,164.5 L234.1,176" marker-end="url(#am1-arrow)"/></g><g data-step="2"><path class="am-edge" d="M202.1,217.1 L144.6,240.5 Q87.1,264 87.1,280 L87.1,296" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="59.1" y="255" width="56" height="18" rx="3"/><text x="87.1" y="264" text-anchor="middle" dominant-baseline="central">需要批准</text></g></g><g data-step="3"><path class="am-edge" d="M259.5,220.2 L293.9,242.1 Q328.3,264 328.3,293 Q328.3,322 328.3,351 Q328.3,380 322.2,396 L316.2,412" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="311.8" y="313" width="33" height="18" rx="3"/><text x="328.3" y="322" text-anchor="middle" dominant-baseline="central">放行</text></g></g><g data-step="4"><path class="am-edge" d="M121,348 L141.8,364 Q162.6,380 216.1,398 L269.5,416" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="146.1" y="371" width="33" height="18" rx="3"/><text x="162.6" y="380" text-anchor="middle" dominant-baseline="central">批准</text></g></g><g data-step="5"><path class="am-edge" d="M78.7,348 L73.6,364 Q68.4,380 68.4,404.8 Q68.4,429.5 68.4,454.3 Q68.4,479 68.4,499.3 L68.4,519.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="23.1" y="420.5" width="90.5" height="18" rx="3"/><text x="68.4" y="429.5" text-anchor="middle" dominant-baseline="central">拒绝或无人批准</text></g></g><g data-step="6"><path class="am-edge" d="M341.5,447 L370.7,463 Q399.9,479 399.9,499.3 L399.9,519.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="383.4" y="470" width="33" height="18" rx="3"/><text x="399.9" y="479" text-anchor="middle" dominant-baseline="central">成功</text></g></g><g data-step="7"><path class="am-edge" d="M277.6,447 L248.4,463 Q219.2,479 219.2,495 L219.2,511" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="202.7" y="470" width="33" height="18" rx="3"/><text x="219.2" y="479" text-anchor="middle" dominant-baseline="central">失败</text></g></g><g data-step="8"><path class="am-edge" d="M399.9,554.5 L399.9,570.3 Q399.9,586 347.3,597.8 L294.7,609.6" marker-end="url(#am1-arrow)"/></g><g data-step="9"><path class="am-edge" d="M219.2,563 L219.2,574.5 Q219.2,586 219.2,597.5 L219.2,609" marker-end="url(#am1-arrow)"/></g><g data-step="10"><path class="am-edge" d="M68.4,554.5 L68.4,570.3 Q68.4,586 111.2,597.5 L154.1,609" marker-end="url(#am1-arrow)"/></g><g data-step="11"><path class="am-edge" d="M219.2,644 L219.2,655.5 Q219.2,667 219.2,678.5 L219.2,690" marker-end="url(#am1-arrow)"/></g></g><g><g class="am-node am-node--round" data-key="模型发出 tool_use" data-step="0"><rect class="am-node-shape" x="160.2" y="14" width="147.9" height="35" rx="17.5"/><text x="234.1" y="31.5" text-anchor="middle" dominant-baseline="central">模型发出 tool_use</text></g><g class="am-node am-node--rect" data-key="PreToolUse hook" data-step="0"><rect class="am-node-shape" x="168" y="95" width="132.3" height="35" rx="3"/><text x="234.1" y="112.5" text-anchor="middle" dominant-baseline="central">PreToolUse hook</text></g><g class="am-node am-node--diamond" data-key="权限判定" data-step="1"><polygon class="am-node-shape" points="234.1,176 294.1,204 234.1,232 174.1,204"/><text x="234.1" y="204" text-anchor="middle" dominant-baseline="central">权限判定</text></g><g class="am-node am-node--rect" data-key="PermissionRequest hook 或审批" data-step="2"><rect class="am-node-shape" x="14" y="296" width="146.3" height="52" rx="3"/><text x="87.1" y="313.5" text-anchor="middle" dominant-baseline="central">PermissionRequest</text><text x="87.1" y="330.5" text-anchor="middle" dominant-baseline="central">hook 或审批</text></g><g class="am-node am-node--rect" data-key="执行工具" data-step="3"><rect class="am-node-shape" x="269.5" y="412" width="80" height="35" rx="3"/><text x="309.5" y="429.5" text-anchor="middle" dominant-baseline="central">执行工具</text></g><g class="am-node am-node--rect" data-key="错误结果" data-step="5"><rect class="am-node-shape" x="28.4" y="519.5" width="80" height="35" rx="3"/><text x="68.4" y="537" text-anchor="middle" dominant-baseline="central">错误结果</text></g><g class="am-node am-node--rect" data-key="PostToolUse hook" data-step="6"><rect class="am-node-shape" x="330.1" y="519.5" width="139.5" height="35" rx="3"/><text x="399.9" y="537" text-anchor="middle" dominant-baseline="central">PostToolUse hook</text></g><g class="am-node am-node--rect" data-key="PostToolUseFailure hook" data-step="7"><rect class="am-node-shape" x="144.4" y="511" width="149.7" height="52" rx="3"/><text x="219.2" y="528.5" text-anchor="middle" dominant-baseline="central">PostToolUseFailure</text><text x="219.2" y="545.5" text-anchor="middle" dominant-baseline="central">hook</text></g><g class="am-node am-node--rect" data-key="PostToolBatch hook" data-step="8"><rect class="am-node-shape" x="143.7" y="609" width="151" height="35" rx="3"/><text x="219.2" y="626.5" text-anchor="middle" dominant-baseline="central">PostToolBatch hook</text></g><g class="am-node am-node--round am-node--hi" data-key="下一次模型调用" data-step="11"><rect class="am-node-shape" x="153.7" y="690" width="131" height="35" rx="17.5"/><text x="219.2" y="707.5" text-anchor="middle" dominant-baseline="central">下一次模型调用</text></g></g></svg></figure>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>runToolUse()</code> 和原文给的文件位置（<code>src/services/tools/toolExecution.ts</code>）无法核对：源码不公开。</li>
+<li>四部分流程行为属实。前置校验和执行后修正：文档列出 PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、PostToolBatch 五种 hook，实测按上图顺序触发。</li>
+<li>telemetry：文档有 <code>claude_code.tool_decision</code> 和 <code>claude_code.tool_result</code> 两种事件，记录每次权限决定和工具结果。</li>
+<li>失败补偿：被拒绝或出错的调用都会拿到一条 is_error 的结果（实测，见 E）。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>权限先于能力</h2><span class="am-panel-meta">原文 4.4</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，权限入口在 <code>useCanUseTool()</code>。<code>CanUseToolFn</code> 的存在本身就说明：工具能否执行，不由模型自己说了算，而要交给权限判定链。<code>hasPermissionsToUseTool(...)</code> 返回三种结果：</p>
+<ul>
+<li>deny：直接拒绝。</li>
+<li>ask：进入协调器、swarm worker、classifier 或交互式审批路径。</li>
+<li>allow：才真正放行。</li>
+</ul>
+<p>成熟的权限系统除了“能”和“不能”，还要承认第三种状态：系统自己也不该替用户做决定。原文说，这从结构上否认了一种危险的想法：模型懂了用户意图，就等于有权代替用户执行。理解意图不等于拥有授权，更不等于拥有持续授权。系统必须把“会做”和“可以做”分开。</p>
+<h3>原文的骨架：三态判定与三条不变式</h3>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 544 239" width="544" height="239" role="img" aria-label="流程图：工具请求、权限判定、执行、拒绝并说明原因、转给协调器、swarm worker、classifier 或交互审批" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M106,136.5 L117.5,136.5 Q129,136.5 140.5,136.5 L152,136.5" marker-end="url(#am2-arrow)"/></g><g data-step="1"><path class="am-edge" d="M236.4,153.1 L276.2,180.3 Q316.1,207.5 364.5,207.5 L412.9,207.5" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="296" y="198.5" width="40.1" height="18" rx="3"/><text x="316.1" y="207.5" text-anchor="middle" dominant-baseline="central">allow</text></g></g><g data-step="2"><path class="am-edge" d="M272,136.5 L294,136.5 Q316.1,136.5 350.7,136.5 L385.4,136.5" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="298.2" y="127.5" width="35.8" height="18" rx="3"/><text x="316.1" y="136.5" text-anchor="middle" dominant-baseline="central">deny</text></g></g><g data-step="3"><path class="am-edge" d="M233.3,118.5 L274.7,83.5 Q316.1,48.5 338.1,48.5 L360.1,48.5" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="301.4" y="39.5" width="29.3" height="18" rx="3"/><text x="316.1" y="48.5" text-anchor="middle" dominant-baseline="central">ask</text></g></g></g><g><g class="am-node am-node--round" data-key="工具请求" data-step="0"><rect class="am-node-shape" x="14" y="119" width="92" height="35" rx="17.5"/><text x="60" y="136.5" text-anchor="middle" dominant-baseline="central">工具请求</text></g><g class="am-node am-node--diamond" data-key="权限判定" data-step="0"><polygon class="am-node-shape" points="212,108.5 272,136.5 212,164.5 152,136.5"/><text x="212" y="136.5" text-anchor="middle" dominant-baseline="central">权限判定</text></g><g class="am-node am-node--rect" data-key="执行" data-step="1"><rect class="am-node-shape" x="412.9" y="190" width="64" height="35" rx="3"/><text x="444.9" y="207.5" text-anchor="middle" dominant-baseline="central">执行</text></g><g class="am-node am-node--rect" data-key="拒绝并说明原因" data-step="2"><rect class="am-node-shape" x="385.4" y="119" width="119" height="35" rx="3"/><text x="444.9" y="136.5" text-anchor="middle" dominant-baseline="central">拒绝并说明原因</text></g><g class="am-node am-node--rect" data-key="转给协调器、swarm worker、classifier 或交互审批" data-step="3"><rect class="am-node-shape" x="360.1" y="14" width="169.4" height="69" rx="3"/><text x="444.9" y="31.5" text-anchor="middle" dominant-baseline="central">转给协调器、swarm</text><text x="444.9" y="48.5" text-anchor="middle" dominant-baseline="central">worker、classifier 或交</text><text x="444.9" y="65.5" text-anchor="middle" dominant-baseline="central">互审批</text></g></g></svg></figure>
+<div class="am-md"><p>（按原文的伪代码画，名字取自原文。）</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>不变式</th>
+<th>含义</th>
+<th>核对</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>三态</td>
+<td>判定结果只能是 allow、deny、ask，不允许用布尔值偷懒</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>文档：规则分 allow、ask、deny；hook 的 permissionDecision 也有这三种（另有 defer）</td>
+</tr>
+<tr>
+<td>ask 不自动升级</td>
+<td>没有授权，ask 不会变成 allow</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>基本成立</span></td>
+<td>实测：<code>-p</code> 里没人批准时，ask 规则命中的调用被拒绝。例外：用户自己装的 mod 在没有托管设置时可以放行（文档）</td>
+</tr>
+<tr>
+<td>deny 不可翻转</td>
+<td>同一个 tool_use 被拒后，不会重试成 allow</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测：被拒的调用只拿到一条错误结果，文件没有被删</td>
+</tr>
+</tbody></table></div>
+<h3>原文的图：权限判定的层次</h3>
+<p>原文在这里放了一张图，标题是 “Permission Decision Layers - Short-Circuit Ladder To Allow or Deny”。图的意思是：规则层、模式层、自动检查层依次短路，前面决定不了才交给后面，最后才请用户批准。图上的注释写着：模型表达了意图，不等于人给了授权。</p>
+<p>下图按文档和实测重画。+ 表示按事实补上，− 表示原图有、但与事实不符。切换 Before 和 After，可以分别看原图结构和修正后的结构。</p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 1411 1120" width="1411" height="1120" role="img" aria-label="流程图：工具请求、规则层、PreToolUse hook、DENY · hook 拦截、DENY · 硬拒绝、ALLOW · 规则放行、请求批准、模式层" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am3-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am3-arrow-removed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--removed" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0" data-delta="removed"><path class="am-edge" d="M372.1,49 L349.9,60.5 Q327.8,72 327.8,97.5 Q327.8,123 327.8,153 Q327.8,183 317.2,202.3 L306.6,221.6" marker-end="url(#am3-arrow-removed)"/></g><g data-step="1" data-delta="added"><path class="am-edge" d="M433.3,49 L451.4,60.5 Q469.4,72 469.4,83.5 L469.4,95" marker-end="url(#am3-arrow-added)"/></g><g data-step="2" data-delta="added"><path class="am-edge" d="M469.4,151 L469.4,167 Q469.4,183 469.4,204.3 L469.4,225.5" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="427.3" y="174" width="84.3" height="18" rx="3"/><text x="469.4" y="183" text-anchor="middle" dominant-baseline="central">deny 或 exit 2</text></g></g><g data-step="3" data-delta="added"><path class="am-edge" d="M420.4,137.2 L341.2,160.1 Q262,183 272.5,202.3 L283.1,221.6" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="217.2" y="174" width="89.6" height="18" rx="3"/><text x="262" y="183" text-anchor="middle" dominant-baseline="central">其余，含 allow</text></g></g><g data-step="4"><path class="am-edge" d="M261.5,252.4 L171.7,277.7 Q81.8,303 81.8,324.3 L81.8,345.5" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="50.7" y="294" width="62.2" height="18" rx="3"/><text x="81.8" y="303" text-anchor="middle" dominant-baseline="central">deny 规则</text></g></g><g data-step="5" data-delta="added"><path class="am-edge" d="M280,262.7 L264.9,282.9 Q249.7,303 249.7,324.3 L249.7,345.5" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="216.4" y="294" width="66.6" height="18" rx="3"/><text x="249.7" y="303" text-anchor="middle" dominant-baseline="central">allow 规则</text></g></g><g data-step="6" data-delta="added"><path class="am-edge" d="M332.8,249.8 L480.5,276.4 Q628.2,303 628.2,333 Q628.2,363 628.2,393 Q628.2,423 628.2,459.8 Q628.2,496.6 628.2,533.4 Q628.2,570.2 592,586.2 L555.8,602.2" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="548.6" y="414" width="159.3" height="18" rx="3"/><text x="628.2" y="423" text-anchor="middle" dominant-baseline="central">ask 规则，任何模式都不跳过</text></g></g><g data-step="7"><path class="am-edge" d="M322.8,255.4 L376.4,279.2 Q430,303 430,319 L430,335" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="402" y="294" width="56" height="18" rx="3"/><text x="430" y="303" text-anchor="middle" dominant-baseline="central">都没命中</text></g></g><g data-step="8"><path class="am-edge" d="M391.6,369.6 L236.7,396.3 Q81.8,423 81.8,451.1 L81.8,479.1" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="23.8" y="414" width="116" height="18" rx="3"/><text x="81.8" y="423" text-anchor="middle" dominant-baseline="central">bypassPermissions</text></g></g><g data-step="9" data-delta="removed"><path class="am-edge" d="M469.5,369 L649.2,396 Q828.9,423 828.9,439 L828.9,455" marker-end="url(#am3-arrow-removed)"/><g class="am-edge-label"><rect x="812.4" y="414" width="33" height="18" rx="3"/><text x="828.9" y="423" text-anchor="middle" dominant-baseline="central">其他</text></g></g><g data-step="10" data-delta="removed"><path class="am-edge" d="M790,525.2 L759.4,547.7 Q728.7,570.2 728.7,586.2 L728.7,602.2" marker-end="url(#am3-arrow-removed)"/><g class="am-edge-label"><rect x="700.7" y="561.2" width="56" height="18" rx="3"/><text x="728.7" y="570.2" text-anchor="middle" dominant-baseline="central">明确放行</text></g></g><g data-step="11" data-delta="removed"><path class="am-edge" d="M867.8,525.2 L898.4,547.7 Q929.1,570.2 929.1,586.2 L929.1,602.2" marker-end="url(#am3-arrow-removed)"/><g class="am-edge-label"><rect x="901.1" y="561.2" width="56" height="18" rx="3"/><text x="929.1" y="570.2" text-anchor="middle" dominant-baseline="central">明确拒绝</text></g></g><g data-step="12" data-delta="removed"><path class="am-edge" d="M759.6,514.9 L655.1,542.6 Q550.6,570.2 539.5,586.2 L528.4,602.2" marker-end="url(#am3-arrow-removed)"/><g class="am-edge-label"><rect x="528.4" y="561.2" width="44.5" height="18" rx="3"/><text x="550.6" y="570.2" text-anchor="middle" dominant-baseline="central">不确定</text></g></g><g data-step="13" data-delta="added"><path class="am-edge" d="M438.5,386.2 L445.3,404.6 Q452,423 452,451.1 L452,479.1" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="377.4" y="414" width="149.2" height="18" rx="3"/><text x="452" y="423" text-anchor="middle" dominant-baseline="central">dontAsk 下需要批准的调用</text></g></g><g data-step="14" data-delta="added"><path class="am-edge" d="M474.5,366.2 L869.9,394.6 Q1265.3,423 1265.3,445.8 L1265.3,468.6" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="1248.8" y="414" width="33" height="18" rx="3"/><text x="1265.3" y="423" text-anchor="middle" dominant-baseline="central">auto</text></g></g><g data-step="15" data-delta="added"><path class="am-edge" d="M1231.2,514.2 L1177.1,542.2 Q1122.9,570.2 1122.9,586.2 L1122.9,602.2" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="1106.4" y="561.2" width="33" height="18" rx="3"/><text x="1122.9" y="570.2" text-anchor="middle" dominant-baseline="central">放行</text></g></g><g data-step="16" data-delta="added"><path class="am-edge" d="M1281.5,519.7 L1299.1,544.9 Q1316.8,570.2 1316.8,586.2 L1316.8,602.2" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="1300.3" y="561.2" width="33" height="18" rx="3"/><text x="1316.8" y="570.2" text-anchor="middle" dominant-baseline="central">拦截</text></g></g><g data-step="17" data-delta="added"><path class="am-edge" d="M399.8,374.2 L334,398.6 Q268.3,423 268.3,459.8 Q268.3,496.6 268.3,533.4 Q268.3,570.2 372.3,591 L476.2,611.7" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="178.6" y="487.6" width="179.3" height="18" rx="3"/><text x="268.3" y="496.6" text-anchor="middle" dominant-baseline="central">Manual 等模式下需要批准的调用</text></g></g><g data-step="18" data-delta="added"><path class="am-edge" d="M476.2,631.5 L427.4,645.8 Q378.5,660.2 378.5,671.7 L378.5,683.2" marker-end="url(#am3-arrow-added)"/></g><g data-step="19" data-delta="added"><path class="am-edge" d="M329.8,747.9 L276.7,773.2 Q223.5,798.4 223.5,819.7 L223.5,840.9" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="203.5" y="789.4" width="40.1" height="18" rx="3"/><text x="223.5" y="798.4" text-anchor="middle" dominant-baseline="central">allow</text></g></g><g data-step="20" data-delta="added"><path class="am-edge" d="M399.1,758.6 L411.2,778.5 Q423.2,798.4 423.2,814.4 L423.2,830.4" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="395.2" y="789.4" width="56" height="18" rx="3"/><text x="423.2" y="798.4" text-anchor="middle" dominant-baseline="central">没有决定</text></g></g><g data-step="21" data-delta="added"><path class="am-edge" d="M423.2,886.4 L423.2,902.4 Q423.2,918.4 423.2,939.7 L423.2,960.9" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="387.1" y="909.4" width="72.3" height="18" rx="3"/><text x="423.2" y="918.4" text-anchor="middle" dominant-baseline="central">否，例如 -p</text></g></g><g data-step="22" data-delta="added"><path class="am-edge" d="M484.8,863.5 L816.6,890.9 Q1148.4,918.4 1143.8,935.9 L1139.1,953.5" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="1137.6" y="909.4" width="21.5" height="18" rx="3"/><text x="1148.4" y="918.4" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="23" data-delta="removed"><path class="am-edge" d="M540.9,637.2 L557.1,648.7 Q573.3,660.2 573.3,692.5 Q573.3,724.8 573.3,761.6 Q573.3,798.4 573.3,828.4 Q573.3,858.4 573.3,888.4 Q573.3,918.4 828.5,945.8 L1083.7,973.2" marker-end="url(#am3-arrow-removed)"/></g><g data-step="24"><path class="am-edge" d="M1156.8,995.1 L1188.2,1016.7 Q1219.7,1038.4 1219.7,1054.4 L1219.7,1070.4" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="1203.2" y="1029.4" width="33" height="18" rx="3"/><text x="1219.7" y="1038.4" text-anchor="middle" dominant-baseline="central">批准</text></g></g><g data-step="25"><path class="am-edge" d="M1108.3,995.1 L1076.8,1016.7 Q1045.3,1038.4 1045.3,1054.4 L1045.3,1070.4" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="1028.8" y="1029.4" width="33" height="18" rx="3"/><text x="1045.3" y="1038.4" text-anchor="middle" dominant-baseline="central">拒绝</text></g></g></g><g><g class="am-node am-node--round" data-key="工具请求" data-step="0"><rect class="am-node-shape" x="359.8" y="14" width="92" height="35" rx="17.5"/><text x="405.8" y="31.5" text-anchor="middle" dominant-baseline="central">工具请求</text></g><g class="am-node am-node--diamond" data-key="规则层" data-step="0"><polygon class="am-node-shape" points="294.9,215 345.1,243 294.9,271 244.6,243"/><text x="294.9" y="243" text-anchor="middle" dominant-baseline="central">规则层</text></g><g class="am-node am-node--diamond" data-key="PreToolUse hook" data-step="1" data-delta="added"><polygon class="am-node-shape" points="469.4,95 568.6,123 469.4,151 370.2,123"/><text x="469.4" y="123" text-anchor="middle" dominant-baseline="central">PreToolUse hook</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(519,109)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="DENY · hook 拦截" data-step="2" data-delta="added"><rect class="am-node-shape" x="399.5" y="225.5" width="139.8" height="35" rx="3"/><text x="469.4" y="243" text-anchor="middle" dominant-baseline="central">DENY · hook 拦截</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(539.3,225.5)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="DENY · 硬拒绝" data-step="4"><rect class="am-node-shape" x="21.9" y="345.5" width="119.8" height="35" rx="3"/><text x="81.8" y="363" text-anchor="middle" dominant-baseline="central">DENY · 硬拒绝</text></g><g class="am-node am-node--rect" data-key="ALLOW · 规则放行" data-step="5" data-delta="added"><rect class="am-node-shape" x="177.7" y="345.5" width="144" height="35" rx="3"/><text x="249.7" y="363" text-anchor="middle" dominant-baseline="central">ALLOW · 规则放行</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(321.7,345.5)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="请求批准" data-step="6"><rect class="am-node-shape" x="476.2" y="602.2" width="80" height="35" rx="3"/><text x="516.2" y="619.7" text-anchor="middle" dominant-baseline="central">请求批准</text></g><g class="am-node am-node--diamond" data-key="模式层" data-step="7"><polygon class="am-node-shape" points="430,335 480.2,363 430,391 379.7,363"/><text x="430" y="363" text-anchor="middle" dominant-baseline="central">模式层</text></g><g class="am-node am-node--rect" data-key="ALLOW · bypass" data-step="8"><rect class="am-node-shape" x="14" y="479.1" width="135.6" height="35" rx="3"/><text x="81.8" y="496.6" text-anchor="middle" dominant-baseline="central">ALLOW · bypass</text></g><g class="am-node am-node--diamond" data-key="自动检查 · classifier、hooks、policy" data-step="9" data-delta="removed"><polygon class="am-node-shape" points="828.9,455 952.8,496.6 828.9,538.2 704.9,496.6"/><text x="828.9" y="488.1" text-anchor="middle" dominant-baseline="central">自动检查 · classifier、</text><text x="828.9" y="505.1" text-anchor="middle" dominant-baseline="central">hooks、policy</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(890.9,475.8)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g><g class="am-node am-node--rect" data-key="ALLOW · 自动检查放行" data-step="10" data-delta="removed"><rect class="am-node-shape" x="643.7" y="602.2" width="170" height="35" rx="3"/><text x="728.7" y="619.7" text-anchor="middle" dominant-baseline="central">ALLOW · 自动检查放行</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(813.7,602.2)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g><g class="am-node am-node--rect" data-key="DENY · 自动检查拒绝" data-step="11" data-delta="removed"><rect class="am-node-shape" x="849.7" y="602.2" width="158.8" height="35" rx="3"/><text x="929.1" y="619.7" text-anchor="middle" dominant-baseline="central">DENY · 自动检查拒绝</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(1008.5,602.2)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g><g class="am-node am-node--rect" data-key="DENY · dontAsk" data-step="13" data-delta="added"><rect class="am-node-shape" x="386.9" y="479.1" width="130.2" height="35" rx="3"/><text x="452" y="496.6" text-anchor="middle" dominant-baseline="central">DENY · dontAsk</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(517.1,479.1)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--diamond" data-key="auto 模式分类器" data-step="14" data-delta="added"><polygon class="am-node-shape" points="1265.3,468.6 1357.5,496.6 1265.3,524.6 1173.2,496.6"/><text x="1265.3" y="496.6" text-anchor="middle" dominant-baseline="central">auto 模式分类器</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(1311.4,482.6)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="ALLOW · 分类器放行" data-step="15" data-delta="added"><rect class="am-node-shape" x="1044.5" y="602.2" width="157" height="35" rx="3"/><text x="1122.9" y="619.7" text-anchor="middle" dominant-baseline="central">ALLOW · 分类器放行</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(1201.4,602.2)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="DENY · 原因交给模型" data-step="16" data-delta="added"><rect class="am-node-shape" x="1237.4" y="602.2" width="158.8" height="35" rx="3"/><text x="1316.8" y="619.7" text-anchor="middle" dominant-baseline="central">DENY · 原因交给模型</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(1396.2,602.2)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--diamond" data-key="PermissionRequest hook" data-step="18" data-delta="added"><polygon class="am-node-shape" points="378.5,683.2 488.2,724.8 378.5,766.4 268.8,724.8"/><text x="378.5" y="716.3" text-anchor="middle" dominant-baseline="central">PermissionRequest</text><text x="378.5" y="733.3" text-anchor="middle" dominant-baseline="central">hook</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(433.4,704)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="ALLOW · hook 代为批准" data-step="19" data-delta="added"><rect class="am-node-shape" x="135.1" y="840.9" width="177" height="35" rx="3"/><text x="223.5" y="858.4" text-anchor="middle" dominant-baseline="central">ALLOW · hook 代为批准</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(312,840.9)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--diamond" data-key="能弹出审批?" data-step="20" data-delta="added"><polygon class="am-node-shape" points="423.2,830.4 498.5,858.4 423.2,886.4 348,858.4"/><text x="423.2" y="858.4" text-anchor="middle" dominant-baseline="central">能弹出审批?</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(460.9,844.4)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="DENY · 无人批准" data-step="21" data-delta="added"><rect class="am-node-shape" x="356.9" y="960.9" width="132.8" height="35" rx="3"/><text x="423.2" y="978.4" text-anchor="middle" dominant-baseline="central">DENY · 无人批准</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(489.6,960.9)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--diamond" data-key="用户决定" data-step="22"><polygon class="am-node-shape" points="1132.5,950.4 1192.5,978.4 1132.5,1006.4 1072.5,978.4"/><text x="1132.5" y="978.4" text-anchor="middle" dominant-baseline="central">用户决定</text></g><g class="am-node am-node--rect" data-key="ALLOW · 用户批准" data-step="24"><rect class="am-node-shape" x="1147.7" y="1070.4" width="144" height="35" rx="3"/><text x="1219.7" y="1087.9" text-anchor="middle" dominant-baseline="central">ALLOW · 用户批准</text></g><g class="am-node am-node--rect" data-key="DENY · 用户拒绝" data-step="25"><rect class="am-node-shape" x="979" y="1070.4" width="132.8" height="35" rx="3"/><text x="1045.3" y="1087.9" text-anchor="middle" dominant-baseline="central">DENY · 用户拒绝</text></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+26 新增</span> <span class="am-delta-count am-delta-count--removed">−9 删除</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>useCanUseTool()</code>、<code>CanUseToolFn</code>、<code>hasPermissionsToUseTool()</code> 和原文给的文件位置（<code>src/hooks/useCanUseTool.tsx</code>）无法核对：源码不公开。</li>
+<li>hook 的位置：原图把 hooks 放在第三层。文档说 PreToolUse hook “run before the permission prompt”，exit 2 的 hook “stops the tool call before permission rules are evaluated”。实测中，hook 在规则之前运行；hook 返回 deny 时，即使 allow 规则命中也被拒绝。</li>
+<li>规则层：原图只画了硬拒绝。文档说规则按 deny、ask、allow 的顺序匹配，第一个命中的决定结果。实测中，hook 返回 allow 也绕不过 deny 规则；bypassPermissions 模式下，ask 规则仍要请求批准。</li>
+<li>自动检查：分类器只在 auto 模式下工作。文档说分类器拦截时，“Claude receives the reason”，不是转给用户批准。</li>
+<li>请求批准：ask 先交给 PermissionRequest hook。文档说，不能弹出审批的会话里，hook 没给决定就拒绝。实测 <code>-p</code> 里没人批准的调用被拒绝。</li>
+<li>ask 的去向：文档写到 PermissionRequest hook、auto 模式分类器、<code>--permission-prompt-tool</code>、交互审批；团队成员（teammate）的审批出现在主会话里。“协调器”文档没有写到，无法核对。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>权限结果本身也是运行时语义</h2><span class="am-panel-meta">原文 4.5</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，<code>PermissionResult</code> 给 allow、deny、ask 准备了专门的描述函数。权限在 Claude Code 里不只是内部布尔值，而是有独立语义的运行时对象。</p>
+<p>这件事重要，是因为系统要能明确地说出“为什么这一步没有继续”。代理说“我需要确认”，是在声明责任边界。边界说清楚了，后续的拒绝、放行、缓存规则、临时授权、永久授权才有地方安放。原文说，代理系统如果说不清“这一步能做、不能做，还是需要问”，就不该碰终端。终端不会替系统补完语义，只会执行。</p>
+<h3>实测：模型收到的拒绝说明各不相同</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>拒绝的原因</th>
+<th>模型收到的错误结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>deny 规则命中（即使 hook 返回 allow）</td>
+<td>“Permission to use Bash with command rm HOOK-ALLOW.txt has been denied.”</td>
+</tr>
+<tr>
+<td>ask 规则命中，<code>-p</code> 里没人批准</td>
+<td>“Claude requested permissions to use Bash, but you haven&#39;t granted it yet.”</td>
+</tr>
+<tr>
+<td>Manual 模式下的写文件命令没人批准</td>
+<td>写明命令要创建或修改的路径，以及 Claude Code 为什么要先问</td>
+</tr>
+<tr>
+<td>PreToolUse hook 返回 deny</td>
+<td>“PreToolUse:Write hook error: HOOK-DENY-PROBE”（hook 给的原因）</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>PermissionResult</code> 的描述函数和原文给的文件位置（<code>src/utils/permissions/PermissionResult.ts</code>）无法核对：源码不公开。</li>
+<li>“权限结果有独立语义”行为属实（实测）。不同原因的拒绝，模型收到不同的说明；<code>-p</code> 的输出里还有 <code>permission_denials</code> 字段，列出被拒的调用。</li>
+<li>临时授权和永久授权有文档依据。在审批框里选 “Yes, and don&#39;t ask again” 后，Bash 命令的授权按仓库永久保存，改文件的授权到会话结束为止。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>中断是一等语义</h2><span class="am-panel-meta">原文 4.6</span></header>
+<div class="am-panel-body"><div class="am-md"><p>工具一旦并发和流式执行，中断就变得复杂。系统面对的是一个有 queued、executing、completed、yielded 等多种状态的队列，而不是单一动作。</p>
+<p>原文说，<code>StreamingToolExecutor</code> 是一个独立的流式工具执行器，重点是它怎样处理中断和丢弃：</p>
+<ul>
+<li>streaming fallback 时，可以整体丢弃当前这批工具。</li>
+<li>按不同原因生成合成错误结果：sibling error、user interrupted、streaming fallback。</li>
+<li>专门判断中断原因：别的并行工具出错、用户打断、fallback 放弃当前批次。</li>
+<li>每个工具有 interruptBehavior，决定用户插话时是 cancel 还是 block。</li>
+</ul>
+<p>原文说，Claude Code 不把中断看成“执行失败的特殊情况”，而是和执行本身同样重要的语义。系统不仅要知道工具能不能开始，还要知道它被打断时怎样收场、怎样补齐结果、是否允许新消息插入。这正是 Harness Engineering 的基本特点：不仅设计开始，也设计停下。</p>
+<h3>并发与中断的失败顺序矩阵</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>事件</th>
+<th>前置状态</th>
+<th>触发</th>
+<th>下一步（原文）</th>
+<th>核对</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>并发批内单个工具失败</td>
+<td>兄弟工具仍在执行</td>
+<td>sibling error</td>
+<td>其他工具照常；按 block 顺序回放 contextModifier</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>其他工具照常属实（实测）；结果按完成先后排列；contextModifier 看不到</span></td>
+</tr>
+<tr>
+<td>用户插话，interruptBehavior 为 cancel</td>
+<td>工具未完成</td>
+<td>user interrupt</td>
+<td>取消执行，生成 user interrupted 合成结果</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对：按 Esc 取消正在运行的工具；被打断的调用拿到错误结果</span></td>
+</tr>
+<tr>
+<td>用户插话，interruptBehavior 为 block</td>
+<td>工具未完成</td>
+<td>user interrupt</td>
+<td>工具跑到自然终点，新消息等着</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对：排队的消息等工具调用结束才送达</span></td>
+</tr>
+<tr>
+<td>streaming fallback</td>
+<td>批次排队或执行中</td>
+<td>fallback</td>
+<td>整批丢弃，按顺序交出 fallback 合成结果</td>
+<td>无法核对：只知道存在非流式 fallback（旁证）</td>
+</tr>
+<tr>
+<td>中止时有未完成的 tool_use</td>
+<td>任意</td>
+<td>abort signal</td>
+<td>补齐合成 tool_result，账本对齐</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实：本机会话记录里被打断的调用都有结果</span></td>
+</tr>
+<tr>
+<td>Bash 复合命令超过 subcommand 上限</td>
+<td>分类器拒绝</td>
+<td>安全检查</td>
+<td>deny，不进入 ask</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>没有观察到上限；文档说解析不了的命令走 ask</span></td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">原文前后不一致</div><div class="am-callout-body am-md"><p>原文正文说，会为“别的并行工具出错”生成合成错误并取消工具；矩阵第一行却说“其它工具照常”。按 CHANGELOG，并行工具出错取消兄弟工具的范围逐步缩小，2.1.161 起 Bash 出错也不再取消。现版本与矩阵一致。</p>
+</div></div>
+<div class="am-md"><h3>原文的图：工具执行的生命周期</h3>
+<p>原文在这里放了一张图，标题是 “Tool Execution Lifecycle - Parallel Execution, Ordered Context”。图的意思是：工具调用先按并发安全性分组，再走流式执行器或批处理两条路；批处理里并发的一批先缓存 modifier，再按块顺序回放；最后合并 tool_result，把确定的上下文交回 query loop。图上的注释写着：执行可以并行，上下文演化总按块顺序回放。</p>
+<p>下图按实测重画。+ 表示按事实补上，− 表示原图有、但与事实不符，~ 表示改过的节点。</p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 750 921" width="750" height="921" role="img" aria-label="流程图：收到 assistant 的 tool_use 块、按并发安全性分组、流式执行器?、排入 StreamingToolExecutor、应用权限和中断规则、并行运行可并发的工具、发出进度和合成错误、按安全顺序交出结果" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am4-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am4-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am4-arrow-removed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--removed" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M379.1,66 L379.1,77.5 Q379.1,89 379.1,100.5 L379.1,112" marker-end="url(#am4-arrow)"/></g><g data-step="1"><path class="am-edge" d="M379.1,147 L379.1,158.5 Q379.1,170 379.1,181.5 L379.1,193" marker-end="url(#am4-arrow)"/></g><g data-step="2"><path class="am-edge" d="M420.1,233.7 L496.1,257.4 Q572,281 572,297 L572,313" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="561.3" y="272" width="21.5" height="18" rx="3"/><text x="572" y="281" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="3"><path class="am-edge" d="M572,365 L572,376.5 Q572,388 572,404.8 L572,421.5" marker-end="url(#am4-arrow)"/></g><g data-step="4"><path class="am-edge" d="M572,456.5 L572,477.8 Q572,499 572,515 L572,531" marker-end="url(#am4-arrow)"/></g><g data-step="5"><path class="am-edge" d="M572,566 L572,577.5 Q572,589 572,600.5 L572,612" marker-end="url(#am4-arrow)"/></g><g data-step="6" data-delta="removed"><path class="am-edge" d="M611.1,647 L636.8,658.5 Q662.5,670 662.5,681.5 L662.5,693" marker-end="url(#am4-arrow-removed)"/></g><g data-step="7" data-delta="removed"><path class="am-edge" d="M662.5,728 L662.5,739.5 Q662.5,751 566.3,768.1 L470,785.3" marker-end="url(#am4-arrow-removed)"/></g><g data-step="8" data-delta="added"><path class="am-edge" d="M532.9,647 L507.2,658.5 Q481.5,670 481.5,681.5 L481.5,693" marker-end="url(#am4-arrow-added)"/></g><g data-step="9" data-delta="added"><path class="am-edge" d="M481.5,728 L481.5,739.5 Q481.5,751 459.4,762.5 L437.3,774" marker-end="url(#am4-arrow-added)"/></g><g data-step="10"><path class="am-edge" d="M339,234 L266.7,257.5 Q194.5,281 194.5,310 Q194.5,339 194.5,363.5 Q194.5,388 194.5,399.5 L194.5,411" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="172.2" y="330" width="44.5" height="18" rx="3"/><text x="194.5" y="339" text-anchor="middle" dominant-baseline="central">批处理</text></g></g><g data-step="11"><path class="am-edge" d="M223.1,456.4 L258.2,477.7 Q293.2,499 293.2,515 L293.2,531" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="282.5" y="490" width="21.5" height="18" rx="3"/><text x="293.2" y="499" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="12"><path class="am-edge" d="M293.2,566 L293.2,577.5 Q293.2,589 293.2,600.5 L293.2,612" marker-end="url(#am4-arrow)"/></g><g data-step="13"><path class="am-edge" d="M293.2,647 L293.2,658.5 Q293.2,670 293.2,681.5 L293.2,693" marker-end="url(#am4-arrow)"/></g><g data-step="14"><path class="am-edge" d="M293.2,728 L293.2,739.5 Q293.2,751 315.3,762.5 L337.4,774" marker-end="url(#am4-arrow)"/></g><g data-step="15"><path class="am-edge" d="M165.9,456.4 L130.8,477.7 Q95.7,499 95.7,523.8 Q95.7,548.5 95.7,568.8 Q95.7,589 95.7,600.5 L95.7,612" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="85" y="539.5" width="21.5" height="18" rx="3"/><text x="95.7" y="548.5" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="16"><path class="am-edge" d="M95.7,647 L95.7,658.5 Q95.7,670 95.7,681.5 L95.7,693" marker-end="url(#am4-arrow)"/></g><g data-step="17"><path class="am-edge" d="M95.7,728 L95.7,739.5 Q95.7,751 200.2,768.6 L304.7,786.1" marker-end="url(#am4-arrow)"/></g><g data-step="18"><path class="am-edge" d="M387.4,826 L387.4,837.5 Q387.4,849 387.4,860.5 L387.4,872" marker-end="url(#am4-arrow)"/></g></g><g><g class="am-node am-node--round" data-key="收到 assistant 的 tool_use 块" data-step="0"><rect class="am-node-shape" x="307.6" y="14" width="143" height="52" rx="26"/><text x="379.1" y="31.5" text-anchor="middle" dominant-baseline="central">收到 assistant 的</text><text x="379.1" y="48.5" text-anchor="middle" dominant-baseline="central">tool_use 块</text></g><g class="am-node am-node--rect" data-key="按并发安全性分组" data-step="0"><rect class="am-node-shape" x="313.1" y="112" width="132" height="35" rx="3"/><text x="379.1" y="129.5" text-anchor="middle" dominant-baseline="central">按并发安全性分组</text></g><g class="am-node am-node--diamond" data-key="流式执行器?" data-step="1"><polygon class="am-node-shape" points="379.1,193 454.3,221 379.1,249 303.9,221"/><text x="379.1" y="221" text-anchor="middle" dominant-baseline="central">流式执行器?</text></g><g class="am-node am-node--rect" data-key="排入 StreamingToolExecutor" data-step="2"><rect class="am-node-shape" x="486.7" y="313" width="170.7" height="52" rx="3"/><text x="572" y="330.5" text-anchor="middle" dominant-baseline="central">排入</text><text x="572" y="347.5" text-anchor="middle" dominant-baseline="central">StreamingToolExecutor</text></g><g class="am-node am-node--rect" data-key="应用权限和中断规则" data-step="3"><rect class="am-node-shape" x="499.5" y="421.5" width="145" height="35" rx="3"/><text x="572" y="439" text-anchor="middle" dominant-baseline="central">应用权限和中断规则</text></g><g class="am-node am-node--rect" data-key="并行运行可并发的工具" data-step="4"><rect class="am-node-shape" x="493" y="531" width="158" height="35" rx="3"/><text x="572" y="548.5" text-anchor="middle" dominant-baseline="central">并行运行可并发的工具</text></g><g class="am-node am-node--rect" data-key="发出进度和合成错误" data-step="5"><rect class="am-node-shape" x="499.5" y="612" width="145" height="35" rx="3"/><text x="572" y="629.5" text-anchor="middle" dominant-baseline="central">发出进度和合成错误</text></g><g class="am-node am-node--rect" data-key="按安全顺序交出结果" data-step="6" data-delta="removed"><rect class="am-node-shape" x="590" y="693" width="145" height="35" rx="3"/><text x="662.5" y="710.5" text-anchor="middle" dominant-baseline="central">按安全顺序交出结果</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(735,693)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g><g class="am-node am-node--rect" data-key="合并 tool_result 进会话记录" data-step="7"><rect class="am-node-shape" x="304.7" y="774" width="165.3" height="52" rx="3"/><text x="387.4" y="791.5" text-anchor="middle" dominant-baseline="central">合并 tool_result 进会话</text><text x="387.4" y="808.5" text-anchor="middle" dominant-baseline="central">记录</text></g><g class="am-node am-node--rect" data-key="按完成先后交出结果" data-step="8" data-delta="added"><rect class="am-node-shape" x="409" y="693" width="145" height="35" rx="3"/><text x="481.5" y="710.5" text-anchor="middle" dominant-baseline="central">按完成先后交出结果</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(554,693)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--diamond" data-key="这批可并发?" data-step="10"><polygon class="am-node-shape" points="194.5,411 269.7,439 194.5,467 119.3,439"/><text x="194.5" y="439" text-anchor="middle" dominant-baseline="central">这批可并发?</text></g><g class="am-node am-node--rect" data-key="并行运行" data-step="11"><rect class="am-node-shape" x="253.2" y="531" width="80" height="35" rx="3"/><text x="293.2" y="548.5" text-anchor="middle" dominant-baseline="central">并行运行</text></g><g class="am-node am-node--rect" data-key="缓存 modifier" data-step="12"><rect class="am-node-shape" x="239.5" y="612" width="107.6" height="35" rx="3"/><text x="293.2" y="629.5" text-anchor="middle" dominant-baseline="central">缓存 modifier</text></g><g class="am-node am-node--rect" data-key="按块顺序回放 modifier" data-step="13"><rect class="am-node-shape" x="213.5" y="693" width="159.6" height="35" rx="3"/><text x="293.2" y="710.5" text-anchor="middle" dominant-baseline="central">按块顺序回放 modifier</text></g><g class="am-node am-node--rect" data-key="逐个运行" data-step="15"><rect class="am-node-shape" x="55.7" y="612" width="80" height="35" rx="3"/><text x="95.7" y="629.5" text-anchor="middle" dominant-baseline="central">逐个运行</text></g><g class="am-node am-node--rect" data-key="每个 modifier 立即生效" data-step="16"><rect class="am-node-shape" x="14" y="693" width="163.5" height="35" rx="3"/><text x="95.7" y="710.5" text-anchor="middle" dominant-baseline="central">每个 modifier 立即生效</text></g><g class="am-node am-node--rect" data-key="把上下文交回 query loop" data-step="18" data-delta="changed"><rect class="am-node-shape" x="300.8" y="872" width="173.1" height="35" rx="3"/><text x="387.4" y="889.5" text-anchor="middle" dominant-baseline="central">把上下文交回 query loop</text><g class="am-delta-badge am-delta-badge--changed" data-delta="changed" transform="translate(473.9,872)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">~</text></g></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+3 新增</span> <span class="am-delta-count am-delta-count--removed">−3 删除</span> <span class="am-delta-count am-delta-count--changed">~1 修改</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>StreamingToolExecutor</code>、interruptBehavior、各种合成错误的名字，以及原文给的文件位置（<code>src/services/tools/StreamingToolExecutor.ts</code>），无法核对：源码不公开。</li>
+<li>流式执行行为属实：第 3 章实测中，模型回复还没结束，工具就已经开始运行。批处理那条路从外部分不出来。</li>
+<li>原图的“按安全顺序交出结果”和“确定的上下文”：两次实测中，并行结果都按完成先后进入下一次请求。所以 tool_result 的排列不是固定的；modifier 是否按块顺序回放，看不到。</li>
+<li>并行工具出错：CHANGELOG 记录了取消范围逐步缩小。2.1.72 起只有 Bash 出错会连带取消；2.1.161 起 “a failed Bash command no longer cancels other calls in the same batch”。实测中 cat 失败后，并行的 find 照常跑完。</li>
+<li>用户插话：文档说，排队的消息在工具调用结束后、同一轮内送达。按 Ctrl+Enter 立即发送时，能转后台的工作转到后台，不能转后台的就打断这一轮。这与 cancel、block 两种行为对应，但现版本多了“转后台”这一种。</li>
+<li>用户中断：第 3 章观察到 6 次真实中断，被打断的调用都拿到一条 is_error 结果，开头是 “The user doesn&#39;t want to proceed with this tool use”。CHANGELOG 也提到 <code>-p</code> 模式收到 SIGTERM 时，不再记录 “synthetic tool denials”，说明中断时会合成拒绝结果（旁证）。</li>
+<li>subcommand 上限：实测在 Manual 模式下，用 allow 规则放行 echo，再运行 200 段 <code>echo … &amp;&amp; echo …</code>。命令直接执行，没有请求批准，也没有被拒。文档只写到：解析不了的命令请求批准，超过 10,000 字符的命令总要批准。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>Bash 为什么永远比别的工具更可疑</h2><span class="am-panel-meta">原文 4.7</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，Bash 不是普通工具，更像风险放大器，因为它太通用。越通用的接口，越难靠领域知识限制。读文件的工具不会顺手杀进程，grep 不会偷偷 push 代码，而 Bash 几乎什么都能做。Claude Code 从两层约束它：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>层</th>
+<th>原文说的内容</th>
+<th>核对</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>prompt</td>
+<td>对 git、PR、危险命令、hook、force push、交互式参数写了大量明确规则</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>完整版全有；默认短版只剩交互式参数和用 gh 处理 PR</span></td>
+</tr>
+<tr>
+<td>权限和安全判定</td>
+<td>处理 shell 语义、命令前缀、重定向、wrapper、安全环境变量、分类器与规则匹配</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>文档逐项都有说明</span></td>
+</tr>
+<tr>
+<td>权限和安全判定</td>
+<td>为了防止复合命令让检查失控，给 subcommand 数量设了上限</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>实测 200 段没有触发；文档没有写上限</span></td>
+</tr>
+</tbody></table></div>
+<p>原文说，那段 prompt 看上去啰嗦，其实很有分寸：凡是后果大的地方，系统就不怕啰嗦。Bash 一直被当成需要特殊审查的危险通道。原文的判断是：高风险能力不应该享受通用能力的待遇；能力越通用，越要特殊看管。把 Bash 当成普通工具，往往只是设计上的偷懒。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>原文给的文件位置（<code>src/tools/BashTool/prompt.ts</code>、<code>src/tools/BashTool/bashPermissions.ts</code>）无法核对：源码不公开。</li>
+<li>prompt：实测完整版 Bash 说明约 10,700 字符，有 git 提交和 PR 两节。其中写了三类规则：“git push --force” 等破坏性操作要先考虑更安全的做法；“Never skip hooks (--no-verify)”；不要用 <code>git rebase -i</code> 这类交互式参数。默认短版约 2,100 字符，只剩交互式参数不支持、用 <code>gh</code> 处理 PR、用户要求时才提交或推送。</li>
+<li>权限判定：文档 permissions 页写明，Bash 规则识别 <code>&amp;&amp;</code>、<code>||</code>、<code>;</code>、<code>|</code> 等分隔符，每一段都要放行；会剥掉 <code>timeout</code>、<code>nice</code> 等 wrapper 和已知安全的环境变量赋值；deny 规则能匹配到任何一段；重定向单独检查。</li>
+<li>subcommand 上限：见 F 的事实核对。论点“Bash 按特例治理”不受影响，依据换成上面的分隔符和 wrapper 规则。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>工具系统也在保护系统自己</h2><span class="am-panel-meta">原文 4.8</span></header>
+<div class="am-panel-body"><div class="am-md"><p>权限、调度和中断看起来是在保护用户，其实也在保护系统自身。原文说，一个代理系统如果留下这些问题，最先崩掉的往往是它自己的一致性：</p>
+<ul>
+<li>不完整的 tool_result。</li>
+<li>失序的上下文修改。</li>
+<li>无边界的并发副作用。</li>
+<li>说不清楚的中断语义。</li>
+</ul>
+<p>原文说，这一点在 query loop 和工具执行层是互相咬合的。前一章讲到，query loop 在中断时补齐合成 tool_result；这一章看到，<code>StreamingToolExecutor</code> 内部也有 discarded、hasErrored、siblingAbortController、interruptBehavior 等机制。两边一起作用，让系统在“执行过什么、没执行完什么、为什么停了”这些问题上，保持一条可追溯的因果链。这也是 Harness 的核心含义之一：替系统保住秩序。很多约束表面上防误操作，更深一层是防止系统变成一堆无法解释的状态残片。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>discarded、hasErrored、siblingAbortController 等名字无法核对：源码不公开。</li>
+<li>“账本对齐”行为属实（第 3 章观察）。本机 104 个会话记录共 8,490 次工具调用，只有 2 次没有结果，都是文件里最后一次调用。</li>
+<li>“失序的上下文修改”：tool_result 按完成先后排列（实测，见 B），但每条结果都带着对应调用的 ID，所以仍能追溯。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-I">
+<header class="am-panel-head"><span class="am-panel-id">I</span><h2>从源码提炼的第四个原则</h2><span class="am-panel-meta">原文 4.9</span></header>
+<div class="am-panel-body"><div class="am-callout am-callout--ok" role="note"><div class="am-callout-title">第四个原则</div><div class="am-callout-body am-md"><p>工具是受管执行接口；权限是代理系统的基本器官。</p>
+</div></div>
+<div class="am-md"><p>原文说，源码在五个地方共同支持这个判断。源码不公开，下表把原文的证据换成核对后的依据：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>原文的源码依据</th>
+<th>说明什么</th>
+<th>核对后的依据</th>
+<th>详见</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>toolOrchestration.ts</td>
+<td>先分批再执行，调度先于冲动</td>
+<td>只读工具并发、写工具排队（实测）；结果按完成先后排列（实测）</td>
+<td>B</td>
+</tr>
+<tr>
+<td>toolExecution.ts</td>
+<td>hooks、permission、telemetry、合成错误包在执行周围，执行不是裸调用</td>
+<td>五种工具 hook 按顺序触发（文档、实测）；有权限决定和工具结果两种遥测事件（文档）</td>
+<td>C</td>
+</tr>
+<tr>
+<td>useCanUseTool.tsx</td>
+<td>权限分 allow、deny、ask，授权是独立语义</td>
+<td>规则三态、hook 先于规则、ask 无人批准即拒绝（文档、实测）</td>
+<td>D、E</td>
+</tr>
+<tr>
+<td>StreamingToolExecutor.ts</td>
+<td>为中断、fallback、并发出错预留专门语义，停止和开始同样重要</td>
+<td>中断后补结果（观察）；排队消息等工具结束（文档）；并发出错不再取消兄弟工具（旁证、实测）</td>
+<td>F</td>
+</tr>
+<tr>
+<td>BashTool/prompt.ts、bashPermissions.ts</td>
+<td>高风险能力接受更密的约束</td>
+<td>完整版 Bash 说明的规则（实测）；Bash 规则的分隔符和 wrapper 处理（文档）</td>
+<td>G</td>
+</tr>
+</tbody></table></div>
+<p>原文提炼的工程原则：</p>
+<ul>
+<li>模型提建议不等于拥有授权。</li>
+<li>并发要保持因果秩序。</li>
+<li>中断必须有一等语义。</li>
+<li>Bash 这类高风险工具按特例治理。</li>
+<li>工具系统保护的既是用户，也是运行时本身。</li>
+</ul>
+<p>核对后，五处证据都能换成文档或实测依据，论点成立。需要补充两点：</p>
+<ul>
+<li>并发的“因果秩序”在现版本靠调用 ID 维持，结果本身按完成先后排列。</li>
+<li>并发出错的处理比原文写时宽松：一个工具失败，其他工具照常完成。</li>
+</ul>
+<p>下一章讨论另一种常见错觉：上下文越多越好。原文说，有经验的系统不会把上下文当仓库，而会把它当资源；第 5 章讲 memory、CLAUDE.md 与 compact 怎样共同组成上下文治理。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-J">
+<header class="am-panel-head"><span class="am-panel-id">J</span><h2>附录：事实核对</h2><span class="am-panel-meta">本页补充</span></header>
+<div class="am-panel-body"><div class="am-md"><h3>逐条核对</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>原文的说法</th>
+<th>核对</th>
+<th>实际情况和依据</th>
+<th>正文</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>runTools()</code> 先按并发安全性分批；<code>partitionToolCalls()</code> 调 <code>isConcurrencySafe()</code>（原文：<code>toolOrchestration.ts:19</code>、<code>:91</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>实测：Read、Read、Glob 重叠运行，两个 Write 依次运行</td>
+<td>B</td>
+</tr>
+<tr>
+<td>2</td>
+<td>并发时先缓存 contextModifier，再按原始 block 顺序回放（原文：<code>toolOrchestration.ts:31-63</code>）</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>contextModifier 看不到。实测两次：并行结果在下一次请求里按完成先后排列（cat、ls、find；cat、find），不按调用顺序</td>
+<td>B</td>
+</tr>
+<tr>
+<td>3</td>
+<td>执行流程接入 permission、hooks、telemetry、合成错误（原文：<code>toolExecution.ts:30</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td><a href="https://code.claude.com/docs/en/hooks">hooks</a>：PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、PostToolBatch；实测按此顺序触发。<a href="https://code.claude.com/docs/en/monitoring-usage">monitoring-usage</a>：<code>claude_code.tool_decision</code>、<code>claude_code.tool_result</code></td>
+<td>C</td>
+</tr>
+<tr>
+<td>4</td>
+<td>权限入口 <code>useCanUseTool()</code>、<code>CanUseToolFn</code>、<code>hasPermissionsToUseTool()</code>（原文：<code>useCanUseTool.tsx:27</code>、<code>:37</code>）</td>
+<td>无法核对</td>
+<td>源码不公开</td>
+<td>D</td>
+</tr>
+<tr>
+<td>5</td>
+<td>判定结果分 allow、deny、ask</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td><a href="https://code.claude.com/docs/en/permissions">permissions</a>：“Rules are evaluated in order: deny, then ask, then allow”。hooks：permissionDecision 可为 allow、deny、ask、defer</td>
+<td>D</td>
+</tr>
+<tr>
+<td>6</td>
+<td>ask 进入协调器、swarm worker、classifier 或交互式审批</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>文档：PermissionRequest hook、auto 模式分类器、<code>--permission-prompt-tool</code>、交互审批；<a href="https://code.claude.com/docs/en/agent-teams">agent-teams</a>：“Teammate permission prompts appear in the lead session”。协调器文档没写</td>
+<td>D</td>
+</tr>
+<tr>
+<td>7</td>
+<td>不变式：ask 不自动升级为 allow</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>基本成立</span></td>
+<td>实测：<code>-p</code> 下 ask 规则命中、没人批准时被拒。permissions：没有托管设置时，用户装的 mod 可以放行 ask 规则命中的调用</td>
+<td>D</td>
+</tr>
+<tr>
+<td>8</td>
+<td>不变式：同一请求被 deny 后不会重试成 allow</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>实测：被拒的 <code>rm</code> 只拿到一条错误结果，目标文件仍在</td>
+<td>D</td>
+</tr>
+<tr>
+<td>9</td>
+<td>原图：规则层只做硬拒绝，之后是模式层、自动检查层（classifier、hooks、policy），最后交互审批</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>顺序与事实不符</span></td>
+<td>permissions：PreToolUse hook 在权限提示之前运行，exit 2 在规则之前生效；hook 的 allow 绕不过 deny、ask 规则。<a href="https://code.claude.com/docs/en/permission-modes">permission-modes</a>：ask 规则在任何模式下都不自动放行；分类器只在 auto 模式下工作，拦截原因交给模型。实测：hook deny 胜过 allow 规则；deny 规则胜过 hook allow 和 bypassPermissions；bypassPermissions 下 ask 规则仍触发 PermissionRequest</td>
+<td>D</td>
+</tr>
+<tr>
+<td>10</td>
+<td>原图：只有运行时不该决定时才请用户批准</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>属实，需补充</span></td>
+<td>实测：<code>-p</code> 不能弹出审批，没人批准就拒绝。hooks：不能提示的会话里，PermissionRequest hook 没给决定就拒绝</td>
+<td>D</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>PermissionResult</code> 为 allow、deny、ask 准备描述函数（原文：<code>PermissionResult.ts:23</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>实测：deny 规则、ask 无人批准、Manual 模式写文件命令、hook deny 四种情况，模型收到四种不同的说明；<code>-p</code> 输出有 <code>permission_denials</code></td>
+<td>E</td>
+</tr>
+<tr>
+<td>12</td>
+<td>拒绝、放行、临时授权、永久授权有地方安放</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>permissions：“Yes, and don&#39;t ask again” 对 Bash 命令按仓库永久保存，对改文件到会话结束</td>
+<td>E</td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>StreamingToolExecutor</code> 是独立的流式执行器（原文：<code>StreamingToolExecutor.ts:34</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>第 3 章实测：回复还没结束，工具已开始运行</td>
+<td>F</td>
+</tr>
+<tr>
+<td>14</td>
+<td>streaming fallback 时整体丢弃当前工具集合（原文：<code>:64-70</code>）</td>
+<td>无法核对</td>
+<td>外部无法触发。CHANGELOG 里有 non-streaming fallback 的条目，只能说明 fallback 存在（旁证）</td>
+<td>F</td>
+</tr>
+<tr>
+<td>15</td>
+<td>按 sibling error、user interrupted、streaming fallback 生成合成错误；区分取消原因（原文：<code>:153-205</code>、<code>:210</code>）</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分已过时</span></td>
+<td>用户中断：第 3 章观察到合成的错误结果。sibling error：CHANGELOG 2.1.72 起只有 Bash 出错会连带取消，2.1.161 起 Bash 出错也不再取消；实测 cat 失败后 find 照常完成</td>
+<td>F</td>
+</tr>
+<tr>
+<td>16</td>
+<td>interruptBehavior 决定用户插话时 cancel 还是 block（原文：<code>:233</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td><a href="https://code.claude.com/docs/en/interactive-mode">interactive-mode</a>：排队的消息等工具调用结束才送达；Ctrl+Enter 时能转后台的转后台，不能的打断；<a href="https://code.claude.com/docs/en/how-claude-code-works">how-claude-code-works</a>：Esc 取消正在运行的调用</td>
+<td>F</td>
+</tr>
+<tr>
+<td>17</td>
+<td>矩阵：并发批内单个工具失败，其他工具照常</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>现版本属实</span></td>
+<td>实测见第 15 条。与原文正文“因别的并行工具出错而取消”不一致</td>
+<td>F</td>
+</tr>
+<tr>
+<td>18</td>
+<td>矩阵：中止时补齐合成 tool_result，账本对齐</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>第 3 章观察：8,490 次调用只有 2 次没有结果，都在文件末尾。CHANGELOG：SIGTERM 时不再记录 “synthetic tool denials”（旁证）</td>
+<td>F、H</td>
+</tr>
+<tr>
+<td>19</td>
+<td>矩阵：Bash 复合命令超过 subcommand 上限时 deny，不进入 ask</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>未观察到</span></td>
+<td>实测：Manual 模式下，200 段 <code>echo</code> 复合命令在 allow 规则下直接执行。permissions：解析不了的命令 “asks for approval”，超过 10,000 字符的命令总要批准</td>
+<td>F、G</td>
+</tr>
+<tr>
+<td>20</td>
+<td>原图：流式执行器 “Yield finished results in safe order”，最后 “Return deterministic context”</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分不符</span></td>
+<td>实测：结果按完成先后排列。modifier 回放看不到</td>
+<td>F</td>
+</tr>
+<tr>
+<td>21</td>
+<td>Bash prompt 对 git、PR、危险命令、hook、force push、交互式参数写了大量规则（原文：<code>BashTool/prompt.ts:42</code>）</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>完整版属实，短版大多没有</span></td>
+<td>实测：完整版 Bash 说明（约 10,700 字符）全有；短版（约 2,100 字符）只有交互式参数、用 <code>gh</code> 处理 PR、要求时才提交或推送</td>
+<td>G</td>
+</tr>
+<tr>
+<td>22</td>
+<td>bashPermissions 处理 shell 语义、命令前缀、重定向、wrapper、安全环境变量、分类器与规则匹配（原文：<code>bashPermissions.ts:1</code>）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>permissions 的 Bash 一节：复合命令、wrapper、exec wrapper、安全环境变量、只读命令、重定向逐项有说明</td>
+<td>G</td>
+</tr>
+<tr>
+<td>23</td>
+<td>为防复合命令让检查失控，给 subcommand 数量设上限（原文：<code>bashPermissions.ts:95</code>）</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>未观察到</span></td>
+<td>同第 19 条</td>
+<td>G</td>
+</tr>
+<tr>
+<td>24</td>
+<td>discarded、hasErrored、siblingAbortController 等机制</td>
+<td>无法核对</td>
+<td>源码不公开</td>
+<td>H</td>
+</tr>
+</tbody></table></div>
+<h3>核对范围与局限</h3>
+<ul>
+<li><strong>依据版本</strong>：本机 Claude Code 2.1.312（<code>claude --version</code>）；官方文档 2026-10-29 查阅；CHANGELOG 最新条目 2.1.312。</li>
+<li><strong>实测做法</strong>：在新建的空临时目录里用 <code>claude -p</code> 运行，模型 claude-haiku-5-5，请求经本机配置的 LLM 网关。用 <code>OTEL_LOG_RAW_API_BODIES=file:&lt;目录&gt;</code> 抓完整请求；在项目 <code>.claude/settings.json</code> 里配置权限规则和 hook，hook 记录每次事件的时间。<ul>
+<li>权限层次：allow 规则放行 Write 和 <code>echo</code>，deny 规则拦 <code>rm</code>，ask 规则拦 <code>echo ASK-PROBE</code>。hook 对含 HOOK-ALLOW 的命令返回 allow，对写 hook-blocked.txt 返回 deny。分别在 auto（本机用户设置的默认模式）、bypassPermissions、Manual 三种模式下运行。</li>
+<li>并发和出错：一条回复里并行三个只读 Bash（慢、快、快），以及并行一个慢的 find 和一个会失败的 cat。</li>
+<li>复合命令：Manual 模式下运行 20 段和 200 段的 <code>echo</code> 复合命令。</li>
+</ul>
+</li>
+<li><strong>局限</strong>：结果只代表这个版本、这个模型和这个网关下的表现，不能证明原文说的内部结构。没观察到某个行为不等于没有，功能可能分批上线或按账号开关。subcommand 上限只测了 allow 规则放行的 <code>echo</code>，没测需要分类器判断的命令。并发只做了两次，结果顺序可能受时间影响。用户中断的数据来自本机会话记录，不是本次实测。</li>
+<li><strong>没核对的部分</strong>：所有源码文件名和函数名；streaming fallback 的丢弃行为；协调器路径；auto 模式分类器拦截时模型收到的说明（本次没有触发拦截）。</li>
+<li><strong>观点</strong>：“行为宪法”“基本器官”“风险放大器”等是原文的观点，不核对。</li>
+</ul>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="图表查看" data-expand="展开查看图表">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="关闭" aria-label="关闭">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.4.14 · 2026-10-29 17:27</footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+title: 工具、权限与中断：为什么代理不能直接碰世界（核对试点版）
+subtitle: 《Harness Engineering：Claude Code 设计指南》第 4 章解读，已按官方文档、本机观察和实测核对
+source: https://harness-books.agentway.dev/book1-claude-code/chapter-04-tools-permissions-interrupts.html
+---
+原文：[第 4 章 工具、权限与中断：为什么代理不能直接碰世界](https://harness-books.agentway.dev/book1-claude-code/chapter-04-tools-permissions-interrupts.html)
+
+一句话结论：原文认为，工具是受管执行接口，权限是代理系统的基本器官。具体说：调度先于执行，授权与理解分开，中断有专门语义，Bash 按特例治理。核对后，论点成立。在 v2.1.312 上，权限三态、规则优先于 hook 放行、中断后补结果、Bash 的专门规则，都有文档或实测依据。源码文件和函数名无法核对。
+
+需要修正四点：
+
+- 权限判定的顺序与原图不同。PreToolUse hook 最先运行；规则层不只能拒绝，ask 规则在任何模式下都要人批准，allow 规则也能直接放行。
+- 并行工具里一个失败，不再取消其他工具（CHANGELOG 2.1.161 起；实测）。原文正文说会取消，原文矩阵说其他工具照常，两处本身不一致。
+- 并行工具的结果按完成先后进入下一次请求，不按调用顺序（实测）。
+- 实测 200 段的复合命令照常执行，没有观察到 subcommand 上限。文档写的兜底是请求批准，不是直接拒绝。
+
+核对依据：Claude Code 官方文档 code.claude.com/docs（2026-10-29 查阅）；anthropics/claude-code 仓库的 CHANGELOG（最新条目 2.1.312）；本机 Claude Code 2.1.312 的实测和本机会话记录。依据分四种标签：文档、观察、实测（v2.1.312）、旁证（CHANGELOG）。逐条结果见附录。
+
+```callout info 试点说明
+本页是第 4 章的核对试点版，原页面保留不动。原文本章有两张图，本页按事实重画，放在原位置。与原页面相比，本页每节加了“事实核对”，最后加了附录。
+```
+
+## A 核心观点：工具不是意见，是动作 {meta=&quot;原文 4.1&quot;}
+
+只输出文本的模型，出错时主要增加沟通成本。一旦开始调用工具，问题的性质就变了：工具不是意见，是动作，动作接触真实世界。
+
+| | 只输出文本 | 调用工具 |
+|---|---|---|
+| 出错的后果 | 停在理解层面 | 文件被删、进程被中止、Git 历史被搞乱 |
+| 风险类型 | 沟通成本 | 执行后果 |
+
+所以工具系统最重要的问题只有一个：谁来约束这些工具。原文说，Claude Code 的回答是把工具变成受管执行接口，不让模型直接伸手碰世界。
+
+```tree list
+受管执行接口（本页归纳）
+  调度 | 先按并发安全性分批，再执行（B）
+  执行流程 | 执行前后都有包裹层（C）
+  权限 | allow、deny、ask 三态，授权与理解分开（D、E）
+  中断 | 停下也有专门语义（F）
+  Bash 特例 | 最通用的工具受最严的看管（G）
+```
+
+本节是原文的观点，不涉及需要核对的事实。
+
+## B 工具调度属于行为宪法 {meta=&quot;原文 4.2&quot;}
+
+原文说，`runTools()` 不直接执行一串 tool_use，而是先按并发安全性分批。`partitionToolCalls()` 先读取工具的输入定义，再调用 `isConcurrencySafe()` 判断这类调用能否并发。能并发的归入并发批次，不能并发的拆成串行单元。
+
+这看上去像性能优化，原文说它更接近一致性设计。一旦允许并发，就要回答一个老问题：上下文变化由谁决定、按什么顺序生效。原文说，Claude Code 在并发路径里先缓存 contextModifier，再按原始 block 顺序回放。最先完成的工具不能抢先改上下文，所以执行虽然并发，上下文演化仍有确定顺序。
+
+原文的判断是：并发可以提高吞吐，但不能破坏因果秩序。成熟代理系统把并发当成需要证明自身无害的例外，而不是默认的自由。
+
+### 实测：谁并发、结果按什么顺序回来
+
+| 实验 | 结果 | 依据 |
+|---|---|---|
+| 一条回复里调用 Read、Read、Glob、Write、Write | 三个只读工具同时运行；两个 Write 一个接一个 | 实测（第 1 章核对版） |
+| 一条回复里并行三个只读 Bash：慢的 find、快的 cat、ls | 三个同时开始；下一次请求里的结果顺序是 cat、ls、find，即完成先后 | 实测 |
+| 一条回复里并行两个 Bash：慢的 find、会失败的 cat | cat 先失败，find 照常跑完；结果顺序是 cat、find | 实测 |
+
+```callout warn 事实核对
+- `runTools()`、`partitionToolCalls()`、`isConcurrencySafe()` 和原文给的文件位置（`src/services/tools/toolOrchestration.ts`）无法核对：源码不公开。文档没有写工具怎样并发。
+- “按工具属性决定并发还是串行”行为属实（实测）。
+- “上下文演化保持确定顺序”需要区分两件事。contextModifier 从外部看不到，无法核对。但 tool_result 本身也进入上下文，实测中它们按完成先后排列，不按调用顺序。第 1 章核对版里结果“按调用顺序”，是因为那次完成顺序恰好与调用顺序相同。
+```
+
+## C 真正执行前已经发生了很多事 {meta=&quot;原文 4.3&quot;}
+
+很多人以为 tool_use 一出现，下一步就是执行。原文说，`runToolUse()` 依赖的执行逻辑已经接入 permission、hooks、telemetry、合成错误结果（synthetic error）。工具执行是一段完整的流程，包含四部分：
+
+1. 前置校验。
+2. 执行中事件。
+3. 执行后修正。
+4. 失败补偿。
+
+工具的地位和普通库函数不一样。库函数属于程序内部，调用者自己承担后果；工具是模型与外部世界之间的接口，系统不能假设调用者判断稳定。原文说，包裹层这么多，是因为调用者本身就是最不稳定的变量。所以工具应该被建模为“需要运行时代为管理风险的外部能力”，而不是“模型能力的延长线”。接受这一点，permission、hooks、interrupt、synthetic result 就是常识，而不是负担。
+
+### 实测：一次工具调用周围的事件
+
+下图按文档和实测画出一次工具调用前后会发生的事（本页归纳）：
+
+```flow
+(模型发出 tool_use) -&gt; [PreToolUse hook]
+PreToolUse hook -&gt; {权限判定}
+权限判定 -&gt; [PermissionRequest hook 或审批]: 需要批准
+权限判定 -&gt; [执行工具]: 放行
+PermissionRequest hook 或审批 -&gt; 执行工具: 批准
+PermissionRequest hook 或审批 -&gt; [错误结果]: 拒绝或无人批准
+执行工具 -&gt; [PostToolUse hook]: 成功
+执行工具 -&gt; [PostToolUseFailure hook]: 失败
+PostToolUse hook -&gt; [PostToolBatch hook]
+PostToolUseFailure hook -&gt; PostToolBatch hook
+错误结果 -&gt; PostToolBatch hook
+PostToolBatch hook -&gt; *(下一次模型调用)
+```
+
+```callout warn 事实核对
+- `runToolUse()` 和原文给的文件位置（`src/services/tools/toolExecution.ts`）无法核对：源码不公开。
+- 四部分流程行为属实。前置校验和执行后修正：文档列出 PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、PostToolBatch 五种 hook，实测按上图顺序触发。
+- telemetry：文档有 `claude_code.tool_decision` 和 `claude_code.tool_result` 两种事件，记录每次权限决定和工具结果。
+- 失败补偿：被拒绝或出错的调用都会拿到一条 is_error 的结果（实测，见 E）。
+```
+
+## D 权限先于能力 {meta=&quot;原文 4.4&quot;}
+
+原文说，权限入口在 `useCanUseTool()`。`CanUseToolFn` 的存在本身就说明：工具能否执行，不由模型自己说了算，而要交给权限判定链。`hasPermissionsToUseTool(...)` 返回三种结果：
+
+- deny：直接拒绝。
+- ask：进入协调器、swarm worker、classifier 或交互式审批路径。
+- allow：才真正放行。
+
+成熟的权限系统除了“能”和“不能”，还要承认第三种状态：系统自己也不该替用户做决定。原文说，这从结构上否认了一种危险的想法：模型懂了用户意图，就等于有权代替用户执行。理解意图不等于拥有授权，更不等于拥有持续授权。系统必须把“会做”和“可以做”分开。
+
+### 原文的骨架：三态判定与三条不变式
+
+```flow LR
+(工具请求) -&gt; {权限判定}
+权限判定 -&gt; [执行]: allow
+权限判定 -&gt; [拒绝并说明原因]: deny
+权限判定 -&gt; [转给协调器、swarm worker、classifier 或交互审批]: ask
+```
+
+（按原文的伪代码画，名字取自原文。）
+
+| 不变式 | 含义 | 核对 | 依据 |
+|---|---|---|---|
+| 三态 | 判定结果只能是 allow、deny、ask，不允许用布尔值偷懒 | ok 行为属实 | 文档：规则分 allow、ask、deny；hook 的 permissionDecision 也有这三种（另有 defer） |
+| ask 不自动升级 | 没有授权，ask 不会变成 allow | ok 基本成立 | 实测：`-p` 里没人批准时，ask 规则命中的调用被拒绝。例外：用户自己装的 mod 在没有托管设置时可以放行（文档） |
+| deny 不可翻转 | 同一个 tool_use 被拒后，不会重试成 allow | ok 行为属实 | 实测：被拒的调用只拿到一条错误结果，文件没有被删 |
+
+### 原文的图：权限判定的层次
+
+原文在这里放了一张图，标题是 “Permission Decision Layers - Short-Circuit Ladder To Allow or Deny”。图的意思是：规则层、模式层、自动检查层依次短路，前面决定不了才交给后面，最后才请用户批准。图上的注释写着：模型表达了意图，不等于人给了授权。
+
+下图按文档和实测重画。+ 表示按事实补上，− 表示原图有、但与事实不符。切换 Before 和 After，可以分别看原图结构和修正后的结构。
+
+```flow
+- (工具请求) -&gt; {规则层}
++ (工具请求) -&gt; {PreToolUse hook}
++ PreToolUse hook -&gt; [DENY · hook 拦截]: deny 或 exit 2
++ PreToolUse hook -&gt; 规则层: 其余，含 allow
+规则层 -&gt; [DENY · 硬拒绝]: deny 规则
++ 规则层 -&gt; [ALLOW · 规则放行]: allow 规则
++ 规则层 -&gt; [请求批准]: ask 规则，任何模式都不跳过
+规则层 -&gt; {模式层}: 都没命中
+模式层 -&gt; [ALLOW · bypass]: bypassPermissions
+- 模式层 -&gt; {自动检查 · classifier、hooks、policy}: 其他
+- 自动检查 · classifier、hooks、policy -&gt; [ALLOW · 自动检查放行]: 明确放行
+- 自动检查 · classifier、hooks、policy -&gt; [DENY · 自动检查拒绝]: 明确拒绝
+- 自动检查 · classifier、hooks、policy -&gt; 请求批准: 不确定
++ 模式层 -&gt; [DENY · dontAsk]: dontAsk 下需要批准的调用
++ 模式层 -&gt; {auto 模式分类器}: auto
++ auto 模式分类器 -&gt; [ALLOW · 分类器放行]: 放行
++ auto 模式分类器 -&gt; [DENY · 原因交给模型]: 拦截
++ 模式层 -&gt; 请求批准: Manual 等模式下需要批准的调用
++ 请求批准 -&gt; {PermissionRequest hook}
++ PermissionRequest hook -&gt; [ALLOW · hook 代为批准]: allow
++ PermissionRequest hook -&gt; {能弹出审批?}: 没有决定
++ 能弹出审批? -&gt; [DENY · 无人批准]: 否，例如 -p
++ 能弹出审批? -&gt; {用户决定}: 是
+- 请求批准 -&gt; 用户决定
+用户决定 -&gt; [ALLOW · 用户批准]: 批准
+用户决定 -&gt; [DENY · 用户拒绝]: 拒绝
+```
+
+```callout warn 事实核对
+- `useCanUseTool()`、`CanUseToolFn`、`hasPermissionsToUseTool()` 和原文给的文件位置（`src/hooks/useCanUseTool.tsx`）无法核对：源码不公开。
+- hook 的位置：原图把 hooks 放在第三层。文档说 PreToolUse hook “run before the permission prompt”，exit 2 的 hook “stops the tool call before permission rules are evaluated”。实测中，hook 在规则之前运行；hook 返回 deny 时，即使 allow 规则命中也被拒绝。
+- 规则层：原图只画了硬拒绝。文档说规则按 deny、ask、allow 的顺序匹配，第一个命中的决定结果。实测中，hook 返回 allow 也绕不过 deny 规则；bypassPermissions 模式下，ask 规则仍要请求批准。
+- 自动检查：分类器只在 auto 模式下工作。文档说分类器拦截时，“Claude receives the reason”，不是转给用户批准。
+- 请求批准：ask 先交给 PermissionRequest hook。文档说，不能弹出审批的会话里，hook 没给决定就拒绝。实测 `-p` 里没人批准的调用被拒绝。
+- ask 的去向：文档写到 PermissionRequest hook、auto 模式分类器、`--permission-prompt-tool`、交互审批；团队成员（teammate）的审批出现在主会话里。“协调器”文档没有写到，无法核对。
+```
+
+## E 权限结果本身也是运行时语义 {meta=&quot;原文 4.5&quot;}
+
+原文说，`PermissionResult` 给 allow、deny、ask 准备了专门的描述函数。权限在 Claude Code 里不只是内部布尔值，而是有独立语义的运行时对象。
+
+这件事重要，是因为系统要能明确地说出“为什么这一步没有继续”。代理说“我需要确认”，是在声明责任边界。边界说清楚了，后续的拒绝、放行、缓存规则、临时授权、永久授权才有地方安放。原文说，代理系统如果说不清“这一步能做、不能做，还是需要问”，就不该碰终端。终端不会替系统补完语义，只会执行。
+
+### 实测：模型收到的拒绝说明各不相同
+
+| 拒绝的原因 | 模型收到的错误结果 |
+|---|---|
+| deny 规则命中（即使 hook 返回 allow） | “Permission to use Bash with command rm HOOK-ALLOW.txt has been denied.” |
+| ask 规则命中，`-p` 里没人批准 | “Claude requested permissions to use Bash, but you haven&#39;t granted it yet.” |
+| Manual 模式下的写文件命令没人批准 | 写明命令要创建或修改的路径，以及 Claude Code 为什么要先问 |
+| PreToolUse hook 返回 deny | “PreToolUse:Write hook error: HOOK-DENY-PROBE”（hook 给的原因） |
+
+```callout warn 事实核对
+- `PermissionResult` 的描述函数和原文给的文件位置（`src/utils/permissions/PermissionResult.ts`）无法核对：源码不公开。
+- “权限结果有独立语义”行为属实（实测）。不同原因的拒绝，模型收到不同的说明；`-p` 的输出里还有 `permission_denials` 字段，列出被拒的调用。
+- 临时授权和永久授权有文档依据。在审批框里选 “Yes, and don&#39;t ask again” 后，Bash 命令的授权按仓库永久保存，改文件的授权到会话结束为止。
+```
+
+## F 中断是一等语义 {meta=&quot;原文 4.6&quot;}
+
+工具一旦并发和流式执行，中断就变得复杂。系统面对的是一个有 queued、executing、completed、yielded 等多种状态的队列，而不是单一动作。
+
+原文说，`StreamingToolExecutor` 是一个独立的流式工具执行器，重点是它怎样处理中断和丢弃：
+
+- streaming fallback 时，可以整体丢弃当前这批工具。
+- 按不同原因生成合成错误结果：sibling error、user interrupted、streaming fallback。
+- 专门判断中断原因：别的并行工具出错、用户打断、fallback 放弃当前批次。
+- 每个工具有 interruptBehavior，决定用户插话时是 cancel 还是 block。
+
+原文说，Claude Code 不把中断看成“执行失败的特殊情况”，而是和执行本身同样重要的语义。系统不仅要知道工具能不能开始，还要知道它被打断时怎样收场、怎样补齐结果、是否允许新消息插入。这正是 Harness Engineering 的基本特点：不仅设计开始，也设计停下。
+
+### 并发与中断的失败顺序矩阵
+
+| 事件 | 前置状态 | 触发 | 下一步（原文） | 核对 |
+|---|---|---|---|---|
+| 并发批内单个工具失败 | 兄弟工具仍在执行 | sibling error | 其他工具照常；按 block 顺序回放 contextModifier | warn 其他工具照常属实（实测）；结果按完成先后排列；contextModifier 看不到 |
+| 用户插话，interruptBehavior 为 cancel | 工具未完成 | user interrupt | 取消执行，生成 user interrupted 合成结果 | ok 行为属实，命名无法核对：按 Esc 取消正在运行的工具；被打断的调用拿到错误结果 |
+| 用户插话，interruptBehavior 为 block | 工具未完成 | user interrupt | 工具跑到自然终点，新消息等着 | ok 行为属实，命名无法核对：排队的消息等工具调用结束才送达 |
+| streaming fallback | 批次排队或执行中 | fallback | 整批丢弃，按顺序交出 fallback 合成结果 | 无法核对：只知道存在非流式 fallback（旁证） |
+| 中止时有未完成的 tool_use | 任意 | abort signal | 补齐合成 tool_result，账本对齐 | ok 行为属实：本机会话记录里被打断的调用都有结果 |
+| Bash 复合命令超过 subcommand 上限 | 分类器拒绝 | 安全检查 | deny，不进入 ask | warn 没有观察到上限；文档说解析不了的命令走 ask |
+
+```callout warn 原文前后不一致
+原文正文说，会为“别的并行工具出错”生成合成错误并取消工具；矩阵第一行却说“其它工具照常”。按 CHANGELOG，并行工具出错取消兄弟工具的范围逐步缩小，2.1.161 起 Bash 出错也不再取消。现版本与矩阵一致。
+```
+
+### 原文的图：工具执行的生命周期
+
+原文在这里放了一张图，标题是 “Tool Execution Lifecycle - Parallel Execution, Ordered Context”。图的意思是：工具调用先按并发安全性分组，再走流式执行器或批处理两条路；批处理里并发的一批先缓存 modifier，再按块顺序回放；最后合并 tool_result，把确定的上下文交回 query loop。图上的注释写着：执行可以并行，上下文演化总按块顺序回放。
+
+下图按实测重画。+ 表示按事实补上，− 表示原图有、但与事实不符，~ 表示改过的节点。
+
+```flow
+(收到 assistant 的 tool_use 块) -&gt; [按并发安全性分组]
+按并发安全性分组 -&gt; {流式执行器?}
+流式执行器? -&gt; [排入 StreamingToolExecutor]: 是
+排入 StreamingToolExecutor -&gt; [应用权限和中断规则]
+应用权限和中断规则 -&gt; [并行运行可并发的工具]
+并行运行可并发的工具 -&gt; [发出进度和合成错误]
+- 发出进度和合成错误 -&gt; [按安全顺序交出结果]
+- 按安全顺序交出结果 -&gt; [合并 tool_result 进会话记录]
++ 发出进度和合成错误 -&gt; [按完成先后交出结果]
++ 按完成先后交出结果 -&gt; 合并 tool_result 进会话记录
+流式执行器? -&gt; {这批可并发?}: 批处理
+这批可并发? -&gt; [并行运行]: 是
+并行运行 -&gt; [缓存 modifier]
+缓存 modifier -&gt; [按块顺序回放 modifier]
+按块顺序回放 modifier -&gt; 合并 tool_result 进会话记录
+这批可并发? -&gt; [逐个运行]: 否
+逐个运行 -&gt; [每个 modifier 立即生效]
+每个 modifier 立即生效 -&gt; 合并 tool_result 进会话记录
+合并 tool_result 进会话记录 -&gt; [把上下文交回 query loop]
+~ 把上下文交回 query loop
+```
+
+```callout warn 事实核对
+- `StreamingToolExecutor`、interruptBehavior、各种合成错误的名字，以及原文给的文件位置（`src/services/tools/StreamingToolExecutor.ts`），无法核对：源码不公开。
+- 流式执行行为属实：第 3 章实测中，模型回复还没结束，工具就已经开始运行。批处理那条路从外部分不出来。
+- 原图的“按安全顺序交出结果”和“确定的上下文”：两次实测中，并行结果都按完成先后进入下一次请求。所以 tool_result 的排列不是固定的；modifier 是否按块顺序回放，看不到。
+- 并行工具出错：CHANGELOG 记录了取消范围逐步缩小。2.1.72 起只有 Bash 出错会连带取消；2.1.161 起 “a failed Bash command no longer cancels other calls in the same batch”。实测中 cat 失败后，并行的 find 照常跑完。
+- 用户插话：文档说，排队的消息在工具调用结束后、同一轮内送达。按 Ctrl+Enter 立即发送时，能转后台的工作转到后台，不能转后台的就打断这一轮。这与 cancel、block 两种行为对应，但现版本多了“转后台”这一种。
+- 用户中断：第 3 章观察到 6 次真实中断，被打断的调用都拿到一条 is_error 结果，开头是 “The user doesn&#39;t want to proceed with this tool use”。CHANGELOG 也提到 `-p` 模式收到 SIGTERM 时，不再记录 “synthetic tool denials”，说明中断时会合成拒绝结果（旁证）。
+- subcommand 上限：实测在 Manual 模式下，用 allow 规则放行 echo，再运行 200 段 `echo … &amp;&amp; echo …`。命令直接执行，没有请求批准，也没有被拒。文档只写到：解析不了的命令请求批准，超过 10,000 字符的命令总要批准。
+```
+
+## G Bash 为什么永远比别的工具更可疑 {meta=&quot;原文 4.7&quot;}
+
+原文说，Bash 不是普通工具，更像风险放大器，因为它太通用。越通用的接口，越难靠领域知识限制。读文件的工具不会顺手杀进程，grep 不会偷偷 push 代码，而 Bash 几乎什么都能做。Claude Code 从两层约束它：
+
+| 层 | 原文说的内容 | 核对 |
+|---|---|---|
+| prompt | 对 git、PR、危险命令、hook、force push、交互式参数写了大量明确规则 | warn 完整版全有；默认短版只剩交互式参数和用 gh 处理 PR |
+| 权限和安全判定 | 处理 shell 语义、命令前缀、重定向、wrapper、安全环境变量、分类器与规则匹配 | ok 文档逐项都有说明 |
+| 权限和安全判定 | 为了防止复合命令让检查失控，给 subcommand 数量设了上限 | warn 实测 200 段没有触发；文档没有写上限 |
+
+原文说，那段 prompt 看上去啰嗦，其实很有分寸：凡是后果大的地方，系统就不怕啰嗦。Bash 一直被当成需要特殊审查的危险通道。原文的判断是：高风险能力不应该享受通用能力的待遇；能力越通用，越要特殊看管。把 Bash 当成普通工具，往往只是设计上的偷懒。
+
+```callout warn 事实核对
+- 原文给的文件位置（`src/tools/BashTool/prompt.ts`、`src/tools/BashTool/bashPermissions.ts`）无法核对：源码不公开。
+- prompt：实测完整版 Bash 说明约 10,700 字符，有 git 提交和 PR 两节。其中写了三类规则：“git push --force” 等破坏性操作要先考虑更安全的做法；“Never skip hooks (--no-verify)”；不要用 `git rebase -i` 这类交互式参数。默认短版约 2,100 字符，只剩交互式参数不支持、用 `gh` 处理 PR、用户要求时才提交或推送。
+- 权限判定：文档 permissions 页写明，Bash 规则识别 `&amp;&amp;`、`||`、`;`、`|` 等分隔符，每一段都要放行；会剥掉 `timeout`、`nice` 等 wrapper 和已知安全的环境变量赋值；deny 规则能匹配到任何一段；重定向单独检查。
+- subcommand 上限：见 F 的事实核对。论点“Bash 按特例治理”不受影响，依据换成上面的分隔符和 wrapper 规则。
+```
+
+## H 工具系统也在保护系统自己 {meta=&quot;原文 4.8&quot;}
+
+权限、调度和中断看起来是在保护用户，其实也在保护系统自身。原文说，一个代理系统如果留下这些问题，最先崩掉的往往是它自己的一致性：
+
+- 不完整的 tool_result。
+- 失序的上下文修改。
+- 无边界的并发副作用。
+- 说不清楚的中断语义。
+
+原文说，这一点在 query loop 和工具执行层是互相咬合的。前一章讲到，query loop 在中断时补齐合成 tool_result；这一章看到，`StreamingToolExecutor` 内部也有 discarded、hasErrored、siblingAbortController、interruptBehavior 等机制。两边一起作用，让系统在“执行过什么、没执行完什么、为什么停了”这些问题上，保持一条可追溯的因果链。这也是 Harness 的核心含义之一：替系统保住秩序。很多约束表面上防误操作，更深一层是防止系统变成一堆无法解释的状态残片。
+
+```callout warn 事实核对
+- discarded、hasErrored、siblingAbortController 等名字无法核对：源码不公开。
+- “账本对齐”行为属实（第 3 章观察）。本机 104 个会话记录共 8,490 次工具调用，只有 2 次没有结果，都是文件里最后一次调用。
+- “失序的上下文修改”：tool_result 按完成先后排列（实测，见 B），但每条结果都带着对应调用的 ID，所以仍能追溯。
+```
+
+## I 从源码提炼的第四个原则 {meta=&quot;原文 4.9&quot;}
+
+```callout ok 第四个原则
+工具是受管执行接口；权限是代理系统的基本器官。
+```
+
+原文说，源码在五个地方共同支持这个判断。源码不公开，下表把原文的证据换成核对后的依据：
+
+| 原文的源码依据 | 说明什么 | 核对后的依据 | 详见 |
+|---|---|---|---|
+| toolOrchestration.ts | 先分批再执行，调度先于冲动 | 只读工具并发、写工具排队（实测）；结果按完成先后排列（实测） | B |
+| toolExecution.ts | hooks、permission、telemetry、合成错误包在执行周围，执行不是裸调用 | 五种工具 hook 按顺序触发（文档、实测）；有权限决定和工具结果两种遥测事件（文档） | C |
+| useCanUseTool.tsx | 权限分 allow、deny、ask，授权是独立语义 | 规则三态、hook 先于规则、ask 无人批准即拒绝（文档、实测） | D、E |
+| StreamingToolExecutor.ts | 为中断、fallback、并发出错预留专门语义，停止和开始同样重要 | 中断后补结果（观察）；排队消息等工具结束（文档）；并发出错不再取消兄弟工具（旁证、实测） | F |
+| BashTool/prompt.ts、bashPermissions.ts | 高风险能力接受更密的约束 | 完整版 Bash 说明的规则（实测）；Bash 规则的分隔符和 wrapper 处理（文档） | G |
+
+原文提炼的工程原则：
+
+- 模型提建议不等于拥有授权。
+- 并发要保持因果秩序。
+- 中断必须有一等语义。
+- Bash 这类高风险工具按特例治理。
+- 工具系统保护的既是用户，也是运行时本身。
+
+核对后，五处证据都能换成文档或实测依据，论点成立。需要补充两点：
+
+- 并发的“因果秩序”在现版本靠调用 ID 维持，结果本身按完成先后排列。
+- 并发出错的处理比原文写时宽松：一个工具失败，其他工具照常完成。
+
+下一章讨论另一种常见错觉：上下文越多越好。原文说，有经验的系统不会把上下文当仓库，而会把它当资源；第 5 章讲 memory、CLAUDE.md 与 compact 怎样共同组成上下文治理。
+
+## 附录：事实核对 {meta=&quot;本页补充&quot;}
+
+### 逐条核对
+
+| # | 原文的说法 | 核对 | 实际情况和依据 | 正文 |
+|---|---|---|---|---|
+| 1 | `runTools()` 先按并发安全性分批；`partitionToolCalls()` 调 `isConcurrencySafe()`（原文：`toolOrchestration.ts:19`、`:91`） | ok 行为属实，命名无法核对 | 实测：Read、Read、Glob 重叠运行，两个 Write 依次运行 | B |
+| 2 | 并发时先缓存 contextModifier，再按原始 block 顺序回放（原文：`toolOrchestration.ts:31-63`） | warn 部分可核对 | contextModifier 看不到。实测两次：并行结果在下一次请求里按完成先后排列（cat、ls、find；cat、find），不按调用顺序 | B |
+| 3 | 执行流程接入 permission、hooks、telemetry、合成错误（原文：`toolExecution.ts:30`） | ok 行为属实，命名无法核对 | [hooks](https://code.claude.com/docs/en/hooks)：PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、PostToolBatch；实测按此顺序触发。[monitoring-usage](https://code.claude.com/docs/en/monitoring-usage)：`claude_code.tool_decision`、`claude_code.tool_result` | C |
+| 4 | 权限入口 `useCanUseTool()`、`CanUseToolFn`、`hasPermissionsToUseTool()`（原文：`useCanUseTool.tsx:27`、`:37`） | 无法核对 | 源码不公开 | D |
+| 5 | 判定结果分 allow、deny、ask | ok 行为属实 | [permissions](https://code.claude.com/docs/en/permissions)：“Rules are evaluated in order: deny, then ask, then allow”。hooks：permissionDecision 可为 allow、deny、ask、defer | D |
+| 6 | ask 进入协调器、swarm worker、classifier 或交互式审批 | warn 部分可核对 | 文档：PermissionRequest hook、auto 模式分类器、`--permission-prompt-tool`、交互审批；[agent-teams](https://code.claude.com/docs/en/agent-teams)：“Teammate permission prompts appear in the lead session”。协调器文档没写 | D |
+| 7 | 不变式：ask 不自动升级为 allow | ok 基本成立 | 实测：`-p` 下 ask 规则命中、没人批准时被拒。permissions：没有托管设置时，用户装的 mod 可以放行 ask 规则命中的调用 | D |
+| 8 | 不变式：同一请求被 deny 后不会重试成 allow | ok 行为属实 | 实测：被拒的 `rm` 只拿到一条错误结果，目标文件仍在 | D |
+| 9 | 原图：规则层只做硬拒绝，之后是模式层、自动检查层（classifier、hooks、policy），最后交互审批 | warn 顺序与事实不符 | permissions：PreToolUse hook 在权限提示之前运行，exit 2 在规则之前生效；hook 的 allow 绕不过 deny、ask 规则。[permission-modes](https://code.claude.com/docs/en/permission-modes)：ask 规则在任何模式下都不自动放行；分类器只在 auto 模式下工作，拦截原因交给模型。实测：hook deny 胜过 allow 规则；deny 规则胜过 hook allow 和 bypassPermissions；bypassPermissions 下 ask 规则仍触发 PermissionRequest | D |
+| 10 | 原图：只有运行时不该决定时才请用户批准 | ok 属实，需补充 | 实测：`-p` 不能弹出审批，没人批准就拒绝。hooks：不能提示的会话里，PermissionRequest hook 没给决定就拒绝 | D |
+| 11 | `PermissionResult` 为 allow、deny、ask 准备描述函数（原文：`PermissionResult.ts:23`） | ok 行为属实，命名无法核对 | 实测：deny 规则、ask 无人批准、Manual 模式写文件命令、hook deny 四种情况，模型收到四种不同的说明；`-p` 输出有 `permission_denials` | E |
+| 12 | 拒绝、放行、临时授权、永久授权有地方安放 | ok 行为属实 | permissions：“Yes, and don&#39;t ask again” 对 Bash 命令按仓库永久保存，对改文件到会话结束 | E |
+| 13 | `StreamingToolExecutor` 是独立的流式执行器（原文：`StreamingToolExecutor.ts:34`） | ok 行为属实，命名无法核对 | 第 3 章实测：回复还没结束，工具已开始运行 | F |
+| 14 | streaming fallback 时整体丢弃当前工具集合（原文：`:64-70`） | 无法核对 | 外部无法触发。CHANGELOG 里有 non-streaming fallback 的条目，只能说明 fallback 存在（旁证） | F |
+| 15 | 按 sibling error、user interrupted、streaming fallback 生成合成错误；区分取消原因（原文：`:153-205`、`:210`） | warn 部分已过时 | 用户中断：第 3 章观察到合成的错误结果。sibling error：CHANGELOG 2.1.72 起只有 Bash 出错会连带取消，2.1.161 起 Bash 出错也不再取消；实测 cat 失败后 find 照常完成 | F |
+| 16 | interruptBehavior 决定用户插话时 cancel 还是 block（原文：`:233`） | ok 行为属实，命名无法核对 | [interactive-mode](https://code.claude.com/docs/en/interactive-mode)：排队的消息等工具调用结束才送达；Ctrl+Enter 时能转后台的转后台，不能的打断；[how-claude-code-works](https://code.claude.com/docs/en/how-claude-code-works)：Esc 取消正在运行的调用 | F |
+| 17 | 矩阵：并发批内单个工具失败，其他工具照常 | ok 现版本属实 | 实测见第 15 条。与原文正文“因别的并行工具出错而取消”不一致 | F |
+| 18 | 矩阵：中止时补齐合成 tool_result，账本对齐 | ok 行为属实 | 第 3 章观察：8,490 次调用只有 2 次没有结果，都在文件末尾。CHANGELOG：SIGTERM 时不再记录 “synthetic tool denials”（旁证） | F、H |
+| 19 | 矩阵：Bash 复合命令超过 subcommand 上限时 deny，不进入 ask | warn 未观察到 | 实测：Manual 模式下，200 段 `echo` 复合命令在 allow 规则下直接执行。permissions：解析不了的命令 “asks for approval”，超过 10,000 字符的命令总要批准 | F、G |
+| 20 | 原图：流式执行器 “Yield finished results in safe order”，最后 “Return deterministic context” | warn 部分不符 | 实测：结果按完成先后排列。modifier 回放看不到 | F |
+| 21 | Bash prompt 对 git、PR、危险命令、hook、force push、交互式参数写了大量规则（原文：`BashTool/prompt.ts:42`） | warn 完整版属实，短版大多没有 | 实测：完整版 Bash 说明（约 10,700 字符）全有；短版（约 2,100 字符）只有交互式参数、用 `gh` 处理 PR、要求时才提交或推送 | G |
+| 22 | bashPermissions 处理 shell 语义、命令前缀、重定向、wrapper、安全环境变量、分类器与规则匹配（原文：`bashPermissions.ts:1`） | ok 行为属实，命名无法核对 | permissions 的 Bash 一节：复合命令、wrapper、exec wrapper、安全环境变量、只读命令、重定向逐项有说明 | G |
+| 23 | 为防复合命令让检查失控，给 subcommand 数量设上限（原文：`bashPermissions.ts:95`） | warn 未观察到 | 同第 19 条 | G |
+| 24 | discarded、hasErrored、siblingAbortController 等机制 | 无法核对 | 源码不公开 | H |
+
+### 核对范围与局限
+
+- **依据版本**：本机 Claude Code 2.1.312（`claude --version`）；官方文档 2026-10-29 查阅；CHANGELOG 最新条目 2.1.312。
+- **实测做法**：在新建的空临时目录里用 `claude -p` 运行，模型 claude-haiku-5-5，请求经本机配置的 LLM 网关。用 `OTEL_LOG_RAW_API_BODIES=file:&lt;目录&gt;` 抓完整请求；在项目 `.claude/settings.json` 里配置权限规则和 hook，hook 记录每次事件的时间。
+  - 权限层次：allow 规则放行 Write 和 `echo`，deny 规则拦 `rm`，ask 规则拦 `echo ASK-PROBE`。hook 对含 HOOK-ALLOW 的命令返回 allow，对写 hook-blocked.txt 返回 deny。分别在 auto（本机用户设置的默认模式）、bypassPermissions、Manual 三种模式下运行。
+  - 并发和出错：一条回复里并行三个只读 Bash（慢、快、快），以及并行一个慢的 find 和一个会失败的 cat。
+  - 复合命令：Manual 模式下运行 20 段和 200 段的 `echo` 复合命令。
+- **局限**：结果只代表这个版本、这个模型和这个网关下的表现，不能证明原文说的内部结构。没观察到某个行为不等于没有，功能可能分批上线或按账号开关。subcommand 上限只测了 allow 规则放行的 `echo`，没测需要分类器判断的命令。并发只做了两次，结果顺序可能受时间影响。用户中断的数据来自本机会话记录，不是本次实测。
+- **没核对的部分**：所有源码文件名和函数名；streaming fallback 的丢弃行为；协调器路径；auto 模式分类器拦截时模型收到的说明（本次没有触发拦截）。
+- **观点**：“行为宪法”“基本器官”“风险放大器”等是原文的观点，不核对。
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions and the panel comments.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }].
+// Comment text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+function replyText({ title, decisions, comments, ui }) {
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   → ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) {
+      out.push(`- **${c.panel} · ${c.title}**`, ...c.text.trim().split('\n').map((l) => `  > ${l}`));
+    }
+    out.push('', `_${ui.typed}_`);
+  }
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers and the comments
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  const keyOf = (ask) => ask.querySelector('legend')?.textContent.trim() ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: panel?.querySelector('.am-panel-head h2')?.textContent.trim() ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: ask.querySelector('legend')?.textContent.trim() ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const empty = !decisions.length && !comments.some((c) => c.text.trim());
+    const title = document.querySelector('.am-head h1')?.textContent.trim() ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, ui });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg')].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+
+// ── Change markers: the Before / Changes / After switch ─────────────
+// The switch starts hidden because it needs this script. It swaps the am-view-* class of its diagram; the delta styles show the colors and badges only in
+// the Changes view and hide the items that do not exist in the view.
+(() => {
+  const VIEWS = ['before', 'changes', 'after'];
+  const setView = (el, view) => {
+    el.classList.remove(...VIEWS.map((v) => `am-view-${v}`));
+    el.classList.add(`am-view-${view}`);
+  };
+  for (const bar of document.querySelectorAll('.am-delta-bar')) {
+    const view = bar.parentElement;
+    const group = bar.querySelector('.am-delta-switch');
+    if (!group) continue;
+    group.hidden = false;
+    group.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-view]');
+      if (!btn) return;
+      setView(view, btn.dataset.view);
+      for (const b of group.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b === btn));
+    });
+  }
+  // The expand button copies only the drawing into the viewer; the viewer shows the view the diagram is in.
+  document.addEventListener('click', (e) => {
+    const host = e.target.closest?.('.am-diagram-expand')?.parentElement;
+    const canvas = document.querySelector('.am-lightbox-canvas');
+    const view = host && VIEWS.find((v) => host.classList.contains(`am-view-${v}`));
+    if (view && canvas) setView(canvas, view);
+  });
+})();
+</script>
+</body>
+</html>

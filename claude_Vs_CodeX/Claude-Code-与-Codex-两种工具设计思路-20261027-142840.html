@@ -1,0 +1,2041 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="paper" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.4.14">
+<title>Claude Code 与 Codex：两种工具设计思路</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-right: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin: 0 6px 0 auto; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-left: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; right: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { left: 50%; }
+.am-timeline--h li:last-child::before { right: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { left: 50%; }
+.am-tree-col:last-child::before { right: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }
+.am-tree-list ul { margin-left: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }
+.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 8px 4px auto;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-right: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */
+  .am-md th, .am-md td { min-width: 6em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="zh-CN" data-am-root-theme="paper" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">主题<select data-am="theme"><option value="blueprint">图纸</option><option value="shadcn">卡片</option><option value="paper" selected>纸张</option></select></label>
+<label class="am-pick">明暗<select data-am="mode"><option value="auto" selected>跟随系统</option><option value="light">亮</option><option value="dark">暗</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;回复&quot;,&quot;comment&quot;:&quot;评论&quot;,&quot;commentHint&quot;:&quot;对这个面板的意见&quot;,&quot;title&quot;:&quot;你的回复&quot;,&quot;hint&quot;:&quot;复制后粘贴到对话里。&quot;,&quot;copy&quot;:&quot;复制回复&quot;,&quot;close&quot;:&quot;关闭&quot;,&quot;suggested&quot;:&quot;建议&quot;,&quot;empty&quot;:&quot;先选择选项，或在面板上写评论。&quot;,&quot;decisions&quot;:&quot;决定&quot;,&quot;comments&quot;:&quot;评论&quot;,&quot;confirmed&quot;:&quot;确认了建议&quot;,&quot;untouched&quot;:&quot;未作答，保留建议&quot;,&quot;was&quot;:&quot;原为&quot;,&quot;typed&quot;:&quot;以 \&quot;&gt;\&quot; 开头的行是读者输入的文字。&quot;,&quot;done&quot;:&quot;已复制 ✓&quot;}">回复</button>
+<button class="am-btn" type="button" data-am="copy" data-done="已复制 ✓">复制源稿</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>Claude Code 与 Codex：两种工具设计思路</h1><p class="am-sub">一个给模型一套专用工具，一个给模型一台可编程的终端</p><div class="am-head-meta"><span><b>source</b>本机 Codex CLI 0.162.1 · Claude Code 本会话工具定义 · 2026-10-27</span></div><div class="am-intro am-md"><div class="am-md"><p>Claude Code 把读、搜、改拆成专用工具，靠工具说明和逐次权限检查约束模型。Codex 只给模型通用执行能力加一个补丁工具，靠模型训练和操作系统沙箱兜底。</p>
+</div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="目录"><a href="#panel-A">A · 结论</a><a href="#panel-B">B · 工具清单对照</a><a href="#panel-C">C · 同一个任务的两条路径</a><a href="#panel-D">D · 编辑：Edit 与 apply_patch</a><a href="#panel-E">E · 安全：工具级权限与系统级沙箱</a><a href="#panel-F">F · 实测：你的 Codex 有 81% 调用在跑终端命令</a><a href="#panel-G">G · 设计思路对比</a><a href="#panel-H">H · 两边在互相靠近</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>结论</h2></header>
+<div class="am-panel-body"><div class="am-callout am-callout--info" role="note"><div class="am-callout-title">一句话结论</div><div class="am-callout-body am-md"><ul>
+<li><strong>Claude Code</strong>：工具多而专。每个工具有参数 schema、使用说明和前置条件。安全检查发生在每次工具调用前。</li>
+<li><strong>Codex</strong>：工具少而通用。读文件和搜索都靠终端命令，改文件靠 <code>apply_patch</code>。安全边界是操作系统沙箱。</li>
+<li>你的直觉是对的：Codex 更像&quot;万能 bash&quot;。在你的 Codex 会话里，81% 的子工具调用是在跑终端命令。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>工具清单对照</h2></header>
+<div class="am-panel-body"><div class="am-md"><p>本会话中，Claude Code 直接加载了 14 个工具，另有 14 个按需加载。Codex 一栏综合了开源仓库源码和你本机调用记录。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>能力</th>
+<th>Claude Code</th>
+<th>Codex</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>读文件</td>
+<td><code>Read</code>：带行号，可分页，也能读图片和 PDF</td>
+<td><code>exec_command</code> 跑 <code>cat</code>、<code>sed -n</code></td>
+</tr>
+<tr>
+<td>按文件名找文件</td>
+<td><code>Glob</code></td>
+<td><code>exec_command</code> 跑 <code>rg --files</code></td>
+</tr>
+<tr>
+<td>搜索内容</td>
+<td><code>Grep</code>：基于 ripgrep，默认最多返回 250 条</td>
+<td><code>exec_command</code> 跑 <code>rg</code></td>
+</tr>
+<tr>
+<td>新建文件</td>
+<td><code>Write</code></td>
+<td><code>apply_patch</code> 的 Add File</td>
+</tr>
+<tr>
+<td>修改文件</td>
+<td><code>Edit</code></td>
+<td><code>apply_patch</code></td>
+</tr>
+<tr>
+<td>执行命令</td>
+<td><code>Bash</code></td>
+<td><code>exec_command</code>、<code>shell_command</code></td>
+</tr>
+<tr>
+<td>给运行中的命令输入内容</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>不支持交互输入</span></td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span><code>write_stdin</code></span></td>
+</tr>
+<tr>
+<td>后台任务</td>
+<td><code>Bash</code> 后台运行，配合 <code>Monitor</code>、<code>TaskStop</code></td>
+<td><code>exec_command</code> 保持会话，用 <code>write_stdin</code> 继续读输出</td>
+</tr>
+<tr>
+<td>看图片</td>
+<td><code>Read</code></td>
+<td><code>view_image</code></td>
+</tr>
+<tr>
+<td>联网</td>
+<td><code>WebSearch</code>、<code>WebFetch</code></td>
+<td><code>web_search</code> 由服务端执行；抓网页靠 <code>curl</code></td>
+</tr>
+<tr>
+<td>计划</td>
+<td><code>EnterPlanMode</code>、<code>ExitPlanMode</code></td>
+<td><code>update_plan</code>，第三方资料称 0.152 起默认关闭</td>
+</tr>
+<tr>
+<td>向用户提问</td>
+<td><code>AskUserQuestion</code></td>
+<td><code>request_user_input</code></td>
+</tr>
+<tr>
+<td>子代理</td>
+<td><code>Agent</code>、<code>SendMessage</code>、<code>ListAgents</code>、<code>Workflow</code></td>
+<td><code>spawn_agent</code>、<code>send_message</code>、<code>followup_task</code>、<code>wait_agent</code>、<code>list_agents</code></td>
+</tr>
+<tr>
+<td>按需加载工具</td>
+<td><code>ToolSearch</code></td>
+<td><code>tool_search</code></td>
+</tr>
+<tr>
+<td>定时和等待</td>
+<td><code>CronCreate</code>、<code>ScheduleWakeup</code></td>
+<td><code>sleep</code></td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>同一个任务的两条路径</h2></header>
+<div class="am-panel-body"><div class="am-md"><p>任务：在项目里找到 <code>print(&quot;hi&quot;)</code>，改成 <code>print(&quot;hello&quot;)</code>。</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 1358 271" width="1358" height="271" role="img" aria-label="流程图：改一行代码、Grep 定位、exec 写一段 JS、Read 读文件、Edit 替换原文、界面显示 diff、exec_command 跑 rg、exec_command 跑 sed -n" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g><rect class="am-cluster" x="165" y="154" width="910.5" height="91" rx="4"/><text class="am-cluster-label" x="173" y="168">Claude Code</text><rect class="am-cluster" x="165" y="26" width="1178" height="108" rx="4"/><text class="am-cluster-label" x="173" y="40">Codex</text></g><g><g data-step="0"><path class="am-edge" d="M88.6,157.3 L115.3,178.4 Q142,199.5 153.5,199.5 Q165,199.5 185,199.5 L204.9,199.5" marker-end="url(#am1-arrow)"/></g><g data-step="0"><path class="am-edge" d="M88.6,122.3 L115.3,101.1 Q142,80 153.5,80 Q165,80 176.5,80 L188,80" marker-end="url(#am1-arrow)"/></g><g data-step="1"><path class="am-edge" d="M292.7,199.5 L312.7,199.5 Q332.6,199.5 357.6,199.5 L382.5,199.5" marker-end="url(#am1-arrow)"/></g><g data-step="1"><path class="am-edge" d="M484.1,199.5 L523.5,199.5 Q563,199.5 603.4,199.5 L643.7,199.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="535" y="190.5" width="56" height="18" rx="3"/><text x="563" y="199.5" text-anchor="middle" dominant-baseline="central">先读后改</text></g></g><g data-step="2"><path class="am-edge" d="M752.1,199.5 L798.2,199.5 Q844.3,199.5 886.3,199.5 L928.3,199.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="804.8" y="190.5" width="79" height="18" rx="3"/><text x="844.3" y="199.5" text-anchor="middle" dominant-baseline="central">原文必须唯一</text></g></g><g data-step="3"><path class="am-edge" d="M309.6,80 L321.1,80 Q332.6,80 344.1,80 L355.6,80" marker-end="url(#am1-arrow)"/></g><g data-step="3"><path class="am-edge" d="M511,80 L537,80 Q563,80 589,80 L615,80" marker-end="url(#am1-arrow)"/></g><g data-step="3"><path class="am-edge" d="M780.8,80 L812.6,80 Q844.3,80 876.1,80 L907.8,80" marker-end="url(#am1-arrow)"/></g><g data-step="4"><path class="am-edge" d="M1052.5,80 L1064,80 Q1075.5,80 1110.2,80 Q1144.8,80 1179.4,80 L1214,80" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="1099.5" y="71" width="90.5" height="18" rx="3"/><text x="1144.8" y="80" text-anchor="middle" dominant-baseline="central">路径在工作区内</text></g></g></g><g><g class="am-node am-node--round" data-key="改一行代码" data-step="0"><rect class="am-node-shape" x="14" y="122.3" width="105" height="35" rx="17.5"/><text x="66.5" y="139.8" text-anchor="middle" dominant-baseline="central">改一行代码</text></g><g class="am-node am-node--rect" data-key="Grep 定位" data-step="0"><rect class="am-node-shape" x="204.9" y="182" width="87.8" height="35" rx="3"/><text x="248.8" y="199.5" text-anchor="middle" dominant-baseline="central">Grep 定位</text></g><g class="am-node am-node--rect" data-key="exec 写一段 JS" data-step="0"><rect class="am-node-shape" x="188" y="62.5" width="121.6" height="35" rx="3"/><text x="248.8" y="80" text-anchor="middle" dominant-baseline="central">exec 写一段 JS</text></g><g class="am-node am-node--rect" data-key="Read 读文件" data-step="1"><rect class="am-node-shape" x="382.5" y="182" width="101.6" height="35" rx="3"/><text x="433.3" y="199.5" text-anchor="middle" dominant-baseline="central">Read 读文件</text></g><g class="am-node am-node--rect" data-key="Edit 替换原文" data-step="1"><rect class="am-node-shape" x="643.7" y="182" width="108.3" height="35" rx="3"/><text x="697.9" y="199.5" text-anchor="middle" dominant-baseline="central">Edit 替换原文</text></g><g class="am-node am-node--rect am-node--hi" data-key="界面显示 diff" data-step="2"><rect class="am-node-shape" x="928.3" y="182" width="103.7" height="35" rx="3"/><text x="980.2" y="199.5" text-anchor="middle" dominant-baseline="central">界面显示 diff</text></g><g class="am-node am-node--rect" data-key="exec_command 跑 rg" data-step="3"><rect class="am-node-shape" x="355.6" y="62.5" width="155.4" height="35" rx="3"/><text x="433.3" y="80" text-anchor="middle" dominant-baseline="central">exec_command 跑 rg</text></g><g class="am-node am-node--rect" data-key="exec_command 跑 sed -n" data-step="3"><rect class="am-node-shape" x="615" y="54" width="165.8" height="52" rx="3"/><text x="697.9" y="71.5" text-anchor="middle" dominant-baseline="central">exec_command 跑 sed</text><text x="697.9" y="88.5" text-anchor="middle" dominant-baseline="central">-n</text></g><g class="am-node am-node--rect" data-key="apply_patch 打补丁" data-step="3"><rect class="am-node-shape" x="907.8" y="62.5" width="144.7" height="35" rx="3"/><text x="980.2" y="80" text-anchor="middle" dominant-baseline="central">apply_patch 打补丁</text></g><g class="am-node am-node--rect am-node--hi" data-key="沙箱放行写入" data-step="4"><rect class="am-node-shape" x="1214" y="62.5" width="106" height="35" rx="3"/><text x="1267" y="80" text-anchor="middle" dominant-baseline="central">沙箱放行写入</text></g></g></svg></figure>
+<div class="am-md"><ul>
+<li>Claude Code 每一步是一次独立的工具调用。Harness 在每一步检查参数和前置条件。</li>
+<li>Codex 开了代码模式后，模型写一段 JS，在里面连续调用多个子工具。一次 <code>exec</code> 可以走完整条路径，但不保证成功。</li>
+</ul>
+<h3>一次 exec 出错了怎么办</h3>
+</div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">结论</div><div class="am-callout-body am-md"><p>一次 <code>exec</code> 不保证成功。它只是把几步打包成一次往返。出错后，模型读完整输出，再写下一段 <code>exec</code> 修正。</p>
+</div></div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 1211 242" width="1211" height="242" role="img" aria-label="流程图：exec 运行脚本、脚本结果、Script completed、Script failed、Script running、wait 取结果、模型读输出、达到目标?" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M92.4,92.8 L121.2,115.8 Q150,138.8 161.5,138.8 L173,138.8" marker-end="url(#am2-arrow)"/></g><g data-step="1"><path class="am-edge" d="M259.2,154.5 L305,182.1 Q350.8,209.8 407.8,209.8 Q464.8,209.8 504.4,209.8 Q544,209.8 555.5,209.8 L567,209.8" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="436.8" y="200.8" width="56" height="18" rx="3"/><text x="464.8" y="209.8" text-anchor="middle" dominant-baseline="central">正常跑完</text></g></g><g data-step="2"><path class="am-edge" d="M293,138.8 L321.9,138.8 Q350.8,138.8 407.8,138.8 Q464.8,138.8 504.4,138.8 Q544,138.8 562.7,138.8 L581.5,138.8" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="436.8" y="129.8" width="56" height="18" rx="3"/><text x="464.8" y="138.8" text-anchor="middle" dominant-baseline="central">抛出异常</text></g></g><g data-step="3"><path class="am-edge" d="M259.2,123 L305,95.4 Q350.8,67.8 379.6,67.8 L408.5,67.8" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="317" y="58.8" width="67.5" height="18" rx="3"/><text x="350.8" y="67.8" text-anchor="middle" dominant-baseline="central">超时未结束</text></g></g><g data-step="4"><path class="am-edge" d="M521,67.8 L532.5,67.8 Q544,67.8 563.8,67.8 L583.7,67.8" marker-end="url(#am2-arrow)"/></g><g data-step="5"><path class="am-edge" d="M698,209.8 L709.5,209.8 Q721,209.8 747.2,183 L773.3,156.3" marker-end="url(#am2-arrow)"/></g><g data-step="5"><path class="am-edge" d="M683.6,138.8 L702.3,138.8 Q721,138.8 732.5,138.8 L744,138.8" marker-end="url(#am2-arrow)"/></g><g data-step="5"><path class="am-edge" d="M681.3,67.8 L701.2,67.8 Q721,67.8 747.2,94.5 L773.3,121.3" marker-end="url(#am2-arrow)"/></g><g data-step="6"><path class="am-edge" d="M837,138.8 L848.5,138.8 Q860,138.8 871.5,138.8 L883,138.8" marker-end="url(#am2-arrow)"/></g><g data-step="7"><path class="am-edge" d="M993.8,147.3 L1021.2,152.5 Q1048.7,157.8 1074.3,157.8 L1099.9,157.8" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="1037.9" y="148.8" width="21.5" height="18" rx="3"/><text x="1048.7" y="157.8" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="8"><path class="am-edge" d="M971.4,120.6 L1010,90 Q1048.7,59.5 1066,54.2 L1083.4,48.8" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="1037.9" y="50.5" width="21.5" height="18" rx="3"/><text x="1048.7" y="59.5" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="9"><path class="am-edge am-edge--dashed" d="M1083.4,22.5 L1066,19.8 Q1048.7,17 998.5,17 Q948.4,17 904.2,17 Q860,17 825.2,17 Q790.5,17 755.7,17 Q721,17 676.7,17 Q632.5,17 588.3,17 Q544,17 504.4,17 Q464.8,17 407.8,17 Q350.8,17 291.9,17 Q233,17 191.5,17 Q150,17 122.2,37.4 L94.4,57.8" marker-end="url(#am2-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="exec 运行脚本" data-step="0"><rect class="am-node-shape" x="14" y="57.8" width="113" height="35" rx="3"/><text x="70.5" y="75.3" text-anchor="middle" dominant-baseline="central">exec 运行脚本</text></g><g class="am-node am-node--diamond" data-key="脚本结果" data-step="0"><polygon class="am-node-shape" points="233,110.8 293,138.8 233,166.8 173,138.8"/><text x="233" y="138.8" text-anchor="middle" dominant-baseline="central">脚本结果</text></g><g class="am-node am-node--rect" data-key="Script completed" data-step="1"><rect class="am-node-shape" x="567" y="192.3" width="131" height="35" rx="3"/><text x="632.5" y="209.8" text-anchor="middle" dominant-baseline="central">Script completed</text></g><g class="am-node am-node--rect" data-key="Script failed" data-step="2"><rect class="am-node-shape" x="581.5" y="121.3" width="102.1" height="35" rx="3"/><text x="632.5" y="138.8" text-anchor="middle" dominant-baseline="central">Script failed</text></g><g class="am-node am-node--rect" data-key="Script running" data-step="3"><rect class="am-node-shape" x="408.5" y="50.3" width="112.5" height="35" rx="3"/><text x="464.8" y="67.8" text-anchor="middle" dominant-baseline="central">Script running</text></g><g class="am-node am-node--rect" data-key="wait 取结果" data-step="4"><rect class="am-node-shape" x="583.7" y="50.3" width="97.7" height="35" rx="3"/><text x="632.5" y="67.8" text-anchor="middle" dominant-baseline="central">wait 取结果</text></g><g class="am-node am-node--rect am-node--hi" data-key="模型读输出" data-step="5"><rect class="am-node-shape" x="744" y="121.3" width="93" height="35" rx="3"/><text x="790.5" y="138.8" text-anchor="middle" dominant-baseline="central">模型读输出</text></g><g class="am-node am-node--diamond" data-key="达到目标?" data-step="6"><polygon class="am-node-shape" points="948.4,110.8 1013.9,138.8 948.4,166.8 883,138.8"/><text x="948.4" y="138.8" text-anchor="middle" dominant-baseline="central">达到目标?</text></g><g class="am-node am-node--rect" data-key="回复用户" data-step="7"><rect class="am-node-shape" x="1099.9" y="140.3" width="80" height="35" rx="3"/><text x="1139.9" y="157.8" text-anchor="middle" dominant-baseline="central">回复用户</text></g><g class="am-node am-node--rect" data-key="写下一段 exec" data-step="8"><rect class="am-node-shape" x="1083.4" y="14" width="113" height="35" rx="3"/><text x="1139.9" y="31.5" text-anchor="middle" dominant-baseline="central">写下一段 exec</text></g></g></svg></figure>
+<div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>exec 结果</th>
+<th>触发条件</th>
+<th>返回给模型的内容</th>
+<th>你的记录中</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Script completed</td>
+<td>脚本正常跑完。命令退出码非 0 也算这一类</td>
+<td>全部输出，包括命令的报错</td>
+<td>1899 次，占 96.1%</td>
+</tr>
+<tr>
+<td>Script failed</td>
+<td>脚本抛出异常，例如 JS 语法错误、补丁对不上</td>
+<td>失败前已有的输出，加上错误信息</td>
+<td>31 次，占 1.6%</td>
+</tr>
+<tr>
+<td>Script running</td>
+<td>超过等待时间，脚本仍在运行</td>
+<td>一个 cell ID，之后用 <code>wait</code> 取结果</td>
+<td>44 次，占 2.2%</td>
+</tr>
+<tr>
+<td>用户中止</td>
+<td>你手动打断</td>
+<td>中止时间</td>
+<td>3 次，占 0.2%</td>
+</tr>
+</tbody></table></div>
+<p><strong>你的 Codex 记录说明了什么</strong></p>
+<ul>
+<li>平均每轮对话调用 10.5 次 <code>exec</code>，中位数是 7。只有 16% 的轮次一次 <code>exec</code> 就结束。</li>
+<li>有 173 次输出带非 0 退出码，脚本状态却是 completed。命令失败不会让脚本失败，结果作为普通输出返回。</li>
+<li>输出出现错误字样后，68% 的下一步是再调用 <code>exec</code>，27% 是先给你回一条消息。</li>
+</ul>
+<p><strong>打包执行的风险</strong></p>
+<ul>
+<li>命令失败不抛异常。如果脚本不检查退出码，后面几步会照常执行。</li>
+<li>Claude Code 每步单独返回。第一步出错，模型马上就能看到，不会继续执行后面几步。代价是往返次数更多。</li>
+</ul>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">统计说明</div><div class="am-callout-body am-md"><p>状态和次数来自你本机 1977 条 <code>exec</code> 输出的首行。&quot;错误字样&quot;用正则匹配，是近似值。&quot;补丁对不上会让脚本失败&quot;是从记录推断的，源码中没有找到明确说明。</p>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>编辑：Edit 与 apply_patch</h2></header>
+<div class="am-panel-body"><div class="am-md"><p>两边差异最大的就是改文件这一步。</p>
+</div>
+<figure class="am-codeblock"><figcaption class="am-code-head"><span class="am-code-title">Claude Code · Edit 调用（示意）</span><span class="am-code-lang">json</span><button class="am-code-copy" type="button" data-am="copy-code" data-done="已复制 ✓">复制</button></figcaption><pre class="am-code"><code data-lang="json"><span class="am-ln">{</span><span class="am-ln">  &quot;file_path&quot;: &quot;C:/proj/app.py&quot;,</span><span class="am-ln">  &quot;old_string&quot;: &quot;    print(\&quot;hi\&quot;)&quot;,</span><span class="am-ln">  &quot;new_string&quot;: &quot;    print(\&quot;hello\&quot;)&quot;</span><span class="am-ln">}</span></code></pre></figure>
+<figure class="am-codeblock"><figcaption class="am-code-head"><span class="am-code-title">Codex · apply_patch 补丁（示意）</span><span class="am-code-lang">text</span><button class="am-code-copy" type="button" data-am="copy-code" data-done="已复制 ✓">复制</button></figcaption><pre class="am-code"><code data-lang="text"><span class="am-ln">*** Begin Patch</span><span class="am-ln">*** Update File: app.py</span><span class="am-ln">@@ def greet():</span><span class="am-ln">-    print(&quot;hi&quot;)</span><span class="am-ln">+    print(&quot;hello&quot;)</span><span class="am-ln">*** End Patch</span></code></pre></figure>
+<div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>方面</th>
+<th>Edit</th>
+<th>apply_patch</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>输入</td>
+<td>原文和新文两个字符串</td>
+<td>一段补丁文本</td>
+</tr>
+<tr>
+<td>前置条件</td>
+<td>本会话必须先用 Read 读过该文件</td>
+<td>无</td>
+</tr>
+<tr>
+<td>定位方式</td>
+<td><code>old_string</code> 必须在文件中唯一</td>
+<td>靠上下文行和 <code>@@</code> 锚点</td>
+</tr>
+<tr>
+<td>一次能改多少</td>
+<td>一个文件一处，或用 <code>replace_all</code> 全部替换</td>
+<td>一个补丁可改多个文件，也能新建、删除、移动文件</td>
+</tr>
+<tr>
+<td>新建文件</td>
+<td>另用 Write</td>
+<td>补丁里写 Add File</td>
+</tr>
+<tr>
+<td>依赖模型训练</td>
+<td>低：参数是普通字符串</td>
+<td>高：OpenAI 建议原样使用官方实现，因为模型按这个格式训练</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>安全：工具级权限与系统级沙箱</h2></header>
+<div class="am-panel-body"><div class="am-md"><p><strong>Claude Code：每次工具调用前检查</strong></p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 788 155" width="788" height="155" role="img" aria-label="流程图：工具调用、命中权限规则?、执行、询问用户或交给自动模式分类器、拒绝并给出原因" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M94,82 L105.5,82 Q117,82 128.5,82 L140,82" marker-end="url(#am3-arrow)"/></g><g data-step="1"><path class="am-edge" d="M264.4,97 L310.3,114.5 Q356.2,132 422,132 Q487.9,132 550.9,132 Q613.9,132 647.9,127.1 L681.9,122.1" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="454.6" y="123" width="66.6" height="18" rx="3"/><text x="487.9" y="132" text-anchor="middle" dominant-baseline="central">allow 规则</text></g></g><g data-step="2"><path class="am-edge" d="M274.1,70.2 L315.1,60.3 Q356.2,50.5 379.3,50.5 L402.4,50.5" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="333.9" y="41.5" width="44.5" height="18" rx="3"/><text x="356.2" y="50.5" text-anchor="middle" dominant-baseline="central">未命中</text></g></g><g data-step="3"><path class="am-edge" d="M573.4,74.6 L593.7,80.3 Q613.9,86 647.9,96.7 L681.9,107.4" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="597.4" y="77" width="33" height="18" rx="3"/><text x="613.9" y="86" text-anchor="middle" dominant-baseline="central">通过</text></g></g><g data-step="4"><path class="am-edge" d="M573.4,37.6 L593.7,34.6 Q613.9,31.5 634.2,31.5 L654.4,31.5" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="597.4" y="22.5" width="33" height="18" rx="3"/><text x="613.9" y="31.5" text-anchor="middle" dominant-baseline="central">拒绝</text></g></g></g><g><g class="am-node am-node--rect" data-key="工具调用" data-step="0"><rect class="am-node-shape" x="14" y="64.5" width="80" height="35" rx="3"/><text x="54" y="82" text-anchor="middle" dominant-baseline="central">工具调用</text></g><g class="am-node am-node--diamond" data-key="命中权限规则?" data-step="0"><polygon class="am-node-shape" points="225,54 309.9,82 225,110 140,82"/><text x="225" y="82" text-anchor="middle" dominant-baseline="central">命中权限规则?</text></g><g class="am-node am-node--rect" data-key="执行" data-step="1"><rect class="am-node-shape" x="681.9" y="100" width="64" height="35" rx="3"/><text x="713.9" y="117.5" text-anchor="middle" dominant-baseline="central">执行</text></g><g class="am-node am-node--rect" data-key="询问用户或交给自动模式分类器" data-step="2"><rect class="am-node-shape" x="402.4" y="24.5" width="171" height="52" rx="3"/><text x="487.9" y="42" text-anchor="middle" dominant-baseline="central">询问用户或交给自动模式</text><text x="487.9" y="59" text-anchor="middle" dominant-baseline="central">分类器</text></g><g class="am-node am-node--rect" data-key="拒绝并给出原因" data-step="4"><rect class="am-node-shape" x="654.4" y="14" width="119" height="35" rx="3"/><text x="713.9" y="31.5" text-anchor="middle" dominant-baseline="central">拒绝并给出原因</text></g></g></svg></figure>
+<div class="am-md"><p><strong>Codex：命令在沙箱里跑，越界才审批</strong></p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 860 134" width="860" height="134" role="img" aria-label="流程图：终端命令、需要越出沙箱?、在沙箱内执行、申请提权、用户或 auto_review 审批、沙箱外执行" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am4-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M94,67 L105.5,67 Q117,67 128.5,67 L140,67" marker-end="url(#am4-arrow)"/></g><g data-step="1"><path class="am-edge" d="M269.7,80.3 L307.2,91.4 Q344.7,102.5 362,102.5 L379.4,102.5" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="333.9" y="93.5" width="21.5" height="18" rx="3"/><text x="344.7" y="102.5" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="2"><path class="am-edge" d="M269.7,53.7 L307.2,42.6 Q344.7,31.5 368.5,31.5 L392.4,31.5" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="333.9" y="22.5" width="21.5" height="18" rx="3"/><text x="344.7" y="31.5" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="3"><path class="am-edge" d="M472.4,31.5 L490.4,31.5 Q508.4,31.5 519.9,31.5 L531.4,31.5" marker-end="url(#am4-arrow)"/></g><g data-step="3"><path class="am-edge" d="M706.8,31.5 L718.3,31.5 Q729.8,31.5 741.3,31.5 L752.8,31.5" marker-end="url(#am4-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="终端命令" data-step="0"><rect class="am-node-shape" x="14" y="49.5" width="80" height="35" rx="3"/><text x="54" y="67" text-anchor="middle" dominant-baseline="central">终端命令</text></g><g class="am-node am-node--diamond" data-key="需要越出沙箱?" data-step="0"><polygon class="am-node-shape" points="225,39 309.9,67 225,95 140,67"/><text x="225" y="67" text-anchor="middle" dominant-baseline="central">需要越出沙箱?</text></g><g class="am-node am-node--rect" data-key="在沙箱内执行" data-step="1"><rect class="am-node-shape" x="379.4" y="85" width="106" height="35" rx="3"/><text x="432.4" y="102.5" text-anchor="middle" dominant-baseline="central">在沙箱内执行</text></g><g class="am-node am-node--rect" data-key="申请提权" data-step="2"><rect class="am-node-shape" x="392.4" y="14" width="80" height="35" rx="3"/><text x="432.4" y="31.5" text-anchor="middle" dominant-baseline="central">申请提权</text></g><g class="am-node am-node--rect" data-key="用户或 auto_review 审批" data-step="3"><rect class="am-node-shape" x="531.4" y="14" width="175.4" height="35" rx="3"/><text x="619.1" y="31.5" text-anchor="middle" dominant-baseline="central">用户或 auto_review 审批</text></g><g class="am-node am-node--rect" data-key="沙箱外执行" data-step="3"><rect class="am-node-shape" x="752.8" y="14" width="93" height="35" rx="3"/><text x="799.3" y="31.5" text-anchor="middle" dominant-baseline="central">沙箱外执行</text></g></g></svg></figure>
+<div class="am-md"><ul>
+<li>Claude Code 的规则按工具和命令前缀写。例如你的配置 <code>Bash(git *)</code> 只放行 git 命令。</li>
+<li>Codex 的规则按目录和网络写。你的配置是 <code>sandbox_mode = &quot;workspace-write&quot;</code>：工作区可写，越界要审批。</li>
+<li>本次对话就有一个实例：我读取 Codex 会话文件时，自动模式分类器以&quot;可能含个人数据&quot;为由拦截。你同意后才放行。</li>
+</ul>
+</div></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>实测：你的 Codex 有 81% 调用在跑终端命令</h2></header>
+<div class="am-panel-body"><div class="am-md"><p>数据来自你本机 285 个 Codex 会话。外层调用中，<code>exec</code> 占 89%（1968 / 2211）。下表统计 <code>exec</code> 代码里的子工具调用。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>子工具</th>
+<th>次数</th>
+<th>占比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>exec_command</code></td>
+<td>1850</td>
+<td>65.4%</td>
+</tr>
+<tr>
+<td><code>write_stdin</code></td>
+<td>413</td>
+<td>14.6%</td>
+</tr>
+<tr>
+<td><code>shell_command</code></td>
+<td>33</td>
+<td>1.2%</td>
+</tr>
+<tr>
+<td><strong>终端命令合计</strong></td>
+<td><strong>2296</strong></td>
+<td><strong>81.1%</strong></td>
+</tr>
+<tr>
+<td><code>apply_patch</code></td>
+<td>312</td>
+<td>11.0%</td>
+</tr>
+<tr>
+<td><code>view_image</code></td>
+<td>114</td>
+<td>4.0%</td>
+</tr>
+<tr>
+<td>插件提供的 MCP 工具</td>
+<td>102</td>
+<td>3.6%</td>
+</tr>
+<tr>
+<td>其他</td>
+<td>6</td>
+<td>0.2%</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">统计说明</div><div class="am-callout-body am-md"><p>子工具次数用正则匹配 <code>tools.名称(</code> 得出，是近似值。Claude Code 这边没有同口径的数据，所以不做对比。</p>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>设计思路对比</h2></header>
+<div class="am-panel-body"><div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Claude Code</th>
+<th>Codex</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心假设</td>
+<td>用结构化工具约束模型的行为</td>
+<td>模型已经会用终端，给它通用执行能力</td>
+</tr>
+<tr>
+<td>能力从哪来</td>
+<td>工具说明和参数 schema</td>
+<td>模型训练：补丁格式、终端使用习惯</td>
+</tr>
+<tr>
+<td>安全边界</td>
+<td>每次工具调用前检查权限</td>
+<td>操作系统沙箱限制读写范围和网络</td>
+</tr>
+<tr>
+<td>权限粒度</td>
+<td>细：按工具、按命令前缀</td>
+<td>粗：按目录和网络，越界时整体提权</td>
+</tr>
+<tr>
+<td>上下文开销</td>
+<td>工具说明多，用 ToolSearch 延迟加载</td>
+<td>工具说明少，代码模式把多步合成一次调用</td>
+</tr>
+<tr>
+<td>输出控制</td>
+<td>工具自带分页和条数上限</td>
+<td>模型自己用 <code>head</code>、<code>sed -n</code> 控制</td>
+</tr>
+<tr>
+<td>跨平台</td>
+<td>专用工具在各系统行为一致</td>
+<td>受 shell 差异影响，例如 PowerShell 的引号规则</td>
+</tr>
+<tr>
+<td>界面展示</td>
+<td>diff 视图、可点击的文件路径</td>
+<td>显示命令和输出</td>
+</tr>
+</tbody></table></div>
+<p><strong>各自的代价</strong></p>
+<ul>
+<li>Claude Code：工具说明占上下文，模型要在多个工具里做选择。Bash 不支持交互输入。分类器可能误拦正常操作。</li>
+<li>Codex：命令容易遇到引号转义和平台差异。输出容易过长。改文件依赖模型熟悉补丁格式。权限粒度较粗。</li>
+</ul>
+</div></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>两边在互相靠近</h2></header>
+<div class="am-panel-body"><div class="am-md"><ul>
+<li><strong>Claude Code 在放宽</strong>：自动模式允许直接用 <code>cat</code>、<code>grep</code>、<code>sed</code> 读文件和做小改动。<code>Workflow</code> 工具让模型用 JS 脚本编排多个子代理。</li>
+<li><strong>Codex 在削减专用工具，同时增加协作工具</strong>：第三方资料称 0.117 删除了 <code>read_file</code>、<code>grep_files</code>。它又加入了 <code>request_user_input</code>、<code>spawn_agent</code>、<code>tool_search</code>。</li>
+</ul>
+<p><strong>如果你自己设计 agent 的工具</strong></p>
+<ol>
+<li>模型没训练过的格式，用结构化专用工具。</li>
+<li>把沙箱当作底线，再用工具级权限做细分。</li>
+<li>工具数量多时，先只给名字，用到再加载 schema。</li>
+</ol>
+<p><strong>来源</strong></p>
+<ul>
+<li><a href="https://github.com/openai/codex/tree/main/codex-rs/core/src/tools/handlers">openai/codex 工具实现目录</a></li>
+<li><a href="https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide">Codex Prompting Guide</a></li>
+<li><a href="https://developers.openai.com/codex/config-reference">Codex Configuration Reference</a></li>
+<li><a href="https://blakecrosley.com/guides/codex">Codex CLI Guide 2026（第三方）</a></li>
+<li>Claude Code 工具信息来自本会话实际加载的工具定义</li>
+</ul>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="图表查看" data-expand="展开查看图表">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="关闭" aria-label="关闭">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.4.14 · 2026-10-27 14:40</footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+title: Claude Code 与 Codex：两种工具设计思路
+subtitle: 一个给模型一套专用工具，一个给模型一台可编程的终端
+source: 本机 Codex CLI 0.162.1 · Claude Code 本会话工具定义 · 2026-10-27
+---
+Claude Code 把读、搜、改拆成专用工具，靠工具说明和逐次权限检查约束模型。Codex 只给模型通用执行能力加一个补丁工具，靠模型训练和操作系统沙箱兜底。
+
+## 结论
+```callout info 一句话结论
+- **Claude Code**：工具多而专。每个工具有参数 schema、使用说明和前置条件。安全检查发生在每次工具调用前。
+- **Codex**：工具少而通用。读文件和搜索都靠终端命令，改文件靠 `apply_patch`。安全边界是操作系统沙箱。
+- 你的直觉是对的：Codex 更像&quot;万能 bash&quot;。在你的 Codex 会话里，81% 的子工具调用是在跑终端命令。
+```
+
+## 工具清单对照
+本会话中，Claude Code 直接加载了 14 个工具，另有 14 个按需加载。Codex 一栏综合了开源仓库源码和你本机调用记录。
+
+| 能力 | Claude Code | Codex |
+|---|---|---|
+| 读文件 | `Read`：带行号，可分页，也能读图片和 PDF | `exec_command` 跑 `cat`、`sed -n` |
+| 按文件名找文件 | `Glob` | `exec_command` 跑 `rg --files` |
+| 搜索内容 | `Grep`：基于 ripgrep，默认最多返回 250 条 | `exec_command` 跑 `rg` |
+| 新建文件 | `Write` | `apply_patch` 的 Add File |
+| 修改文件 | `Edit` | `apply_patch` |
+| 执行命令 | `Bash` | `exec_command`、`shell_command` |
+| 给运行中的命令输入内容 | warn 不支持交互输入 | ok `write_stdin` |
+| 后台任务 | `Bash` 后台运行，配合 `Monitor`、`TaskStop` | `exec_command` 保持会话，用 `write_stdin` 继续读输出 |
+| 看图片 | `Read` | `view_image` |
+| 联网 | `WebSearch`、`WebFetch` | `web_search` 由服务端执行；抓网页靠 `curl` |
+| 计划 | `EnterPlanMode`、`ExitPlanMode` | `update_plan`，第三方资料称 0.152 起默认关闭 |
+| 向用户提问 | `AskUserQuestion` | `request_user_input` |
+| 子代理 | `Agent`、`SendMessage`、`ListAgents`、`Workflow` | `spawn_agent`、`send_message`、`followup_task`、`wait_agent`、`list_agents` |
+| 按需加载工具 | `ToolSearch` | `tool_search` |
+| 定时和等待 | `CronCreate`、`ScheduleWakeup` | `sleep` |
+## 同一个任务的两条路径
+任务：在项目里找到 `print(&quot;hi&quot;)`，改成 `print(&quot;hello&quot;)`。
+
+```flow LR
+(改一行代码) -&gt; [Grep 定位] &amp; [exec 写一段 JS]
+[Grep 定位] -&gt; [Read 读文件] -&gt; [Edit 替换原文]: 先读后改
+[Edit 替换原文] -&gt; *[界面显示 diff]: 原文必须唯一
+[exec 写一段 JS] -&gt; [exec_command 跑 rg] -&gt; [exec_command 跑 sed -n] -&gt; [apply_patch 打补丁]
+[apply_patch 打补丁] -&gt; *[沙箱放行写入]: 路径在工作区内
+group Claude Code: Grep 定位, Read 读文件, Edit 替换原文, 界面显示 diff
+group Codex: exec 写一段 JS, exec_command 跑 rg, exec_command 跑 sed -n, apply_patch 打补丁, 沙箱放行写入
+```
+
+- Claude Code 每一步是一次独立的工具调用。Harness 在每一步检查参数和前置条件。
+- Codex 开了代码模式后，模型写一段 JS，在里面连续调用多个子工具。一次 `exec` 可以走完整条路径，但不保证成功。
+
+### 一次 exec 出错了怎么办
+
+```callout info 结论
+一次 `exec` 不保证成功。它只是把几步打包成一次往返。出错后，模型读完整输出，再写下一段 `exec` 修正。
+```
+
+```flow LR
+[exec 运行脚本] -&gt; {脚本结果}
+{脚本结果} -&gt; [Script completed]: 正常跑完
+{脚本结果} -&gt; [Script failed]: 抛出异常
+{脚本结果} -&gt; [Script running]: 超时未结束
+[Script running] -&gt; [wait 取结果]
+[Script completed] &amp; [Script failed] &amp; [wait 取结果] -&gt; *[模型读输出]
+*[模型读输出] -&gt; {达到目标?}
+{达到目标?} -&gt; [回复用户]: 是
+{达到目标?} -&gt; [写下一段 exec]: 否
+[写下一段 exec] --&gt; [exec 运行脚本]
+```
+
+| exec 结果 | 触发条件 | 返回给模型的内容 | 你的记录中 |
+|---|---|---|---|
+| Script completed | 脚本正常跑完。命令退出码非 0 也算这一类 | 全部输出，包括命令的报错 | 1899 次，占 96.1% |
+| Script failed | 脚本抛出异常，例如 JS 语法错误、补丁对不上 | 失败前已有的输出，加上错误信息 | 31 次，占 1.6% |
+| Script running | 超过等待时间，脚本仍在运行 | 一个 cell ID，之后用 `wait` 取结果 | 44 次，占 2.2% |
+| 用户中止 | 你手动打断 | 中止时间 | 3 次，占 0.2% |
+
+**你的 Codex 记录说明了什么**
+
+- 平均每轮对话调用 10.5 次 `exec`，中位数是 7。只有 16% 的轮次一次 `exec` 就结束。
+- 有 173 次输出带非 0 退出码，脚本状态却是 completed。命令失败不会让脚本失败，结果作为普通输出返回。
+- 输出出现错误字样后，68% 的下一步是再调用 `exec`，27% 是先给你回一条消息。
+
+**打包执行的风险**
+
+- 命令失败不抛异常。如果脚本不检查退出码，后面几步会照常执行。
+- Claude Code 每步单独返回。第一步出错，模型马上就能看到，不会继续执行后面几步。代价是往返次数更多。
+
+```callout warn 统计说明
+状态和次数来自你本机 1977 条 `exec` 输出的首行。&quot;错误字样&quot;用正则匹配，是近似值。&quot;补丁对不上会让脚本失败&quot;是从记录推断的，源码中没有找到明确说明。
+```
+## 编辑：Edit 与 apply_patch
+两边差异最大的就是改文件这一步。
+
+```json title=&quot;Claude Code · Edit 调用（示意）&quot;
+{
+  &quot;file_path&quot;: &quot;C:/proj/app.py&quot;,
+  &quot;old_string&quot;: &quot;    print(\&quot;hi\&quot;)&quot;,
+  &quot;new_string&quot;: &quot;    print(\&quot;hello\&quot;)&quot;
+}
+```
+
+```text title=&quot;Codex · apply_patch 补丁（示意）&quot;
+*** Begin Patch
+*** Update File: app.py
+@@ def greet():
+-    print(&quot;hi&quot;)
++    print(&quot;hello&quot;)
+*** End Patch
+```
+
+| 方面 | Edit | apply_patch |
+|---|---|---|
+| 输入 | 原文和新文两个字符串 | 一段补丁文本 |
+| 前置条件 | 本会话必须先用 Read 读过该文件 | 无 |
+| 定位方式 | `old_string` 必须在文件中唯一 | 靠上下文行和 `@@` 锚点 |
+| 一次能改多少 | 一个文件一处，或用 `replace_all` 全部替换 | 一个补丁可改多个文件，也能新建、删除、移动文件 |
+| 新建文件 | 另用 Write | 补丁里写 Add File |
+| 依赖模型训练 | 低：参数是普通字符串 | 高：OpenAI 建议原样使用官方实现，因为模型按这个格式训练 |
+
+## 安全：工具级权限与系统级沙箱
+**Claude Code：每次工具调用前检查**
+
+```flow LR
+[工具调用] -&gt; {命中权限规则?}
+{命中权限规则?} -&gt; [执行]: allow 规则
+{命中权限规则?} -&gt; [询问用户或交给自动模式分类器]: 未命中
+[询问用户或交给自动模式分类器] -&gt; [执行]: 通过
+[询问用户或交给自动模式分类器] -&gt; [拒绝并给出原因]: 拒绝
+```
+
+**Codex：命令在沙箱里跑，越界才审批**
+
+```flow LR
+[终端命令] -&gt; {需要越出沙箱?}
+{需要越出沙箱?} -&gt; [在沙箱内执行]: 否
+{需要越出沙箱?} -&gt; [申请提权]: 是
+[申请提权] -&gt; [用户或 auto_review 审批] -&gt; [沙箱外执行]
+```
+
+- Claude Code 的规则按工具和命令前缀写。例如你的配置 `Bash(git *)` 只放行 git 命令。
+- Codex 的规则按目录和网络写。你的配置是 `sandbox_mode = &quot;workspace-write&quot;`：工作区可写，越界要审批。
+- 本次对话就有一个实例：我读取 Codex 会话文件时，自动模式分类器以&quot;可能含个人数据&quot;为由拦截。你同意后才放行。
+
+## 实测：你的 Codex 有 81% 调用在跑终端命令
+数据来自你本机 285 个 Codex 会话。外层调用中，`exec` 占 89%（1968 / 2211）。下表统计 `exec` 代码里的子工具调用。
+
+| 子工具 | 次数 | 占比 |
+|---|---|---|
+| `exec_command` | 1850 | 65.4% |
+| `write_stdin` | 413 | 14.6% |
+| `shell_command` | 33 | 1.2% |
+| **终端命令合计** | **2296** | **81.1%** |
+| `apply_patch` | 312 | 11.0% |
+| `view_image` | 114 | 4.0% |
+| 插件提供的 MCP 工具 | 102 | 3.6% |
+| 其他 | 6 | 0.2% |
+
+```callout warn 统计说明
+子工具次数用正则匹配 `tools.名称(` 得出，是近似值。Claude Code 这边没有同口径的数据，所以不做对比。
+```
+
+## 设计思路对比
+| 维度 | Claude Code | Codex |
+|---|---|---|
+| 核心假设 | 用结构化工具约束模型的行为 | 模型已经会用终端，给它通用执行能力 |
+| 能力从哪来 | 工具说明和参数 schema | 模型训练：补丁格式、终端使用习惯 |
+| 安全边界 | 每次工具调用前检查权限 | 操作系统沙箱限制读写范围和网络 |
+| 权限粒度 | 细：按工具、按命令前缀 | 粗：按目录和网络，越界时整体提权 |
+| 上下文开销 | 工具说明多，用 ToolSearch 延迟加载 | 工具说明少，代码模式把多步合成一次调用 |
+| 输出控制 | 工具自带分页和条数上限 | 模型自己用 `head`、`sed -n` 控制 |
+| 跨平台 | 专用工具在各系统行为一致 | 受 shell 差异影响，例如 PowerShell 的引号规则 |
+| 界面展示 | diff 视图、可点击的文件路径 | 显示命令和输出 |
+
+**各自的代价**
+
+- Claude Code：工具说明占上下文，模型要在多个工具里做选择。Bash 不支持交互输入。分类器可能误拦正常操作。
+- Codex：命令容易遇到引号转义和平台差异。输出容易过长。改文件依赖模型熟悉补丁格式。权限粒度较粗。
+
+## 两边在互相靠近
+- **Claude Code 在放宽**：自动模式允许直接用 `cat`、`grep`、`sed` 读文件和做小改动。`Workflow` 工具让模型用 JS 脚本编排多个子代理。
+- **Codex 在削减专用工具，同时增加协作工具**：第三方资料称 0.117 删除了 `read_file`、`grep_files`。它又加入了 `request_user_input`、`spawn_agent`、`tool_search`。
+
+**如果你自己设计 agent 的工具**
+
+1. 模型没训练过的格式，用结构化专用工具。
+2. 把沙箱当作底线，再用工具级权限做细分。
+3. 工具数量多时，先只给名字，用到再加载 schema。
+
+**来源**
+
+- [openai/codex 工具实现目录](https://github.com/openai/codex/tree/main/codex-rs/core/src/tools/handlers)
+- [Codex Prompting Guide](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide)
+- [Codex Configuration Reference](https://developers.openai.com/codex/config-reference)
+- [Codex CLI Guide 2026（第三方）](https://blakecrosley.com/guides/codex)
+- Claude Code 工具信息来自本会话实际加载的工具定义
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions and the panel comments.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }].
+// Comment text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+function replyText({ title, decisions, comments, ui }) {
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   → ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) {
+      out.push(`- **${c.panel} · ${c.title}**`, ...c.text.trim().split('\n').map((l) => `  > ${l}`));
+    }
+    out.push('', `_${ui.typed}_`);
+  }
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers and the comments
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  const keyOf = (ask) => ask.querySelector('legend')?.textContent.trim() ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: panel?.querySelector('.am-panel-head h2')?.textContent.trim() ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: ask.querySelector('legend')?.textContent.trim() ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const empty = !decisions.length && !comments.some((c) => c.text.trim());
+    const title = document.querySelector('.am-head h1')?.textContent.trim() ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, ui });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg')].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+</script>
+</body>
+</html>

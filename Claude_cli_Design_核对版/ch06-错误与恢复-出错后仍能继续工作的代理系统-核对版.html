@@ -1,0 +1,2721 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="paper" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.4.14">
+<title>错误与恢复：出错后仍能继续工作的代理系统（核对试点版）</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-right: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin: 0 6px 0 auto; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-left: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; right: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { left: 50%; }
+.am-timeline--h li:last-child::before { right: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { left: 50%; }
+.am-tree-col:last-child::before { right: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }
+.am-tree-list ul { margin-left: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }
+.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 8px 4px auto;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-right: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */
+  .am-md th, .am-md td { min-width: 6em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+
+/* Change markers (only on pages that have one). Only the Changes view (.am-view-changes) draws change styling: colors, strike-through, faded items
+   and badges. Before and After look like a plain diagram, and the items that do not exist in the view are hidden.
+   The colors are the theme's --ok, --err and --warn, so every theme and mode works. A view hides items with visibility, so nothing moves. */
+.am-view-before [data-delta="added"], .am-view-after [data-delta="removed"] { visibility: hidden; }
+.am-view-before .am-delta-badge, .am-view-after .am-delta-badge { visibility: hidden; }
+/* A list label's badge is inline and would indent the label like a nesting level, so there it takes no space; the other badges are positioned and move nothing. */
+.am-view-before .am-tree-label > .am-delta-badge, .am-view-after .am-tree-label > .am-delta-badge { display: none; }
+
+.am-delta-badge--added { --badge: var(--ok, #1f9d4d); }
+.am-delta-badge--removed { --badge: var(--err, #c62828); }
+.am-delta-badge--changed { --badge: var(--warn, #a8620a); }
+
+/* flow */
+.am-view-changes .am-node[data-delta="added"] .am-node-shape { stroke: var(--ok, #1f9d4d); }
+.am-view-changes .am-node[data-delta="removed"] .am-node-shape { stroke: var(--err, #c62828); }
+.am-view-changes .am-node[data-delta="changed"] .am-node-shape { stroke: var(--warn, #a8620a); }
+.am-view-changes .am-node[data-delta="added"] > text { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-node[data-delta="removed"] > text { fill: var(--err, #c62828); }
+.am-view-changes [data-delta="added"] > .am-edge { stroke: var(--ok, #1f9d4d); }
+.am-view-changes [data-delta="removed"] > .am-edge { stroke: var(--err, #c62828); }
+.am-view-changes .am-arrow--added { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-arrow--removed { fill: var(--err, #c62828); }
+.am-view-changes [data-delta="added"] > .am-edge-label text { fill: var(--ok, #1f9d4d); }
+.am-view-changes [data-delta="removed"] > .am-edge-label text { fill: var(--err, #c62828); }
+.am-view-changes .am-cluster[data-delta="added"] { stroke: var(--ok, #1f9d4d); }
+.am-view-changes .am-cluster[data-delta="removed"] { stroke: var(--err, #c62828); }
+.am-view-changes .am-cluster-label[data-delta="added"] { fill: var(--ok, #1f9d4d); }
+.am-view-changes .am-cluster-label[data-delta="removed"] { fill: var(--err, #c62828); }
+.am-view-changes g[data-delta="removed"]:not(.am-delta-badge), .am-view-changes .am-cluster[data-delta="removed"], .am-view-changes .am-cluster-label[data-delta="removed"] { opacity: 0.55; }
+.am-view-changes .am-node[data-delta="removed"] > text, .am-view-changes g[data-delta="removed"] > .am-edge-label text, .am-view-changes .am-cluster-label[data-delta="removed"] { text-decoration: line-through; }
+.am-diagram .am-delta-badge circle { fill: var(--badge); stroke: var(--paper, #ffffff); stroke-width: 1.5; }
+.am-diagram .am-delta-badge text { fill: var(--paper, #ffffff); font: 700 11px var(--font-sans, sans-serif); text-decoration: none; }
+
+/* tree */
+.am-tree .am-delta-badge {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 15px; height: 15px; flex: none;
+  border-radius: 50%; background: var(--badge); color: var(--paper); font: 700 11px/1 var(--font-mono, monospace); text-decoration: none;
+}
+.am-tree-box[data-delta] { position: relative; }
+.am-tree-box > .am-delta-badge { position: absolute; top: -8px; right: -8px; }
+.am-tree-label > .am-delta-badge { margin-right: 6px; vertical-align: 1px; }
+.am-view-changes .am-tree-box[data-delta="added"] { border-color: var(--ok); }
+.am-view-changes .am-tree-box[data-delta="removed"] { border-color: var(--err); opacity: 0.55; text-decoration: line-through; }
+.am-view-changes .am-tree-box[data-delta="changed"] { border-color: var(--warn); }
+.am-view-changes .am-tree-list li[data-delta="added"] > .am-tree-label { color: var(--ok); }
+.am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-label { color: var(--err); text-decoration: line-through; }
+.am-view-changes .am-tree-list li[data-delta="changed"] > .am-tree-label { color: var(--warn); }
+.am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-label, .am-view-changes .am-tree-list li[data-delta="removed"] > .am-tree-sub { opacity: 0.55; }
+
+/* Connector lines in a view that hides siblings. A hidden node keeps its stretch of the line, so the line stays whole between the nodes that remain and
+   stops at the last one; the markup (data-line-before / data-line-after, see src/components/tree.js) names the stretches that differ from the usual look. */
+.am-view-before .am-tree-list li::after, .am-view-after .am-tree-list li::after,
+.am-view-before .am-tree-col::before, .am-view-after .am-tree-col::before { visibility: visible; }
+.am-view-before .am-tree-list li[data-line-before="full"]::after, .am-view-after .am-tree-list li[data-line-after="full"]::after { bottom: 0; height: auto; }
+.am-view-before .am-tree-list li[data-line-before="short"]::after, .am-view-after .am-tree-list li[data-line-after="short"]::after { bottom: auto; height: 0.95em; }
+.am-view-before .am-tree-list li[data-line-before="none"]::after, .am-view-after .am-tree-list li[data-line-after="none"]::after,
+.am-view-before .am-tree-col[data-line-before="none"]::before, .am-view-after .am-tree-col[data-line-after="none"]::before,
+.am-view-before .am-tree-root[data-line-before="none"]::after, .am-view-after .am-tree-root[data-line-after="none"]::after { display: none; }
+.am-view-before .am-tree-col[data-line-before="full"]::before, .am-view-after .am-tree-col[data-line-after="full"]::before { left: 0; right: 0; }
+.am-view-before .am-tree-col[data-line-before="start"]::before, .am-view-after .am-tree-col[data-line-after="start"]::before { left: 50%; right: 0; }
+.am-view-before .am-tree-col[data-line-before="end"]::before, .am-view-after .am-tree-col[data-line-after="end"]::before { left: 0; right: 50%; }
+
+/* the count row and the switch */
+.am-delta-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 10px; text-align: left; font: 12px/1.3 var(--font-mono, monospace); }
+.am-delta-count--added { color: var(--ok); }
+.am-delta-count--removed { color: var(--err); }
+.am-delta-count--changed { color: var(--warn); }
+.am-delta-switch { display: inline-flex; margin-left: auto; border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius); overflow: hidden; }
+.am-delta-switch[hidden] { display: none; }
+.am-delta-switch button { font: inherit; padding: 3px 10px; color: var(--ink-2); background: var(--paper); border: 0; border-left: 1px solid var(--line-2); cursor: pointer; }
+.am-delta-switch button:first-child { border-left: 0; }
+.am-delta-switch button[aria-pressed="true"] { color: var(--ink); background: var(--accent-bg); font-weight: 600; }
+.am-delta-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media print { .am-delta-switch { display: none !important; } }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="zh-CN" data-am-root-theme="paper" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">主题<select data-am="theme"><option value="blueprint">图纸</option><option value="shadcn">卡片</option><option value="paper" selected>纸张</option></select></label>
+<label class="am-pick">明暗<select data-am="mode"><option value="auto" selected>跟随系统</option><option value="light">亮</option><option value="dark">暗</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;回复&quot;,&quot;comment&quot;:&quot;评论&quot;,&quot;commentHint&quot;:&quot;对这个面板的意见&quot;,&quot;title&quot;:&quot;你的回复&quot;,&quot;hint&quot;:&quot;复制后粘贴到对话里。&quot;,&quot;copy&quot;:&quot;复制回复&quot;,&quot;close&quot;:&quot;关闭&quot;,&quot;suggested&quot;:&quot;建议&quot;,&quot;empty&quot;:&quot;先选择选项，或在面板上写评论。&quot;,&quot;decisions&quot;:&quot;决定&quot;,&quot;comments&quot;:&quot;评论&quot;,&quot;confirmed&quot;:&quot;确认了建议&quot;,&quot;untouched&quot;:&quot;未作答，保留建议&quot;,&quot;was&quot;:&quot;原为&quot;,&quot;typed&quot;:&quot;以 \&quot;&gt;\&quot; 开头的行是读者输入的文字。&quot;,&quot;done&quot;:&quot;已复制 ✓&quot;}">回复</button>
+<button class="am-btn" type="button" data-am="copy" data-done="已复制 ✓">复制源稿</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>错误与恢复：出错后仍能继续工作的代理系统（核对试点版）</h1><p class="am-sub">《Harness Engineering：Claude Code 设计指南》第 6 章解读，已按官方文档、本机观察和故障注入实测核对</p><div class="am-head-meta"><span><b>source</b>https://harness-books.agentway.dev/book1-claude-code/chapter-06-errors-and-recovery.html</span></div><div class="am-intro am-md"><div class="am-md"><p>原文：<a href="https://harness-books.agentway.dev/book1-claude-code/chapter-06-errors-and-recovery.html">第 6 章 错误与恢复：出错后仍能继续工作的代理系统</a></p>
+<p>一句话结论：原文认为，错误属于主路径。恢复要分层，先用便宜的办法；恢复本身要防回环、可计数、可熔断。截断后应续写，不寒暄；中断也要正确收尾。</p>
+<p>核对后，论点成立。在 v2.1.312 上，用本机故障注入代理实测到下面几件事：</p>
+<ul>
+<li>prompt too long 先被扣下，Claude Code 自动压缩后重试，用户看不到这个错误。</li>
+<li>压缩救不回来时才报错，并改跑 StopFailure hook，不跑 Stop hook。</li>
+<li>摘要请求自己超长时，Claude Code 截掉最早的一轮再试。</li>
+<li>529 过载按指数退避重试 10 次。</li>
+</ul>
+<p>源码文件、函数名和状态字段无法核对。</p>
+<p>需要修正四点：</p>
+<ul>
+<li>原文说 reactive compact 每回合只做一次。实测一个回合里压缩了两次，第二次保留得更少；CHANGELOG 2.1.284 写了这个改动。</li>
+<li>原文说输出截断时先提高 token 上限再重跑。这一步本机没观察到；默认请求的上限已是 128000。</li>
+<li>原文说恢复第一步是提交 context collapse 积压。文档和 CHANGELOG 都查不到 collapse，无法核对。文档写了另一个便宜的第一步：输入加 max_tokens 超限时，先减小 max_tokens 重试。</li>
+<li>原文说自动压缩连续失败 3 次后熔断。CHANGELOG 2.1.76 写了这个熔断，但本机实测没观察到：连续 8 轮压缩失败，每轮仍重新尝试。</li>
+</ul>
+<p>核对依据：Claude Code 官方文档 code.claude.com/docs（2026-10-30 查阅）；anthropics/claude-code 仓库的 CHANGELOG（最新条目 2.1.312）；本机 Claude Code 2.1.312 的故障注入实测和会话记录。依据分四种标签：文档、观察、实测（v2.1.312）、旁证（CHANGELOG）。逐条结果见附录。</p>
+</div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">试点说明</div><div class="am-callout-body am-md"><p>本页是第 6 章的核对试点版，原页面保留不动。原文在 6.6 节后有两张图，本页按事实重画，放在 F 节。与原页面相比，本页每节加了“事实核对”，最后加了附录。</p>
+</div></div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="目录"><a href="#panel-A">A · 核心观点：不要只写“正常情况下”</a><a href="#panel-B">B · prompt too long：先扣下，再分层恢复</a><a href="#panel-C">C · 恢复不能把自己逼进死循环</a><a href="#panel-D">D · 输出被截断：先续写，不寒暄</a><a href="#panel-E">E · 自动压缩的熔断：恢复系统自己也要受治理</a><a href="#panel-F">F · compact 自己也会爆：修复动作也需要修复策略</a><a href="#panel-G">G · 中断也是错误恢复的一部分</a><a href="#panel-H">H · 错误处理真正保护的，是执行叙事的一致性</a><a href="#panel-I">I · 从源码里可以提炼出的第六个原则</a><a href="#panel-J">J · 附录：事实核对</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>核心观点：不要只写“正常情况下”</h2><span class="am-panel-meta">原文 6.1</span></header>
+<div class="am-panel-body"><div class="am-md"><p>很多设计文档只讲“正常情况下”，仿佛主路径漂亮，错误就会退场。原文说，代理系统一进入真实环境，这种写法就会露馅：</p>
+<ul>
+<li>模型会被截断，请求会超长。</li>
+<li>hook 会制造回环，工具会中断。</li>
+<li>fallback 会发生，恢复逻辑本身也会失手。</li>
+</ul>
+<p>原文的判断标准是：成熟的代理系统，不看它顺畅时多像人，要看它出故障时像不像系统。原文说，Claude Code 的源码反复体现一个冷静判断：错误属于主路径，恢复是提前设计好的运行机制。</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="本章讲的恢复机制（本页归纳）" data-step="0">本章讲的恢复机制（本页归纳）</div></div><ul class="am-tree-list"><li data-key="单次错误怎么救" data-step="1"><span class="am-tree-label">单次错误怎么救</span><ul><li data-key="prompt too long" data-step="2"><span class="am-tree-label">prompt too long</span><span class="am-tree-sub">扣下错误，分层恢复（B）</span></li><li data-key="恢复防回环" data-step="3"><span class="am-tree-label">恢复防回环</span><span class="am-tree-sub">只压缩有限次，跳过 Stop hook（C）</span></li><li data-key="输出截断" data-step="4"><span class="am-tree-label">输出截断</span><span class="am-tree-sub">续写，不 recap（D）</span></li></ul></li><li data-key="恢复机制本身怎么管" data-step="5"><span class="am-tree-label">恢复机制本身怎么管</span><ul><li data-key="自动压缩熔断" data-step="6"><span class="am-tree-label">自动压缩熔断</span><span class="am-tree-sub">连续失败就停（E）</span></li><li data-key="压缩请求自己超长" data-step="7"><span class="am-tree-label">压缩请求自己超长</span><span class="am-tree-sub">截掉最早的历史再试（F）</span></li></ul></li><li data-key="收尾" data-step="8"><span class="am-tree-label">收尾</span><ul><li data-key="中断" data-step="9"><span class="am-tree-label">中断</span><span class="am-tree-sub">补齐 tool_result，压缩中断不算成功（G）</span></li><li data-key="执行叙事" data-step="10"><span class="am-tree-label">执行叙事</span><span class="am-tree-sub">记录走过的恢复路径（H）</span></li></ul></li></ul></div>
+<div class="am-md"><p>本节是原文的观点，不涉及需要核对的事实。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>prompt too long：先扣下，再分层恢复</h2><span class="am-panel-meta">原文 6.2</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，对长会话代理来说，prompt too long 迟早会来。把它当偶发异常，系统迟早会被它教育。</p>
+<p>原文说，<code>query.ts</code> 在流式阶段会识别三类可恢复错误，先“暂时扣下”，不立刻抛给用户：</p>
+<ul>
+<li>prompt too long</li>
+<li>media size error</li>
+<li>max output tokens</li>
+</ul>
+<p>意思是：有些错误先交给恢复系统试着处理，再决定是否展示。用户真正关心的，是系统还能不能继续干活。</p>
+<p>在 prompt too long 这条路上，原文说恢复分两层：</p>
+<ol>
+<li>启用了 context collapse 时，先调用 <code>recoverFromOverflow()</code>，提交已经 staged 的 collapse。</li>
+<li>还不行，再调用 <code>reactiveCompact.tryReactiveCompact()</code>，做全文压缩。</li>
+</ol>
+<p>原文说，好的恢复系统不会把所有错误都交给最重的一把锤子。它先保住最细粒度的上下文，必要时才接受更粗的摘要。</p>
+<h3>实测：注入一次 prompt too long</h3>
+<p>实测用本机代理拦截发往模型的请求，让第一次主请求返回 400 prompt too long。会话里已有两轮对话。下图是实测到的过程：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 211 698" width="211" height="698" role="img" aria-label="流程图：主请求返回 prompt too long、不显示错误、PreCompact hook，trigger 为 auto、发出摘要请求、摘要较早的一轮，保留最新一轮、写入 compact_boundary、重发主请求、正常回答，Stop hook 照常运行" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M105.2,66 L105.2,77.5 Q105.2,89 105.2,100.5 L105.2,112" marker-end="url(#am1-arrow)"/></g><g data-step="1"><path class="am-edge" d="M105.2,147 L105.2,158.5 Q105.2,170 105.2,181.5 L105.2,193" marker-end="url(#am1-arrow)"/></g><g data-step="2"><path class="am-edge" d="M105.2,245 L105.2,256.5 Q105.2,268 105.2,279.5 L105.2,291" marker-end="url(#am1-arrow)"/></g><g data-step="3"><path class="am-edge" d="M105.2,326 L105.2,337.5 Q105.2,349 105.2,360.5 L105.2,372" marker-end="url(#am1-arrow)"/></g><g data-step="4"><path class="am-edge" d="M105.2,424 L105.2,435.5 Q105.2,447 105.2,458.5 L105.2,470" marker-end="url(#am1-arrow)"/></g><g data-step="5"><path class="am-edge" d="M105.2,505 L105.2,516.5 Q105.2,528 105.2,539.5 L105.2,551" marker-end="url(#am1-arrow)"/></g><g data-step="6"><path class="am-edge" d="M105.2,586 L105.2,597.5 Q105.2,609 105.2,620.5 L105.2,632" marker-end="url(#am1-arrow)"/></g></g><g><g class="am-node am-node--round" data-key="主请求返回 prompt too long" data-step="0"><rect class="am-node-shape" x="18.8" y="14" width="172.9" height="52" rx="26"/><text x="105.2" y="31.5" text-anchor="middle" dominant-baseline="central">主请求返回 prompt too</text><text x="105.2" y="48.5" text-anchor="middle" dominant-baseline="central">long</text></g><g class="am-node am-node--rect" data-key="不显示错误" data-step="0"><rect class="am-node-shape" x="58.7" y="112" width="93" height="35" rx="3"/><text x="105.2" y="129.5" text-anchor="middle" dominant-baseline="central">不显示错误</text></g><g class="am-node am-node--rect" data-key="PreCompact hook，trigger 为 auto" data-step="1"><rect class="am-node-shape" x="31.4" y="193" width="147.6" height="52" rx="3"/><text x="105.2" y="210.5" text-anchor="middle" dominant-baseline="central">PreCompact hook，</text><text x="105.2" y="227.5" text-anchor="middle" dominant-baseline="central">trigger 为 auto</text></g><g class="am-node am-node--rect" data-key="发出摘要请求" data-step="2"><rect class="am-node-shape" x="52.2" y="291" width="106" height="35" rx="3"/><text x="105.2" y="308.5" text-anchor="middle" dominant-baseline="central">发出摘要请求</text></g><g class="am-node am-node--rect" data-key="摘要较早的一轮，保留最新一轮" data-step="3"><rect class="am-node-shape" x="19.7" y="372" width="171" height="52" rx="3"/><text x="105.2" y="389.5" text-anchor="middle" dominant-baseline="central">摘要较早的一轮，保留最</text><text x="105.2" y="406.5" text-anchor="middle" dominant-baseline="central">新一轮</text></g><g class="am-node am-node--rect" data-key="写入 compact_boundary" data-step="4"><rect class="am-node-shape" x="19.2" y="470" width="172" height="35" rx="3"/><text x="105.2" y="487.5" text-anchor="middle" dominant-baseline="central">写入 compact_boundary</text></g><g class="am-node am-node--rect" data-key="重发主请求" data-step="5"><rect class="am-node-shape" x="58.7" y="551" width="93" height="35" rx="3"/><text x="105.2" y="568.5" text-anchor="middle" dominant-baseline="central">重发主请求</text></g><g class="am-node am-node--round am-node--hi" data-key="正常回答，Stop hook 照常运行" data-step="6"><rect class="am-node-shape" x="14" y="632" width="182.5" height="52" rx="26"/><text x="105.2" y="649.5" text-anchor="middle" dominant-baseline="central">正常回答，Stop hook 照</text><text x="105.2" y="666.5" text-anchor="middle" dominant-baseline="central">常运行</text></g></g></svg></figure>
+<div class="am-md"><p>被拒后约 0.2 秒，摘要请求就发出了；整个过程中，<code>-p</code> 的输出里没有出现这个错误。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>query.ts</code>、<code>recoverFromOverflow()</code>、<code>reactiveCompact.tryReactiveCompact()</code> 和“withheld”这个说法，都无法核对：源码不公开。</li>
+<li>先扣下 prompt too long 属实（实测）：注入一次后，最终结果是正常回答，is_error 为 false。</li>
+<li>被拒后自动压缩属实（文档、实测）。文档写到压缩 “normally summarizes your oldest exchanges and keeps the newest”，实测一致。</li>
+<li>恢复分层：先提交 collapse 积压这一步无法核对，文档和 CHANGELOG 都查不到 context collapse。文档写了另一个便宜的第一步：输入加 max_tokens 超过上限时，先减小 max_tokens 重试；减不动了才改为压缩。</li>
+<li>输出超长也会先尝试恢复（实测，见 D 节）。media size：文档写到 API 拒收图片时，Claude Code 移除这张图并提示 “could not be processed and was removed”。本次没有注入这类错误。</li>
+<li>文档还写了一种不压缩的情况：只有一轮对话时没有可摘要的内容，Claude Code 直接报错并说明原因。实测的报错与文档原句一致。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>恢复不能把自己逼进死循环</h2><span class="am-panel-meta">原文 6.3</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，很多系统做恢复时会犯一个常见错误：一发现错误可恢复，就不停重试，把偶发事件升级成资源灾难。原文认为 <code>query.ts</code> 里有两处防护。</p>
+<p><strong>第一处：hasAttemptedReactiveCompact。</strong> 原文说，reactive compact 试过一次后，再遇到同类问题就不再重来。压缩之后还不行，再压缩一次多半只是换个姿势重演同一种失败。</p>
+<p><strong>第二处：跳过 stop hooks。</strong> 原文说，源码注释写得很直白：prompt too long 之后还让 stop hooks 介入，就可能出现 death spiral：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 608 109" width="608" height="109" role="img" aria-label="流程图：错误、hook 阻塞、重试、再次错误、hook 再阻塞" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M78,66.1 L89.5,71.8 Q101,77.5 112.5,77.5 L124,77.5" marker-end="url(#am2-arrow)"/></g><g data-step="0"><path class="am-edge" d="M211,77.5 L222.5,77.5 Q234,77.5 245.5,77.5 L257,77.5" marker-end="url(#am2-arrow)"/></g><g data-step="0"><path class="am-edge" d="M321,77.5 L332.5,77.5 Q344,77.5 355.5,77.5 L367,77.5" marker-end="url(#am2-arrow)"/></g><g data-step="0"><path class="am-edge" d="M447,77.5 L458.5,77.5 Q470,77.5 483.1,72.6 L496.1,67.8" marker-end="url(#am2-arrow)"/></g><g data-step="1"><path class="am-edge am-edge--dashed" d="M496.1,32.8 L483.1,27.9 Q470,23 438.5,23 Q407,23 375.5,23 Q344,23 316.5,23 Q289,23 261.5,23 Q234,23 200.8,23 Q167.5,23 134.3,23 Q101,23 89.5,28.7 L78,34.4" marker-end="url(#am2-arrow)"/><g class="am-edge-label"><rect x="272.5" y="14" width="33" height="18" rx="3"/><text x="289" y="23" text-anchor="middle" dominant-baseline="central">循环</text></g></g></g><g><g class="am-node am-node--rect" data-key="错误" data-step="0"><rect class="am-node-shape" x="14" y="32.8" width="64" height="35" rx="3"/><text x="46" y="50.3" text-anchor="middle" dominant-baseline="central">错误</text></g><g class="am-node am-node--rect" data-key="hook 阻塞" data-step="0"><rect class="am-node-shape" x="124" y="60" width="87" height="35" rx="3"/><text x="167.5" y="77.5" text-anchor="middle" dominant-baseline="central">hook 阻塞</text></g><g class="am-node am-node--rect" data-key="重试" data-step="0"><rect class="am-node-shape" x="257" y="60" width="64" height="35" rx="3"/><text x="289" y="77.5" text-anchor="middle" dominant-baseline="central">重试</text></g><g class="am-node am-node--rect" data-key="再次错误" data-step="0"><rect class="am-node-shape" x="367" y="60" width="80" height="35" rx="3"/><text x="407" y="77.5" text-anchor="middle" dominant-baseline="central">再次错误</text></g><g class="am-node am-node--rect" data-key="hook 再阻塞" data-step="0"><rect class="am-node-shape" x="493" y="32.8" width="100" height="35" rx="3"/><text x="543" y="50.3" text-anchor="middle" dominant-baseline="central">hook 再阻塞</text></g></g></svg></figure>
+<div class="am-md"><p>原文说，这句注释承认了最危险的错误：失败分支和恢复分支彼此咬住，开始无限自我复制。所以 prompt too long 无法恢复时，Claude Code 直接报错，并跳过 stop hooks。</p>
+<h3>实测：每次主请求都返回 prompt too long</h3>
+<p>实测做了两组，每次主请求都返回 prompt too long：</p>
+<ul>
+<li>第一组：直接提问。</li>
+<li>第二组：先让 Stop hook 阻塞一次，迫使系统再来一轮，再注入错误。</li>
+</ul>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>直接提问</th>
+<th>Stop hook 先阻塞一次</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第一次被拒</td>
+<td>压缩，摘要约 2.6 万 token 的上下文</td>
+<td>同左</td>
+</tr>
+<tr>
+<td>第二次被拒</td>
+<td>再压缩一次，这次保留更少</td>
+<td>同左</td>
+</tr>
+<tr>
+<td>第三次被拒</td>
+<td>报 “Prompt is too long”，回合结束</td>
+<td>同左</td>
+</tr>
+<tr>
+<td>结束时的 hook</td>
+<td>StopFailure（error 为 invalid_request），不跑 Stop</td>
+<td>StopFailure；Stop 没有再运行</td>
+</tr>
+<tr>
+<td>会话记录</td>
+<td>两条 compact_boundary，最后一条是合成的错误消息</td>
+<td>同左，另有一条 Stop hook 反馈</td>
+</tr>
+</tbody></table></div>
+<p>两组都在三次请求、两次压缩后停下，没有出现循环。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>hasAttemptedReactiveCompact</code> 这个名字和源码注释无法核对：源码不公开。</li>
+<li>“只压缩一次”与现状不符（实测、旁证）。实测一个回合里压缩了两次。CHANGELOG 2.1.284 写到，压缩后请求仍然太长时，“Claude Code now compacts once more, keeping less of the recent conversation”。论点“恢复要有次数上限”仍成立：第三次被拒就报错。</li>
+<li>报错并跳过 stop hooks 属实（文档、实测）。hooks 文档写到，Stop 在 API 出错时不运行，“API errors fire StopFailure instead”。实测两组都是这样，Stop hook 先阻塞过一次也一样。</li>
+<li>旁证：CHANGELOG 2.1.274 修了一个问题。由 hook 驱动的会话，reactive compaction 之后上下文再次溢出时，直接以 “Prompt is too long” 结束，没有再压缩。可见“hook 驱动续跑”和“压缩后再溢出”这个组合确实被单独处理过。</li>
+<li>文档还写了一种保护：Stop hook 连续阻塞 8 次后不再接受阻塞（<code>CLAUDE_CODE_STOP_HOOK_BLOCK_CAP</code>）。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>输出被截断：先续写，不寒暄</h2><span class="am-panel-meta">原文 6.4</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，很多大模型产品有个坏习惯：输出一被截断，就先来一段客气话，“抱歉，刚才被截断了，我来总结一下”。态度不错，对工作几乎没帮助。</p>
+<p>原文说，Claude Code 分两层恢复：</p>
+<ol>
+<li><strong>先提高上限。</strong> 当前用的是较保守的上限时，把 <code>maxOutputTokensOverride</code> 提到更高，直接重跑同一请求。这一步不插入 meta 消息，也不让模型先寒暄。</li>
+<li><strong>再要求续写。</strong> 更高的上限也不够时，追加一条 meta user 消息，大意是：直接继续，不道歉，不 recap；断在半句就从半句接着写；剩余工作拆小一点。</li>
+</ol>
+<p>原文说，这条指令的目标是保持任务连续性，不把 token 花在礼貌性收尾上。每一次截断后的 recap 都会消耗预算，还会增加语义漂移。最后系统做的不再是任务本身，而是一轮轮地回顾自己做任务。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>原文给的位置（<code>src/query.ts:1185</code> 往后）和 <code>maxOutputTokensOverride</code> 无法核对：源码不公开。</li>
+<li>续写属实（实测，见第 3 章）。把上限设成 400 后，回复两次被截断。Claude Code 每次追加同一条用户消息：“Output token limit hit. Resume directly — no apology, no recap of what you were doing. Pick up mid-thought if that is where the cut happened. Break remaining work into smaller pieces.” 第三次回复正常结束。消息内容与原文转述一致。</li>
+<li>旁证：CHANGELOG 2.1.0 写到，输出因 token 上限被截断时，Claude 会自动继续，不再显示错误。</li>
+<li>“先提高上限”本机没观察到。用环境变量设上限时，三次请求的上限都是 400。默认配置下请求的上限已是 128000（claude-haiku-5-5），要很长的输出才能测，本次没做。</li>
+<li>文档只写了最终报错 “Claude&#39;s response exceeded the … output token maximum”，以及手动回复 continue。hooks 文档的 StopFailure 错误类型里有 <code>max_output_tokens</code>，说明续写也有用尽的时候。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>自动压缩的熔断：恢复系统自己也要受治理</h2><span class="am-panel-meta">原文 6.5</span></header>
+<div class="am-panel-body"><div class="am-md"><p>前面讲的是单次错误怎么救。原文说，<code>autoCompact.ts</code> 处理的是另一层问题：恢复机制本身不断失败时怎么办。答案是：别一直试。</p>
+<p>原文说，<code>AutoCompactTrackingState</code> 里有 <code>consecutiveFailures</code>。连续失败超过阈值后，即使 <code>shouldAutoCompact</code> 判断该压缩了，系统也直接跳过。源码注释给过数据：曾有大量会话在连续失败的自动压缩上，白白烧掉海量 API 调用，所以必须加熔断。</p>
+<p>原文说，熔断的本质是承认当前恢复手段已经失效。不会收手的恢复系统，和不会刹车的汽车差不多。原文由此抽出一条原则：任何自动恢复机制都必须可计数、可限次、可熔断。否则，恢复会从保险丝变成新的起火点。</p>
+<h3>实测：让自动压缩每次都失败</h3>
+<p>实测把自动压缩的触发线调低到约 1 万 token，让每一轮开始前都触发自动压缩，再让所有摘要请求返回 400。同一个进程里连续发 8 条消息，每条等上一轮结束再发。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>轮次</th>
+<th>自动压缩</th>
+<th>这一轮的摘要请求</th>
+<th>之后</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第 1–2 轮</td>
+<td>尝试，失败</td>
+<td>6 个</td>
+<td>主请求照常发出，正常回答</td>
+</tr>
+<tr>
+<td>第 3–8 轮</td>
+<td>尝试，失败</td>
+<td>4 个</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>对照：不注入错误，6 轮</td>
+<td>每轮都成功</td>
+<td>每轮 1 个</td>
+<td>正常回答</td>
+</tr>
+</tbody></table></div>
+<p>8 轮里每一轮都重新尝试自动压缩，没有在连续失败 3 次后停下。一次尝试会发几个请求：同一请求重试，再换两种变体。都失败后，这一轮不再压缩。压缩失败不影响本轮回答：主请求带着没压缩的上下文照常发出。</p>
+<h3>不变式</h3>
+<p>原文用五条断言概括本章的约束。下表逐条给出核对结果：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>原文的不变式</th>
+<th>意思</th>
+<th>核对</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>withheld_error ∈ {prompt_too_long, media_size, max_output_tokens}</td>
+<td>可扣下的错误范围明确</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对：prompt too long 和输出超长有实测；media size 只有文档</span></td>
+</tr>
+<tr>
+<td>hasAttemptedReactiveCompact ⇒ skip further reactive compact</td>
+<td>不自循环</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>与现状不完全相符：现在一回合可压缩两次，第三次被拒就报错</span></td>
+</tr>
+<tr>
+<td>consecutiveFailures &lt; MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES</td>
+<td>熔断在位</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>旁证有，本机没观察到：连续 8 轮失败，每轮仍尝试</span></td>
+</tr>
+<tr>
+<td>compact aborted by user ⇏ summary_success</td>
+<td>中断的压缩不算成功</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>文档：压缩时按停止，“your conversation is unchanged”</span></td>
+</tr>
+<tr>
+<td>every withheld recoverable_error surfaces iff recovery exhausted</td>
+<td>扣下的错误终有出口</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>实测：恢复成功时不显示，压缩两次仍失败才报错。另见 F 节：StopFailure hook 在恢复成功的回合里也触发过</span></td>
+</tr>
+</tbody></table></div>
+<h3>失败矩阵</h3>
+<p>原文的失败矩阵如下，最后一列是核对结果：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>事件顺序</th>
+<th>前置状态</th>
+<th>触发</th>
+<th>下一步</th>
+<th>阈值</th>
+<th>核对</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PTL → collapse</td>
+<td>stagedCollapse &gt; 0</td>
+<td>prompt_too_long</td>
+<td>recoverFromOverflow()</td>
+<td>—</td>
+<td>无法核对：查不到 collapse</td>
+</tr>
+<tr>
+<td>PTL → compact</td>
+<td>stagedCollapse = 0</td>
+<td>prompt_too_long</td>
+<td>tryReactiveCompact()</td>
+<td>每回合一次</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>压缩属实；实测每回合两次</span></td>
+</tr>
+<tr>
+<td>PTL → surface</td>
+<td>hasAttemptedReactiveCompact</td>
+<td>prompt_too_long</td>
+<td>直接报错，跳过 stop hooks</td>
+<td>—</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>实测：报错，跑 StopFailure 不跑 Stop</span></td>
+</tr>
+<tr>
+<td>compact PTL</td>
+<td>compact 输入过长</td>
+<td>内层 prompt_too_long</td>
+<td>truncateHeadForPTLRetry()</td>
+<td>成组丢早期 API round</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>实测：丢掉最早一轮后重试；命名无法核对</span></td>
+</tr>
+<tr>
+<td>MOT → cap↑</td>
+<td>cap &lt; MAX</td>
+<td>max_output_tokens</td>
+<td>提 maxOutputTokensOverride</td>
+<td>cap ∈ {保守, 最大}</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>本机没观察到</span></td>
+</tr>
+<tr>
+<td>MOT → 续写</td>
+<td>cap = MAX</td>
+<td>max_output_tokens</td>
+<td>追加 meta user 消息，续写</td>
+<td>不 recap 不道歉</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>实测：消息原话与原文一致</span></td>
+</tr>
+<tr>
+<td>autocompact 连败</td>
+<td>consecutiveFailures ≥ 阈值</td>
+<td>再次触发</td>
+<td>跳过 compact，报错</td>
+<td>MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>旁证有；实测连续 8 轮失败仍每轮尝试，失败后也不报错</span></td>
+</tr>
+<tr>
+<td>user abort</td>
+<td>流式中 tool_use 悬空</td>
+<td>Esc</td>
+<td>消费剩余结果，补 synthetic tool_result</td>
+<td>账本必须对齐</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>观察：被打断的调用都有 tool_result</span></td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>autoCompact.ts</code>、<code>AutoCompactTrackingState</code>、<code>consecutiveFailures</code>、<code>shouldAutoCompact</code> 和源码注释无法核对：源码不公开。</li>
+<li>熔断属实（旁证）：CHANGELOG 2.1.76 写到，修复了自动压缩连续失败后无限重试的问题，“a circuit breaker now stops after 3 attempts”。</li>
+<li>这个熔断本机没观察到（实测）。连续 8 轮自动压缩失败（注入 400），每轮仍重新尝试。每次尝试发 4–6 个摘要请求后放弃，本轮照常回答。原因无法区分：可能熔断只对某些错误生效，也可能后来改过。</li>
+<li>一次尝试内部的请求有上限。同一形状最多发 3 次，再换一种形状；第 3 轮起减为每种 2 次。</li>
+<li>文档还写了一种相近的保护：压缩成功，但上下文立刻又满，连续几次后报 “Autocompact is thrashing”，停止重试 “to avoid wasting API calls”。CHANGELOG 2.1.89 写的是连续三次。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>compact 自己也会爆：修复动作也需要修复策略</h2><span class="am-panel-meta">原文 6.6</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，<code>compactConversation()</code> 有一个现实主义的时刻：它承认摘要请求自己也可能 prompt too long。系统为了缩短上下文去发摘要请求，结果摘要请求也因为太长而失败。工程系统首先要解决的是继续运行，不是保持表面完整。</p>
+<p>原文说，<code>compact.ts</code> 为此引入了 <code>truncateHeadForPTLRetry()</code>。摘要请求太长时，系统先把最早的 API round 成组地从头部剥掉，再重试压缩。这样用户不会卡在“连压缩都压不动”的状态里。</p>
+<p>原文说，这种修复有损，会丢历史，但它优先保证用户不被完全锁死。源码注释称之为 last-resort escape hatch。原文的判断是：系统快要窒息时，先恢复呼吸，再讨论信息保真度。</p>
+<h3>实测：让摘要请求也返回 prompt too long</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>注入方式</th>
+<th>实测到的过程</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主请求和第一次摘要请求各失败一次（做了 2 次）</td>
+<td>摘要请求被拒后立即重试。重试请求的开头换成一条占位消息 “[earlier conversation truncated for compaction retry]”，最早的一轮被丢掉</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>压缩成功，回合正常结束。摘要只剩故事标题，模型说无法概括情节</span></td>
+</tr>
+<tr>
+<td>主请求失败一次，摘要请求一直失败</td>
+<td>截掉最早一轮重试一次；仍被拒，就不再重试</td>
+<td>报 “Prompt is too long”，回合结束</td>
+</tr>
+</tbody></table></div>
+<p>两次重复实验里，StopFailure hook 都在摘要请求第一次被拒后触发了一次，回合随后又正常结束，Stop hook 也运行了。E 节的实验也一样：每轮自动压缩失败后都触发一次 StopFailure。所以 StopFailure 触发时，回合不一定已经失败。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>compactConversation()</code>、<code>compact.ts</code>、<code>truncateHeadForPTLRetry()</code> 和注释原话无法核对：源码不公开。</li>
+<li>截掉头部再重试属实（实测），命名无法核对。实测只看到一次截头重试；历史更长时会不会多截几轮，本次没测。</li>
+<li>旁证：CHANGELOG 2.1.85 修了一个问题：对话太长、摘要请求自己都放不下时，<code>/compact</code> 失败。2.1.97 提到压缩的 “prompt-too-long retries”。</li>
+<li>文档写了压缩的兜底办法：一轮完整对话都摘要不了时，原样保留最新一条用户提示，摘要它之前的全部内容。这和截掉头部是两种不同的兜底，文档没有写截头。</li>
+<li>有损属实（实测）：截头重试后，摘要只剩标题。</li>
+<li>StopFailure 的触发与文档不完全一致。文档说它在回合因 API 错误结束时 “Runs instead of Stop”；实测中它在摘要请求被拒时就触发了，回合随后正常结束，Stop 也运行了。只在这个版本上测过 2 次。</li>
+</ul>
+</div></div>
+<div class="am-md"><h3>原文的图 1：恢复决策路径</h3>
+<p>原文在这里放了一张图，标题是 “Recovery Decision Paths - Cheapest Fix First”。图的意思是：</p>
+<ul>
+<li>prompt too long 先排空 staged collapse，不行再做一次 reactive compact。</li>
+<li>输出截断时，能便宜地提高上限就提高，否则追加续写消息。</li>
+<li>API 或 hook 失败先分类：重试、中止或不可恢复。</li>
+<li>最后统一判断预算是否用尽、护栏是否触发：用尽就报错，否则回到 query loop。</li>
+</ul>
+<p>图上的注释写着：恢复分层进行。先做局部修复，再做较重的摘要；便宜办法都用尽了，才显式报错。</p>
+<p>下图按实测重画。+ 表示按事实补上，− 表示原图有、但与事实不符。切换 Before 和 After，可以分别看原图结构和修正后的结构。</p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 1251 820" width="1251" height="820" role="img" aria-label="流程图：发现可恢复的失败、prompt too long?、排空 staged collapse、解决了?、预算用尽或护栏触发?、reactive compact，只做一次、自动压缩，仍太长时再压缩一次、max_output_tokens?" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am3-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am3-arrow-removed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--removed" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M635.8,49 L635.8,60.5 Q635.8,72 635.8,83.5 L635.8,95" marker-end="url(#am3-arrow)"/></g><g data-step="1"><path class="am-edge" d="M695,133.9 L828.3,158.4 Q961.6,183 961.6,204.3 L961.6,225.5" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="950.8" y="174" width="21.5" height="18" rx="3"/><text x="961.6" y="183" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="2"><path class="am-edge" d="M961.6,260.5 L961.6,281.8 Q961.6,303 961.6,319 L961.6,335" marker-end="url(#am3-arrow)"/></g><g data-step="3"><path class="am-edge" d="M999.9,371.7 L1112.1,397.4 Q1224.4,423 1224.4,452 Q1224.4,481 1224.4,505.5 Q1224.4,530 1031.7,551.2 L839.1,572.3" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="1213.6" y="472" width="21.5" height="18" rx="3"/><text x="1224.4" y="481" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="4" data-delta="removed"><path class="am-edge" d="M981.9,380.8 L1006,401.9 Q1030.2,423 1030.2,439 L1030.2,455" marker-end="url(#am3-arrow-removed)"/><g class="am-edge-label"><rect x="1019.5" y="414" width="21.5" height="18" rx="3"/><text x="1030.2" y="423" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="5" data-delta="removed"><path class="am-edge" d="M1030.2,507 L1030.2,518.5 Q1030.2,530 927.5,549.4 L824.7,568.8" marker-end="url(#am3-arrow-removed)"/></g><g data-step="6" data-delta="added"><path class="am-edge" d="M931.6,376 L877.3,399.5 Q822.9,423 822.9,439 L822.9,455" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="812.2" y="414" width="21.5" height="18" rx="3"/><text x="822.9" y="423" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="7" data-delta="added"><path class="am-edge" d="M822.9,507 L822.9,518.5 Q822.9,530 804.8,544.7 L786.7,559.5" marker-end="url(#am3-arrow-added)"/></g><g data-step="8"><path class="am-edge" d="M577.6,134.2 L449.9,158.6 Q322.2,183 322.2,199 L322.2,215" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="311.5" y="174" width="21.5" height="18" rx="3"/><text x="322.2" y="183" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="9"><path class="am-edge" d="M375.7,258 L455.9,280.5 Q536.1,303 536.1,319 L536.1,335" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="519.6" y="294" width="33" height="18" rx="3"/><text x="536.1" y="303" text-anchor="middle" dominant-baseline="central">截断</text></g></g><g data-step="10"><path class="am-edge" d="M566.7,382.8 L597.8,402.9 Q628.9,423 628.9,443.3 L628.9,463.5" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="618.2" y="414" width="21.5" height="18" rx="3"/><text x="628.9" y="423" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="11"><path class="am-edge" d="M511.6,384.4 L489.5,403.7 Q467.4,423 467.4,443.3 L467.4,463.5" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="456.7" y="414" width="21.5" height="18" rx="3"/><text x="467.4" y="423" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="12"><path class="am-edge" d="M628.9,498.5 L628.9,514.3 Q628.9,530 672.5,546.9 L716,563.8" marker-end="url(#am3-arrow)"/></g><g data-step="13"><path class="am-edge" d="M467.4,498.5 L467.4,514.3 Q467.4,530 580.4,549.7 L693.4,569.4" marker-end="url(#am3-arrow)"/></g><g data-step="14" data-delta="removed"><path class="am-edge" d="M316.9,269.7 L313.5,286.3 Q310.1,303 310.1,320 L310.1,337" marker-end="url(#am3-arrow-removed)"/><g class="am-edge-label"><rect x="260.2" y="294" width="99.9" height="18" rx="3"/><text x="310.1" y="303" text-anchor="middle" dominant-baseline="central">API 或 hook 失败</text></g></g><g data-step="16" data-delta="added"><path class="am-edge" d="M267.8,257.8 L184.6,280.4 Q101.3,303 101.3,320 L101.3,337" marker-end="url(#am3-arrow-added)"/><g class="am-edge-label"><rect x="73.4" y="294" width="55.8" height="18" rx="3"/><text x="101.3" y="303" text-anchor="middle" dominant-baseline="central">API 错误</text></g></g><g data-step="18"><path class="am-edge" d="M742,604.5 L727.9,622.8 Q713.8,641 713.8,657 L713.8,673" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="697.3" y="632" width="33" height="18" rx="3"/><text x="713.8" y="641" text-anchor="middle" dominant-baseline="central">停止</text></g></g><g data-step="19"><path class="am-edge" d="M790.4,601.6 L819.4,621.3 Q848.4,641 848.4,657 L848.4,673" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="831.9" y="632" width="33" height="18" rx="3"/><text x="848.4" y="641" text-anchor="middle" dominant-baseline="central">继续</text></g></g><g data-step="20" data-delta="added"><path class="am-edge" d="M713.8,708 L713.8,719.5 Q713.8,731 713.8,742.5 L713.8,754" marker-end="url(#am3-arrow-added)"/></g></g><g><g class="am-node am-node--round" data-key="发现可恢复的失败" data-step="0"><rect class="am-node-shape" x="563.8" y="14" width="144" height="35" rx="17.5"/><text x="635.8" y="31.5" text-anchor="middle" dominant-baseline="central">发现可恢复的失败</text></g><g class="am-node am-node--diamond" data-key="prompt too long?" data-step="0"><polygon class="am-node-shape" points="635.8,95 732.7,123 635.8,151 539,123"/><text x="635.8" y="123" text-anchor="middle" dominant-baseline="central">prompt too long?</text></g><g class="am-node am-node--rect" data-key="排空 staged collapse" data-step="1"><rect class="am-node-shape" x="884.4" y="225.5" width="154.4" height="35" rx="3"/><text x="961.6" y="243" text-anchor="middle" dominant-baseline="central">排空 staged collapse</text></g><g class="am-node am-node--diamond" data-key="解决了?" data-step="2"><polygon class="am-node-shape" points="961.6,335 1017.3,363 961.6,391 905.8,363"/><text x="961.6" y="363" text-anchor="middle" dominant-baseline="central">解决了?</text></g><g class="am-node am-node--diamond" data-key="预算用尽或护栏触发?" data-step="3"><polygon class="am-node-shape" points="760.2,553 874.4,581 760.2,609 646,581"/><text x="760.2" y="581" text-anchor="middle" dominant-baseline="central">预算用尽或护栏触发?</text></g><g class="am-node am-node--rect" data-key="reactive compact，只做一次" data-step="4" data-delta="removed"><rect class="am-node-shape" x="944.4" y="455" width="171.5" height="52" rx="3"/><text x="1030.2" y="472.5" text-anchor="middle" dominant-baseline="central">reactive compact，只做</text><text x="1030.2" y="489.5" text-anchor="middle" dominant-baseline="central">一次</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(1116,455)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g><g class="am-node am-node--rect" data-key="自动压缩，仍太长时再压缩一次" data-step="6" data-delta="added"><rect class="am-node-shape" x="737.4" y="455" width="171" height="52" rx="3"/><text x="822.9" y="472.5" text-anchor="middle" dominant-baseline="central">自动压缩，仍太长时再压</text><text x="822.9" y="489.5" text-anchor="middle" dominant-baseline="central">缩一次</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(908.4,455)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--diamond" data-key="max_output_tokens?" data-step="8"><polygon class="am-node-shape" points="322.2,215 437.4,243 322.2,271 207.1,243"/><text x="322.2" y="243" text-anchor="middle" dominant-baseline="central">max_output_tokens?</text></g><g class="am-node am-node--diamond" data-key="能便宜地提高上限?" data-step="9"><polygon class="am-node-shape" points="536.1,335 640.6,363 536.1,391 431.6,363"/><text x="536.1" y="363" text-anchor="middle" dominant-baseline="central">能便宜地提高上限?</text></g><g class="am-node am-node--rect" data-key="提高上限，直接重跑" data-step="10"><rect class="am-node-shape" x="556.4" y="463.5" width="145" height="35" rx="3"/><text x="628.9" y="481" text-anchor="middle" dominant-baseline="central">提高上限，直接重跑</text></g><g class="am-node am-node--rect" data-key="追加续写消息" data-step="11"><rect class="am-node-shape" x="414.4" y="463.5" width="106" height="35" rx="3"/><text x="467.4" y="481" text-anchor="middle" dominant-baseline="central">追加续写消息</text></g><g class="am-node am-node--rect" data-key="分类：重试、中止或不可恢复" data-step="14" data-delta="removed"><rect class="am-node-shape" x="224.6" y="337" width="171" height="52" rx="3"/><text x="310.1" y="354.5" text-anchor="middle" dominant-baseline="central">分类：重试、中止或不可</text><text x="310.1" y="371.5" text-anchor="middle" dominant-baseline="central">恢复</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(395.6,337)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g><g class="am-node am-node--rect" data-key="分类" data-step="15" data-delta="removed"><rect class="am-node-shape" x="743.8" y="14" width="64" height="35" rx="3"/><text x="775.8" y="31.5" text-anchor="middle" dominant-baseline="central">分类</text><g class="am-delta-badge am-delta-badge--removed" data-delta="removed" transform="translate(807.8,14)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">−</text></g></g><g class="am-node am-node--rect" data-key="瞬时 API 错误：指数退避重试，默认 10 次" data-step="16" data-delta="added"><rect class="am-node-shape" x="14" y="337" width="174.6" height="52" rx="3"/><text x="101.3" y="354.5" text-anchor="middle" dominant-baseline="central">瞬时 API 错误：指数退避</text><text x="101.3" y="371.5" text-anchor="middle" dominant-baseline="central">重试，默认 10 次</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(188.6,337)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="瞬时 API 错误" data-step="17" data-delta="added"><rect class="am-node-shape" x="843.8" y="14" width="109.6" height="35" rx="3"/><text x="898.7" y="31.5" text-anchor="middle" dominant-baseline="central">瞬时 API 错误</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(953.5,14)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g><g class="am-node am-node--rect" data-key="报错" data-step="18"><rect class="am-node-shape" x="681.8" y="673" width="64" height="35" rx="3"/><text x="713.8" y="690.5" text-anchor="middle" dominant-baseline="central">报错</text></g><g class="am-node am-node--round" data-key="回到 query loop" data-step="19"><rect class="am-node-shape" x="781.8" y="673" width="133.1" height="35" rx="17.5"/><text x="848.4" y="690.5" text-anchor="middle" dominant-baseline="central">回到 query loop</text></g><g class="am-node am-node--rect" data-key="跑 StopFailure hook，不跑 Stop hook" data-step="20" data-delta="added"><rect class="am-node-shape" x="626.5" y="754" width="174.6" height="52" rx="3"/><text x="713.8" y="771.5" text-anchor="middle" dominant-baseline="central">跑 StopFailure hook，不</text><text x="713.8" y="788.5" text-anchor="middle" dominant-baseline="central">跑 Stop hook</text><g class="am-delta-badge am-delta-badge--added" data-delta="added" transform="translate(801.2,754)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">+</text></g></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+8 新增</span> <span class="am-delta-count am-delta-count--removed">−6 删除</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>prompt too long 分支：压缩一回合可做两次（实测，见 C 节）。排空 collapse 无法核对。</li>
+<li>输出截断分支：续写属实；提高上限本机没观察到（见 D 节）。</li>
+<li>API 错误分支（实测）：让每次请求都返回 529，Claude Code 共发了 11 次请求，即首次加 10 次重试。前 7 次间隔约为 0.6、1.2、2.3、4.9、9.7、17.3、38.9 秒，此后停在上限附近。文档写的是 “retries transient failures up to 10 times with exponential backoff”，起始 500 毫秒，上限 32 秒。只失败 3 次时，第 4 次成功，回合正常结束。</li>
+<li>重试用尽后报 “API Error: 529 Overloaded…”，跑 StopFailure hook（error 为 server_error），不跑 Stop hook。hook 失败这一支本次没测。</li>
+</ul>
+</div></div>
+<div class="am-md"><h3>原文的图 2：压缩自己失败时的兜底</h3>
+<p>原文在这里放了第二张图，标题是 “Compact Fallbacks - Staying Safe When Compact Itself Fails”。图的意思是：</p>
+<ul>
+<li>请求压缩后，session memory 够用就走 session memory，下一轮带上 compact boundary。</li>
+<li>需要摘要时，先构造摘要请求。摘要请求超长，就截掉最早的历史再试，并计数。</li>
+<li>还有次数就继续截，连续失败就停止自动压缩，把控制交回调用方。</li>
+<li>摘要请求不超长，就恢复关键文件、技能和增量。</li>
+</ul>
+<p>图上的注释写着：压缩本身也会失败；重试加了熔断，防止循环失控，控制交回调用方。</p>
+<p>下图按实测重画。+ 表示按事实补上，~ 表示改过的节点。</p>
+</div>
+<figure class="am-diagram am-flow am-view-changes"><svg viewBox="0 0 604 795" width="604" height="795" role="img" aria-label="流程图：请求压缩、构造摘要请求、session memory 路径、下一轮带 compact boundary、结束、摘要请求超长?、截掉最早的历史，重试摘要、恢复关键文件、技能、增量" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am4-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker><marker id="am4-arrow-added" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow am-arrow--added" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M294.2,49 L261.8,65 Q229.4,81 229.4,97 L229.4,113" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="201.4" y="72" width="56" height="18" rx="3"/><text x="229.4" y="81" text-anchor="middle" dominant-baseline="central">需要摘要</text></g></g><g data-step="1"><path class="am-edge" d="M375.6,44.1 L443.1,62.5 Q510.6,81 510.6,105.8 Q510.6,130.5 510.6,150.8 Q510.6,171 510.6,196.5 Q510.6,222 510.6,252 Q510.6,282 510.6,311 Q510.6,340 510.6,369 Q510.6,398 510.6,418.3 L510.6,438.5" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="448.1" y="213" width="125" height="18" rx="3"/><text x="510.6" y="222" text-anchor="middle" dominant-baseline="central">session memory 够用</text></g></g><g data-step="2"><path class="am-edge" d="M510.6,473.5 L510.6,489.3 Q510.6,505 486.1,517.5 L461.5,530" marker-end="url(#am4-arrow)"/></g><g data-step="3"><path class="am-edge" d="M410.4,582 L410.4,599 Q410.4,616 410.4,645 Q410.4,674 410.4,698.5 Q410.4,723 367.6,737 L324.9,751" marker-end="url(#am4-arrow)"/></g><g data-step="4"><path class="am-edge" d="M229.4,148 L229.4,159.5 Q229.4,171 229.4,182.5 L229.4,194" marker-end="url(#am4-arrow)"/></g><g data-step="5"><path class="am-edge" d="M203.3,241.4 L175.9,261.7 Q148.6,282 148.6,298 L148.6,314" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="137.9" y="273" width="21.5" height="18" rx="3"/><text x="148.6" y="282" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="6"><path class="am-edge" d="M269.8,236.7 L332.1,259.3 Q394.5,282 394.5,311 Q394.5,340 394.5,369 Q394.5,398 371.2,414 L347.9,430" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="383.8" y="331" width="21.5" height="18" rx="3"/><text x="394.5" y="340" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="7"><path class="am-edge" d="M148.6,366 L148.6,382 Q148.6,398 148.6,418.3 L148.6,438.5" marker-end="url(#am4-arrow)"/></g><g data-step="8"><path class="am-edge" d="M148.6,473.5 L148.6,489.3 Q148.6,505 134.3,519.9 L120,534.7" marker-end="url(#am4-arrow)"/></g><g data-step="9"><path class="am-edge" d="M83.3,533.3 L73.2,519.2 Q63.1,505 63.1,480.5 Q63.1,456 63.1,427 Q63.1,398 86.7,382 L110.3,366" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="46.6" y="447" width="33" height="18" rx="3"/><text x="63.1" y="456" text-anchor="middle" dominant-baseline="central">还有</text></g></g><g data-step="10"><path class="am-edge" d="M99.5,584 L99.5,600 Q99.5,616 99.5,632 L99.5,648" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="71.5" y="607" width="56" height="18" rx="3"/><text x="99.5" y="616" text-anchor="middle" dominant-baseline="central">连续失败</text></g></g><g data-step="11"><path class="am-edge" d="M99.5,700 L99.5,711.5 Q99.5,723 174.2,739.1 L248.9,755.3" marker-end="url(#am4-arrow)"/></g><g data-step="12" data-delta="added"><path class="am-edge" d="M195.8,366 L224.8,382 Q253.9,398 269.4,414 L284.9,430" marker-end="url(#am4-arrow-added)"/><g class="am-edge-label"><rect x="225.9" y="389" width="56" height="18" rx="3"/><text x="253.9" y="398" text-anchor="middle" dominant-baseline="central">重试成功</text></g></g><g data-step="13" data-delta="added"><path class="am-edge" d="M310.1,482 L310.1,493.5 Q310.1,505 334.7,517.5 L359.3,530" marker-end="url(#am4-arrow-added)"/></g></g><g><g class="am-node am-node--round" data-key="请求压缩" data-step="0"><rect class="am-node-shape" x="283.6" y="14" width="92" height="35" rx="17.5"/><text x="329.6" y="31.5" text-anchor="middle" dominant-baseline="central">请求压缩</text></g><g class="am-node am-node--rect" data-key="构造摘要请求" data-step="0"><rect class="am-node-shape" x="176.4" y="113" width="106" height="35" rx="3"/><text x="229.4" y="130.5" text-anchor="middle" dominant-baseline="central">构造摘要请求</text></g><g class="am-node am-node--rect" data-key="session memory 路径" data-step="1"><rect class="am-node-shape" x="431.6" y="438.5" width="158" height="35" rx="3"/><text x="510.6" y="456" text-anchor="middle" dominant-baseline="central">session memory 路径</text></g><g class="am-node am-node--rect" data-key="下一轮带 compact boundary" data-step="2"><rect class="am-node-shape" x="342.6" y="530" width="135.6" height="52" rx="3"/><text x="410.4" y="547.5" text-anchor="middle" dominant-baseline="central">下一轮带 compact</text><text x="410.4" y="564.5" text-anchor="middle" dominant-baseline="central">boundary</text></g><g class="am-node am-node--round" data-key="结束" data-step="3"><rect class="am-node-shape" x="248.9" y="746" width="76" height="35" rx="17.5"/><text x="286.9" y="763.5" text-anchor="middle" dominant-baseline="central">结束</text></g><g class="am-node am-node--diamond" data-key="摘要请求超长?" data-step="4"><polygon class="am-node-shape" points="229.4,194 314.3,222 229.4,250 144.4,222"/><text x="229.4" y="222" text-anchor="middle" dominant-baseline="central">摘要请求超长?</text></g><g class="am-node am-node--rect" data-key="截掉最早的历史，重试摘要" data-step="5"><rect class="am-node-shape" x="63.1" y="314" width="171" height="52" rx="3"/><text x="148.6" y="331.5" text-anchor="middle" dominant-baseline="central">截掉最早的历史，重试摘</text><text x="148.6" y="348.5" text-anchor="middle" dominant-baseline="central">要</text></g><g class="am-node am-node--rect" data-key="恢复关键文件、技能、增量" data-step="6"><rect class="am-node-shape" x="224.6" y="430" width="171" height="52" rx="3"/><text x="310.1" y="447.5" text-anchor="middle" dominant-baseline="central">恢复关键文件、技能、增</text><text x="310.1" y="464.5" text-anchor="middle" dominant-baseline="central">量</text></g><g class="am-node am-node--rect" data-key="尝试计数" data-step="7"><rect class="am-node-shape" x="108.6" y="438.5" width="80" height="35" rx="3"/><text x="148.6" y="456" text-anchor="middle" dominant-baseline="central">尝试计数</text></g><g class="am-node am-node--diamond" data-key="还有尝试次数?" data-step="8"><polygon class="am-node-shape" points="99.5,528 184.5,556 99.5,584 14.5,556"/><text x="99.5" y="556" text-anchor="middle" dominant-baseline="central">还有尝试次数?</text></g><g class="am-node am-node--rect" data-key="停止自动压缩，把控制交回调用方" data-step="10" data-delta="changed"><rect class="am-node-shape" x="14" y="648" width="171" height="52" rx="3"/><text x="99.5" y="665.5" text-anchor="middle" dominant-baseline="central">停止自动压缩，把控制交</text><text x="99.5" y="682.5" text-anchor="middle" dominant-baseline="central">回调用方</text><g class="am-delta-badge am-delta-badge--changed" data-delta="changed" transform="translate(185,648)"><circle r="7"/><text text-anchor="middle" dominant-baseline="central">~</text></g></g></g></svg><div class="am-delta-bar"><span class="am-delta-count am-delta-count--added">+2 新增</span> <span class="am-delta-count am-delta-count--changed">~1 修改</span><span class="am-delta-switch" role="group" aria-label="视图" hidden><button type="button" data-view="before" aria-pressed="false">改前</button><button type="button" data-view="changes" aria-pressed="true">变更</button><button type="button" data-view="after" aria-pressed="false">改后</button></span></div></figure>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li>截头重试属实（实测）。原图没有画重试成功的路，本页补上：实测中重试成功后，压缩照常完成，写入 compact_boundary。</li>
+<li>原图“恢复关键文件、技能、增量”没有接到 compact boundary。第 5 章实测：压缩后补回文件、技能等附件，下一次请求从摘要开始。本页补上这条边。</li>
+<li>“停止自动压缩，把控制交回调用方”改过：实测中截头重试一次后仍超长，Claude Code 报 “Prompt is too long”，回合结束。</li>
+<li>原图把两种计数画成了一个：截头重试的次数，和跨回合的“连续失败 3 次熔断”（见 E 节）。两者是否共用计数，无法核对。</li>
+<li>session memory 路径无法核对：文档没有写，CHANGELOG 只能证明 session memory 存在（见第 5 章）。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>中断也是错误恢复的一部分</h2><span class="am-panel-meta">原文 6.7</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，很多人把 abort 归为交互体验，不放进错误恢复讨论。从运行时角度看，中断是必须正确回收的失败状态。原文说 Claude Code 在两层都处理了：</p>
+<ul>
+<li><strong>query 层。</strong> 流式输出被打断时，先消费 <code>StreamingToolExecutor.getRemainingResults()</code>，为悬空的 tool_use 生成 synthetic tool_result。</li>
+<li><strong>compact 层。</strong> <code>compact.ts</code> 把 compact 的 abort controller 传给 forked agent，并处理 <code>APIUserAbortError</code>，防止“被 Esc 的 compact”误算成一次成功摘要。</li>
+</ul>
+<p>原文说，中断不只是“用户不想看了”，而是需要正确收尾的状态转移。错误恢复只管异常、不管中断，会留下语义半残的执行轨迹：短期无人查，长期都是祸根。</p>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>StreamingToolExecutor.getRemainingResults()</code>、abort controller、<code>APIUserAbortError</code> 等名字无法核对：源码不公开。</li>
+<li>补齐 tool_result 属实（观察，见第 3 章）。本机 6 次中断里，被打断的调用都拿到 is_error 的 tool_result，随后有一条 “[Request interrupted by user for tool use]”。</li>
+<li>中断的压缩不算成功属实（文档）。errors 文档写到：压缩时按了停止，之后出现 prompt too long 报错，“your conversation is unchanged and still large enough to need compacting”。CHANGELOG 2.1.302 和 2.1.304 都修过“压缩中途停止后报 Prompt is too long”的问题。</li>
+<li>压缩由单独的请求完成（观察）：摘要请求标记为 compact，沿用主会话的 system prompt 和工具定义，并要求 “Respond with TEXT ONLY”。是否叫 forked agent，无法核对。</li>
+<li>本次没有在 2.1.312 上重做中断实测。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>错误处理真正保护的，是执行叙事的一致性</h2><span class="am-panel-meta">原文 6.8</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文说，Claude Code 处理错误与恢复，还有一个常被忽略的目标：保护执行叙事的一致性。系统要能说清楚：</p>
+<ul>
+<li>刚才试图做什么，为什么没做成。</li>
+<li>用了什么恢复路径。</li>
+<li>现在是继续、停止，还是换轨。</li>
+</ul>
+<p>原文说，<code>query.ts</code> 的 <code>transition.reason</code>、<code>maxOutputTokensRecoveryCount</code>、<code>hasAttemptedReactiveCompact</code>，以及 compact boundary 和 synthetic error message，都是防止叙事断裂的机制。</p>
+<p>没有叙事一致性的系统，表面还能输出，内部在散。原文举了三步：今天用户看到几句废话；明天运维理不清 hook retry 和 compact retry 的因果；后天团队说不清系统经历过什么。原文说，错误恢复真正修补的，是系统对自己行为的解释能力。</p>
+<h3>观察：会话记录里留下了什么</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>原文提到的机制</th>
+<th>会话记录或输出里看到的</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>compact boundary</td>
+<td>每次压缩一条 compact_boundary，记 trigger（auto 或 manual）、压缩前后的 token 数</td>
+<td>观察</td>
+</tr>
+<tr>
+<td>synthetic error message</td>
+<td>最终报错写成一条合成的 assistant 消息，标为 API 错误，带错误类型 invalid_request</td>
+<td>观察</td>
+</tr>
+<tr>
+<td>Stop hook 阻塞</td>
+<td>写成一条 meta 用户消息 “Stop hook feedback: …”</td>
+<td>观察</td>
+</tr>
+<tr>
+<td>压缩状态</td>
+<td>stream-json 输出有 compacting 状态和 compact_result；一次本地失败带 compact_error “too_few_groups”</td>
+<td>观察</td>
+</tr>
+<tr>
+<td>结束原因</td>
+<td>StopFailure hook 收到错误类型，例如 server_error、invalid_request</td>
+<td>实测</td>
+</tr>
+<tr>
+<td>transition.reason、maxOutputTokensRecoveryCount</td>
+<td>外部看不到</td>
+<td>无法核对</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">事实核对</div><div class="am-callout-body am-md"><ul>
+<li><code>transition.reason</code>、<code>maxOutputTokensRecoveryCount</code>、<code>hasAttemptedReactiveCompact</code> 无法核对：源码不公开，会话记录里也没有这些字段。</li>
+<li>compact boundary 和合成错误消息属实（观察），见上表。会话记录能还原“压缩了几次、为什么结束”。</li>
+<li>原文的“理不清因果”是观点，不核对。</li>
+</ul>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-I">
+<header class="am-panel-head"><span class="am-panel-id">I</span><h2>从源码里可以提炼出的第六个原则</h2><span class="am-panel-meta">原文 6.9</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文把本章收成一句话：</p>
+<blockquote>
+<p>代理系统是否可靠，体现在错误发生后仍能维持可解释、可限界、可继续的执行秩序。</p>
+</blockquote>
+</div>
+<div class="am-callout am-callout--ok" role="note"><div class="am-callout-title">核对后的结论</div><div class="am-callout-body am-md"><p>原则成立。六条依据里，三条有实测支持，两条部分成立。熔断有旁证，本机实测没观察到。需要修正的是：压缩现在一回合可做两次；先提高输出上限这一步没观察到；collapse 无法核对。</p>
+</div></div>
+<div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>原文的源码依据</th>
+<th>说明什么</th>
+<th>核对后的依据</th>
+<th>详见</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>query.ts 暂时扣下可恢复错误</td>
+<td>错误先尝试转化</td>
+<td>实测：注入一次 prompt too long，用户看不到错误</td>
+<td>B</td>
+</tr>
+<tr>
+<td>prompt too long 先 collapse drain，再 reactive compact</td>
+<td>恢复按成本分层</td>
+<td>collapse 无法核对；文档：先减小 max_tokens，再压缩；实测：压缩可做两次</td>
+<td>B、C</td>
+</tr>
+<tr>
+<td>hasAttemptedReactiveCompact 与 stop hook guard</td>
+<td>恢复本身受治理</td>
+<td>实测：两次压缩后报错，跑 StopFailure 不跑 Stop</td>
+<td>C</td>
+</tr>
+<tr>
+<td>max_output_tokens 先提 cap，再要求续写</td>
+<td>目标是延续任务</td>
+<td>续写有实测；提 cap 没观察到</td>
+<td>D</td>
+</tr>
+<tr>
+<td>autoCompact.ts 的连续失败熔断</td>
+<td>自动恢复可熔断</td>
+<td>旁证：CHANGELOG 2.1.76 加了 3 次熔断。实测：连续 8 轮失败仍每轮尝试，没观察到熔断；一次尝试内部的重试有上限</td>
+<td>E</td>
+</tr>
+<tr>
+<td>compact.ts 对压缩自身超长的降级修复</td>
+<td>修复动作也要有恢复策略</td>
+<td>实测：截掉最早一轮后重试</td>
+<td>F</td>
+</tr>
+</tbody></table></div>
+<p>原文抽出的工程原则：</p>
+<ul>
+<li>恢复分层，不用一把重锤。</li>
+<li>恢复逻辑必须防自回环。</li>
+<li>自动恢复要可计数、可熔断。</li>
+<li>截断后优先续写，而不是总结。</li>
+<li>中断也是需要语义收尾的失败状态。</li>
+<li>可靠性最终体现在：出错后系统还能不能把自己的行为讲明白。</li>
+</ul>
+<p>原文最后预告下一章：多代理与验证。系统开始把任务分给别的 agent，再收回结果复核。这时，错误与恢复就从单线程的秩序问题，变成了组织问题。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-J">
+<header class="am-panel-head"><span class="am-panel-id">J</span><h2>附录：事实核对</h2><span class="am-panel-meta">本页补充</span></header>
+<div class="am-panel-body"><div class="am-md"><h3>逐条核对</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>原文的说法</th>
+<th>核对</th>
+<th>实际情况和依据</th>
+<th>正文</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>query.ts 在流式阶段扣下可恢复错误（prompt too long、media size、max output tokens）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>实测 e3：注入一次 prompt too long，最终结果 is_error 为 false。输出超长的续写见第 3 章实测。media size 只有文档：“could not be processed and was removed”</td>
+<td>B</td>
+</tr>
+<tr>
+<td>2</td>
+<td>prompt too long 先 recoverFromOverflow() 提交 collapse，再 tryReactiveCompact()</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>压缩属实（实测 e3；errors 文档 “normally summarizes your oldest exchanges and keeps the newest”）。collapse 在文档和 CHANGELOG 里查不到。errors 文档：输入加 max_tokens 超限时先减小 max_tokens 重试</td>
+<td>B</td>
+</tr>
+<tr>
+<td>3</td>
+<td>只有一轮对话时（原文没写）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>文档与实测一致</span></td>
+<td>实测 e7：不压缩，报 “Prompt is too long · the request is ~215000 tokens (limit 200000) but this conversation is only ~4818 tokens…”，与 errors 文档原句一致</td>
+<td>B</td>
+</tr>
+<tr>
+<td>4</td>
+<td>hasAttemptedReactiveCompact：试过一次就不再压缩</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>与现状不完全相符</span></td>
+<td>实测 e4：一回合压缩两次，第三次被拒报错。旁证：CHANGELOG 2.1.284 “compacts once more, keeping less”</td>
+<td>C</td>
+</tr>
+<tr>
+<td>5</td>
+<td>prompt too long 无法恢复时报错，并跳过 stop hooks，防 death spiral</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，注释无法核对</span></td>
+<td>实测 e4、e6：报错后跑 StopFailure，不跑 Stop；Stop hook 先阻塞过一次也一样。hooks 文档：“API errors fire StopFailure instead”。旁证：CHANGELOG 2.1.274</td>
+<td>C</td>
+</tr>
+<tr>
+<td>6</td>
+<td>输出截断：先把 maxOutputTokensOverride 提高后重跑（src/query.ts:1185 往后）</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>本机没观察到</span></td>
+<td>第 3 章实测：用环境变量设上限 400 时，三次请求都是 400；默认上限已是 128000（claude-haiku-5-5）。位置和名字无法核对</td>
+<td>D</td>
+</tr>
+<tr>
+<td>7</td>
+<td>输出截断：追加 meta user 消息，不道歉、不 recap、从半句续写、拆小</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实</span></td>
+<td>第 3 章实测：消息原话 “Output token limit hit. Resume directly — no apology, no recap…”。旁证：CHANGELOG 2.1.0 自动继续</td>
+<td>D</td>
+</tr>
+<tr>
+<td>8</td>
+<td>AutoCompactTrackingState.consecutiveFailures 超过阈值后跳过自动压缩</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>旁证有，本机没观察到</span></td>
+<td>旁证：CHANGELOG 2.1.76 “a circuit breaker now stops after 3 attempts”。实测 e9b、e9c：调低触发线，摘要请求一直返回 400，同一进程连续 6 轮、8 轮，每轮都重新尝试；每次尝试发 4–6 个请求后放弃，本轮照常回答。对照 e9a：不注入时 6 轮都压缩成功</td>
+<td>E</td>
+</tr>
+<tr>
+<td>9</td>
+<td>源码注释：曾有大量会话在连续失败的自动压缩上浪费 API 调用</td>
+<td>无法核对</td>
+<td>注释看不到。CHANGELOG 2.1.89（thrashing）写到 “instead of burning API calls”</td>
+<td>E</td>
+</tr>
+<tr>
+<td>10</td>
+<td>五条不变式</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>逐条结果见 E 节表格</td>
+<td>E</td>
+</tr>
+<tr>
+<td>11</td>
+<td>失败矩阵八行</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>逐行结果见 E 节表格</td>
+<td>E</td>
+</tr>
+<tr>
+<td>12</td>
+<td>compactConversation() 承认摘要请求自己也会 prompt too long；truncateHeadForPTLRetry() 成组剥掉早期 API round 再重试</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>实测 e5、e5b：重试请求开头换成 “[earlier conversation truncated for compaction retry]”，最早一轮被丢掉，压缩成功。实测 e5c：截头一次后仍被拒，就报错。旁证：CHANGELOG 2.1.85、2.1.97</td>
+<td>F</td>
+</tr>
+<tr>
+<td>13</td>
+<td>注释称之为 last-resort escape hatch；修复有损</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>注释看不到。有损属实：e5 截头后摘要只剩标题。文档写的兜底是“原样保留最新提示，摘要之前全部”，没写截头</td>
+<td>F</td>
+</tr>
+<tr>
+<td>14</td>
+<td>StopFailure 只在回合因 API 错误结束时运行（文档，原文没写）</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>与文档不完全一致</span></td>
+<td>实测 e5、e5b：摘要请求被拒时 StopFailure 触发一次，回合随后正常结束，Stop 也运行；e5c 一个回合触发 3 次。e9b：每轮自动压缩失败后触发一次（error 为 unknown），回合照常结束</td>
+<td>F</td>
+</tr>
+<tr>
+<td>15</td>
+<td>原图 1：恢复决策路径</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>需要修正</span></td>
+<td>压缩改为最多两次；API 错误分支按实测写成“指数退避重试 10 次”（e1、e2；errors 文档 “up to 10 times with exponential backoff”）；报错后补上 StopFailure。collapse 和提高上限两个节点无法核对或没观察到</td>
+<td>F</td>
+</tr>
+<tr>
+<td>16</td>
+<td>原图 2：压缩自己失败时的兜底</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>需要修正</span></td>
+<td>补上“截头重试成功”和“恢复附件后写 boundary”两条边；“交回调用方”改为报错结束；session memory 路径无法核对</td>
+<td>F</td>
+</tr>
+<tr>
+<td>17</td>
+<td>流式打断时消费 getRemainingResults()，为悬空 tool_use 生成 synthetic tool_result</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>第 3 章观察：6 次中断，被打断的调用都有 is_error 的 tool_result</td>
+<td>G</td>
+</tr>
+<tr>
+<td>18</td>
+<td>compact 的 abort controller 传给 forked agent，处理 APIUserAbortError，被 Esc 的 compact 不算成功</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>行为属实，命名无法核对</span></td>
+<td>errors 文档：压缩时停止后 “your conversation is unchanged”。旁证：CHANGELOG 2.1.302、2.1.304。观察：摘要请求沿用主会话的 system prompt 和工具定义</td>
+<td>G</td>
+</tr>
+<tr>
+<td>19</td>
+<td>transition.reason、maxOutputTokensRecoveryCount 等字段防止叙事断裂</td>
+<td><span class="am-status am-status--warn"><span class="am-status-icon" aria-hidden="true">!</span>部分可核对</span></td>
+<td>字段名无法核对。观察：会话记录有 compact_boundary（含 trigger、压缩前后 token 数）、合成的错误消息、Stop hook 反馈</td>
+<td>H</td>
+</tr>
+</tbody></table></div>
+<h3>核对范围与局限</h3>
+<ul>
+<li><strong>依据版本</strong>：本机 Claude Code 2.1.312（每次实验前记录 <code>claude --version</code>）；官方文档 2026-10-30 查阅（errors、hooks、troubleshooting、how-claude-code-works、model-config、env-vars）；CHANGELOG 最新条目 2.1.312。</li>
+<li><strong>实测做法</strong>：在新建的空临时目录里写了一个本地 HTTP 代理，转发到本机网关。只对实验进程用 <code>--settings</code> 把 <code>ANTHROPIC_BASE_URL</code> 指向代理，没有改用户配置。代理按规则把指定请求换成错误响应：400 prompt too long（Anthropic 错误格式）、529 overloaded、普通 400。用 hook 记录 UserPromptSubmit、Stop、StopFailure、PreCompact、PostCompact 的时间，用 <code>OTEL_LOG_RAW_API_BODIES</code> 抓请求，再对照会话记录。<ul>
+<li>e1、e2：529 失败 3 次、一直失败。</li>
+<li>e3、e4：主请求失败 1 次、一直失败。会话里先有两轮写故事的对话，每个实验从它分叉（<code>--resume --fork-session</code>）。</li>
+<li>e5、e5b、e5c：主请求失败 1 次，摘要请求失败 1 次（做 2 次）或一直失败。</li>
+<li>e6：Stop hook 先阻塞一次，之后主请求一直失败。</li>
+<li>e7：只有一轮对话时，主请求一直失败。</li>
+<li>e9a、e9b、e9c：用 <code>CLAUDE_CODE_AUTO_COMPACT_WINDOW=100000</code> 和 <code>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=10</code> 把触发线调到约 1 万 token。用 stream-json 输入在同一进程里逐轮发 6 或 8 条消息。摘要请求分别是不注入错误、一直返回 400。</li>
+</ul>
+</li>
+<li><strong>局限</strong>：注入的错误是假的，上下文实际并不大。所以压缩前后的 token 数，不能代表真实的长会话。结果只代表这个版本、这个模型和这个网关下的表现，不能证明原文说的内部结构。没观察到某个行为不等于没有，功能可能分批上线或按账号开关。e2 运行时机器休眠过两次，第 8、9 次重试的间隔不可用。</li>
+<li><strong>没核对的部分</strong>：熔断只对哪些错误生效；context collapse；默认配置下“提高输出上限”；media size 错误的恢复；hook 失败的分类；中断没有在 2.1.312 上重做；所有函数名、字段名和源码注释。</li>
+<li><strong>原文的图</strong>：原文有两张图，都已按事实重画，图上说法见第 15、16 条。两张图是 <a href="https://harness-books.agentway.dev/book1-claude-code/diagrams/diag-ch06-01-recovery-decision-paths.png">恢复决策路径</a> 和 <a href="https://harness-books.agentway.dev/book1-claude-code/diagrams/diag-ch06-02-compact-fallbacks.png">压缩自己失败时的兜底</a>。</li>
+<li><strong>观点</strong>：“坏事更有仪式感”“不会刹车的汽车”“先恢复呼吸”“玄学对象”等是原文的观点，不核对。</li>
+</ul>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="图表查看" data-expand="展开查看图表">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="关闭" aria-label="关闭">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.4.14 · 2026-10-30 10:09</footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+title: 错误与恢复：出错后仍能继续工作的代理系统（核对试点版）
+subtitle: 《Harness Engineering：Claude Code 设计指南》第 6 章解读，已按官方文档、本机观察和故障注入实测核对
+source: https://harness-books.agentway.dev/book1-claude-code/chapter-06-errors-and-recovery.html
+---
+原文：[第 6 章 错误与恢复：出错后仍能继续工作的代理系统](https://harness-books.agentway.dev/book1-claude-code/chapter-06-errors-and-recovery.html)
+
+一句话结论：原文认为，错误属于主路径。恢复要分层，先用便宜的办法；恢复本身要防回环、可计数、可熔断。截断后应续写，不寒暄；中断也要正确收尾。
+
+核对后，论点成立。在 v2.1.312 上，用本机故障注入代理实测到下面几件事：
+
+- prompt too long 先被扣下，Claude Code 自动压缩后重试，用户看不到这个错误。
+- 压缩救不回来时才报错，并改跑 StopFailure hook，不跑 Stop hook。
+- 摘要请求自己超长时，Claude Code 截掉最早的一轮再试。
+- 529 过载按指数退避重试 10 次。
+
+源码文件、函数名和状态字段无法核对。
+
+需要修正四点：
+
+- 原文说 reactive compact 每回合只做一次。实测一个回合里压缩了两次，第二次保留得更少；CHANGELOG 2.1.284 写了这个改动。
+- 原文说输出截断时先提高 token 上限再重跑。这一步本机没观察到；默认请求的上限已是 128000。
+- 原文说恢复第一步是提交 context collapse 积压。文档和 CHANGELOG 都查不到 collapse，无法核对。文档写了另一个便宜的第一步：输入加 max_tokens 超限时，先减小 max_tokens 重试。
+- 原文说自动压缩连续失败 3 次后熔断。CHANGELOG 2.1.76 写了这个熔断，但本机实测没观察到：连续 8 轮压缩失败，每轮仍重新尝试。
+
+核对依据：Claude Code 官方文档 code.claude.com/docs（2026-10-30 查阅）；anthropics/claude-code 仓库的 CHANGELOG（最新条目 2.1.312）；本机 Claude Code 2.1.312 的故障注入实测和会话记录。依据分四种标签：文档、观察、实测（v2.1.312）、旁证（CHANGELOG）。逐条结果见附录。
+
+```callout info 试点说明
+本页是第 6 章的核对试点版，原页面保留不动。原文在 6.6 节后有两张图，本页按事实重画，放在 F 节。与原页面相比，本页每节加了“事实核对”，最后加了附录。
+```
+
+## A 核心观点：不要只写“正常情况下” {meta=&quot;原文 6.1&quot;}
+
+很多设计文档只讲“正常情况下”，仿佛主路径漂亮，错误就会退场。原文说，代理系统一进入真实环境，这种写法就会露馅：
+
+- 模型会被截断，请求会超长。
+- hook 会制造回环，工具会中断。
+- fallback 会发生，恢复逻辑本身也会失手。
+
+原文的判断标准是：成熟的代理系统，不看它顺畅时多像人，要看它出故障时像不像系统。原文说，Claude Code 的源码反复体现一个冷静判断：错误属于主路径，恢复是提前设计好的运行机制。
+
+```tree list
+本章讲的恢复机制（本页归纳）
+  单次错误怎么救
+    prompt too long | 扣下错误，分层恢复（B）
+    恢复防回环 | 只压缩有限次，跳过 Stop hook（C）
+    输出截断 | 续写，不 recap（D）
+  恢复机制本身怎么管
+    自动压缩熔断 | 连续失败就停（E）
+    压缩请求自己超长 | 截掉最早的历史再试（F）
+  收尾
+    中断 | 补齐 tool_result，压缩中断不算成功（G）
+    执行叙事 | 记录走过的恢复路径（H）
+```
+
+本节是原文的观点，不涉及需要核对的事实。
+
+## B prompt too long：先扣下，再分层恢复 {meta=&quot;原文 6.2&quot;}
+
+原文说，对长会话代理来说，prompt too long 迟早会来。把它当偶发异常，系统迟早会被它教育。
+
+原文说，`query.ts` 在流式阶段会识别三类可恢复错误，先“暂时扣下”，不立刻抛给用户：
+
+- prompt too long
+- media size error
+- max output tokens
+
+意思是：有些错误先交给恢复系统试着处理，再决定是否展示。用户真正关心的，是系统还能不能继续干活。
+
+在 prompt too long 这条路上，原文说恢复分两层：
+
+1. 启用了 context collapse 时，先调用 `recoverFromOverflow()`，提交已经 staged 的 collapse。
+2. 还不行，再调用 `reactiveCompact.tryReactiveCompact()`，做全文压缩。
+
+原文说，好的恢复系统不会把所有错误都交给最重的一把锤子。它先保住最细粒度的上下文，必要时才接受更粗的摘要。
+
+### 实测：注入一次 prompt too long
+
+实测用本机代理拦截发往模型的请求，让第一次主请求返回 400 prompt too long。会话里已有两轮对话。下图是实测到的过程：
+
+```flow
+(主请求返回 prompt too long) -&gt; [不显示错误]
+不显示错误 -&gt; [PreCompact hook，trigger 为 auto]
+PreCompact hook，trigger 为 auto -&gt; [发出摘要请求]
+发出摘要请求 -&gt; [摘要较早的一轮，保留最新一轮]
+摘要较早的一轮，保留最新一轮 -&gt; [写入 compact_boundary]
+写入 compact_boundary -&gt; [重发主请求]
+重发主请求 -&gt; *(正常回答，Stop hook 照常运行)
+```
+
+被拒后约 0.2 秒，摘要请求就发出了；整个过程中，`-p` 的输出里没有出现这个错误。
+
+```callout warn 事实核对
+- `query.ts`、`recoverFromOverflow()`、`reactiveCompact.tryReactiveCompact()` 和“withheld”这个说法，都无法核对：源码不公开。
+- 先扣下 prompt too long 属实（实测）：注入一次后，最终结果是正常回答，is_error 为 false。
+- 被拒后自动压缩属实（文档、实测）。文档写到压缩 “normally summarizes your oldest exchanges and keeps the newest”，实测一致。
+- 恢复分层：先提交 collapse 积压这一步无法核对，文档和 CHANGELOG 都查不到 context collapse。文档写了另一个便宜的第一步：输入加 max_tokens 超过上限时，先减小 max_tokens 重试；减不动了才改为压缩。
+- 输出超长也会先尝试恢复（实测，见 D 节）。media size：文档写到 API 拒收图片时，Claude Code 移除这张图并提示 “could not be processed and was removed”。本次没有注入这类错误。
+- 文档还写了一种不压缩的情况：只有一轮对话时没有可摘要的内容，Claude Code 直接报错并说明原因。实测的报错与文档原句一致。
+```
+
+## C 恢复不能把自己逼进死循环 {meta=&quot;原文 6.3&quot;}
+
+原文说，很多系统做恢复时会犯一个常见错误：一发现错误可恢复，就不停重试，把偶发事件升级成资源灾难。原文认为 `query.ts` 里有两处防护。
+
+**第一处：hasAttemptedReactiveCompact。** 原文说，reactive compact 试过一次后，再遇到同类问题就不再重来。压缩之后还不行，再压缩一次多半只是换个姿势重演同一种失败。
+
+**第二处：跳过 stop hooks。** 原文说，源码注释写得很直白：prompt too long 之后还让 stop hooks 介入，就可能出现 death spiral：
+
+```flow LR
+[错误] -&gt; [hook 阻塞] -&gt; [重试] -&gt; [再次错误] -&gt; [hook 再阻塞]
+hook 再阻塞 --&gt; 错误: 循环
+```
+
+原文说，这句注释承认了最危险的错误：失败分支和恢复分支彼此咬住，开始无限自我复制。所以 prompt too long 无法恢复时，Claude Code 直接报错，并跳过 stop hooks。
+
+### 实测：每次主请求都返回 prompt too long
+
+实测做了两组，每次主请求都返回 prompt too long：
+
+- 第一组：直接提问。
+- 第二组：先让 Stop hook 阻塞一次，迫使系统再来一轮，再注入错误。
+
+| 步骤 | 直接提问 | Stop hook 先阻塞一次 |
+|---|---|---|
+| 第一次被拒 | 压缩，摘要约 2.6 万 token 的上下文 | 同左 |
+| 第二次被拒 | 再压缩一次，这次保留更少 | 同左 |
+| 第三次被拒 | 报 “Prompt is too long”，回合结束 | 同左 |
+| 结束时的 hook | StopFailure（error 为 invalid_request），不跑 Stop | StopFailure；Stop 没有再运行 |
+| 会话记录 | 两条 compact_boundary，最后一条是合成的错误消息 | 同左，另有一条 Stop hook 反馈 |
+
+两组都在三次请求、两次压缩后停下，没有出现循环。
+
+```callout warn 事实核对
+- `hasAttemptedReactiveCompact` 这个名字和源码注释无法核对：源码不公开。
+- “只压缩一次”与现状不符（实测、旁证）。实测一个回合里压缩了两次。CHANGELOG 2.1.284 写到，压缩后请求仍然太长时，“Claude Code now compacts once more, keeping less of the recent conversation”。论点“恢复要有次数上限”仍成立：第三次被拒就报错。
+- 报错并跳过 stop hooks 属实（文档、实测）。hooks 文档写到，Stop 在 API 出错时不运行，“API errors fire StopFailure instead”。实测两组都是这样，Stop hook 先阻塞过一次也一样。
+- 旁证：CHANGELOG 2.1.274 修了一个问题。由 hook 驱动的会话，reactive compaction 之后上下文再次溢出时，直接以 “Prompt is too long” 结束，没有再压缩。可见“hook 驱动续跑”和“压缩后再溢出”这个组合确实被单独处理过。
+- 文档还写了一种保护：Stop hook 连续阻塞 8 次后不再接受阻塞（`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`）。
+```
+
+## D 输出被截断：先续写，不寒暄 {meta=&quot;原文 6.4&quot;}
+
+原文说，很多大模型产品有个坏习惯：输出一被截断，就先来一段客气话，“抱歉，刚才被截断了，我来总结一下”。态度不错，对工作几乎没帮助。
+
+原文说，Claude Code 分两层恢复：
+
+1. **先提高上限。** 当前用的是较保守的上限时，把 `maxOutputTokensOverride` 提到更高，直接重跑同一请求。这一步不插入 meta 消息，也不让模型先寒暄。
+2. **再要求续写。** 更高的上限也不够时，追加一条 meta user 消息，大意是：直接继续，不道歉，不 recap；断在半句就从半句接着写；剩余工作拆小一点。
+
+原文说，这条指令的目标是保持任务连续性，不把 token 花在礼貌性收尾上。每一次截断后的 recap 都会消耗预算，还会增加语义漂移。最后系统做的不再是任务本身，而是一轮轮地回顾自己做任务。
+
+```callout warn 事实核对
+- 原文给的位置（`src/query.ts:1185` 往后）和 `maxOutputTokensOverride` 无法核对：源码不公开。
+- 续写属实（实测，见第 3 章）。把上限设成 400 后，回复两次被截断。Claude Code 每次追加同一条用户消息：“Output token limit hit. Resume directly — no apology, no recap of what you were doing. Pick up mid-thought if that is where the cut happened. Break remaining work into smaller pieces.” 第三次回复正常结束。消息内容与原文转述一致。
+- 旁证：CHANGELOG 2.1.0 写到，输出因 token 上限被截断时，Claude 会自动继续，不再显示错误。
+- “先提高上限”本机没观察到。用环境变量设上限时，三次请求的上限都是 400。默认配置下请求的上限已是 128000（claude-haiku-5-5），要很长的输出才能测，本次没做。
+- 文档只写了最终报错 “Claude&#39;s response exceeded the … output token maximum”，以及手动回复 continue。hooks 文档的 StopFailure 错误类型里有 `max_output_tokens`，说明续写也有用尽的时候。
+```
+
+## E 自动压缩的熔断：恢复系统自己也要受治理 {meta=&quot;原文 6.5&quot;}
+
+前面讲的是单次错误怎么救。原文说，`autoCompact.ts` 处理的是另一层问题：恢复机制本身不断失败时怎么办。答案是：别一直试。
+
+原文说，`AutoCompactTrackingState` 里有 `consecutiveFailures`。连续失败超过阈值后，即使 `shouldAutoCompact` 判断该压缩了，系统也直接跳过。源码注释给过数据：曾有大量会话在连续失败的自动压缩上，白白烧掉海量 API 调用，所以必须加熔断。
+
+原文说，熔断的本质是承认当前恢复手段已经失效。不会收手的恢复系统，和不会刹车的汽车差不多。原文由此抽出一条原则：任何自动恢复机制都必须可计数、可限次、可熔断。否则，恢复会从保险丝变成新的起火点。
+
+### 实测：让自动压缩每次都失败
+
+实测把自动压缩的触发线调低到约 1 万 token，让每一轮开始前都触发自动压缩，再让所有摘要请求返回 400。同一个进程里连续发 8 条消息，每条等上一轮结束再发。
+
+| 轮次 | 自动压缩 | 这一轮的摘要请求 | 之后 |
+|---|---|---|---|
+| 第 1–2 轮 | 尝试，失败 | 6 个 | 主请求照常发出，正常回答 |
+| 第 3–8 轮 | 尝试，失败 | 4 个 | 同上 |
+| 对照：不注入错误，6 轮 | 每轮都成功 | 每轮 1 个 | 正常回答 |
+
+8 轮里每一轮都重新尝试自动压缩，没有在连续失败 3 次后停下。一次尝试会发几个请求：同一请求重试，再换两种变体。都失败后，这一轮不再压缩。压缩失败不影响本轮回答：主请求带着没压缩的上下文照常发出。
+
+### 不变式
+
+原文用五条断言概括本章的约束。下表逐条给出核对结果：
+
+| 原文的不变式 | 意思 | 核对 |
+|---|---|---|
+| withheld_error ∈ {prompt_too_long, media_size, max_output_tokens} | 可扣下的错误范围明确 | warn 部分可核对：prompt too long 和输出超长有实测；media size 只有文档 |
+| hasAttemptedReactiveCompact ⇒ skip further reactive compact | 不自循环 | warn 与现状不完全相符：现在一回合可压缩两次，第三次被拒就报错 |
+| consecutiveFailures &lt; MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES | 熔断在位 | warn 旁证有，本机没观察到：连续 8 轮失败，每轮仍尝试 |
+| compact aborted by user ⇏ summary_success | 中断的压缩不算成功 | ok 文档：压缩时按停止，“your conversation is unchanged” |
+| every withheld recoverable_error surfaces iff recovery exhausted | 扣下的错误终有出口 | ok 实测：恢复成功时不显示，压缩两次仍失败才报错。另见 F 节：StopFailure hook 在恢复成功的回合里也触发过 |
+
+### 失败矩阵
+
+原文的失败矩阵如下，最后一列是核对结果：
+
+| 事件顺序 | 前置状态 | 触发 | 下一步 | 阈值 | 核对 |
+|---|---|---|---|---|---|
+| PTL → collapse | stagedCollapse &gt; 0 | prompt_too_long | recoverFromOverflow() | — | 无法核对：查不到 collapse |
+| PTL → compact | stagedCollapse = 0 | prompt_too_long | tryReactiveCompact() | 每回合一次 | warn 压缩属实；实测每回合两次 |
+| PTL → surface | hasAttemptedReactiveCompact | prompt_too_long | 直接报错，跳过 stop hooks | — | ok 实测：报错，跑 StopFailure 不跑 Stop |
+| compact PTL | compact 输入过长 | 内层 prompt_too_long | truncateHeadForPTLRetry() | 成组丢早期 API round | ok 实测：丢掉最早一轮后重试；命名无法核对 |
+| MOT → cap↑ | cap &lt; MAX | max_output_tokens | 提 maxOutputTokensOverride | cap ∈ {保守, 最大} | warn 本机没观察到 |
+| MOT → 续写 | cap = MAX | max_output_tokens | 追加 meta user 消息，续写 | 不 recap 不道歉 | ok 实测：消息原话与原文一致 |
+| autocompact 连败 | consecutiveFailures ≥ 阈值 | 再次触发 | 跳过 compact，报错 | MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3 | warn 旁证有；实测连续 8 轮失败仍每轮尝试，失败后也不报错 |
+| user abort | 流式中 tool_use 悬空 | Esc | 消费剩余结果，补 synthetic tool_result | 账本必须对齐 | ok 观察：被打断的调用都有 tool_result |
+
+```callout warn 事实核对
+- `autoCompact.ts`、`AutoCompactTrackingState`、`consecutiveFailures`、`shouldAutoCompact` 和源码注释无法核对：源码不公开。
+- 熔断属实（旁证）：CHANGELOG 2.1.76 写到，修复了自动压缩连续失败后无限重试的问题，“a circuit breaker now stops after 3 attempts”。
+- 这个熔断本机没观察到（实测）。连续 8 轮自动压缩失败（注入 400），每轮仍重新尝试。每次尝试发 4–6 个摘要请求后放弃，本轮照常回答。原因无法区分：可能熔断只对某些错误生效，也可能后来改过。
+- 一次尝试内部的请求有上限。同一形状最多发 3 次，再换一种形状；第 3 轮起减为每种 2 次。
+- 文档还写了一种相近的保护：压缩成功，但上下文立刻又满，连续几次后报 “Autocompact is thrashing”，停止重试 “to avoid wasting API calls”。CHANGELOG 2.1.89 写的是连续三次。
+```
+
+## F compact 自己也会爆：修复动作也需要修复策略 {meta=&quot;原文 6.6&quot;}
+
+原文说，`compactConversation()` 有一个现实主义的时刻：它承认摘要请求自己也可能 prompt too long。系统为了缩短上下文去发摘要请求，结果摘要请求也因为太长而失败。工程系统首先要解决的是继续运行，不是保持表面完整。
+
+原文说，`compact.ts` 为此引入了 `truncateHeadForPTLRetry()`。摘要请求太长时，系统先把最早的 API round 成组地从头部剥掉，再重试压缩。这样用户不会卡在“连压缩都压不动”的状态里。
+
+原文说，这种修复有损，会丢历史，但它优先保证用户不被完全锁死。源码注释称之为 last-resort escape hatch。原文的判断是：系统快要窒息时，先恢复呼吸，再讨论信息保真度。
+
+### 实测：让摘要请求也返回 prompt too long
+
+| 注入方式 | 实测到的过程 | 结果 |
+|---|---|---|
+| 主请求和第一次摘要请求各失败一次（做了 2 次） | 摘要请求被拒后立即重试。重试请求的开头换成一条占位消息 “[earlier conversation truncated for compaction retry]”，最早的一轮被丢掉 | ok 压缩成功，回合正常结束。摘要只剩故事标题，模型说无法概括情节 |
+| 主请求失败一次，摘要请求一直失败 | 截掉最早一轮重试一次；仍被拒，就不再重试 | 报 “Prompt is too long”，回合结束 |
+
+两次重复实验里，StopFailure hook 都在摘要请求第一次被拒后触发了一次，回合随后又正常结束，Stop hook 也运行了。E 节的实验也一样：每轮自动压缩失败后都触发一次 StopFailure。所以 StopFailure 触发时，回合不一定已经失败。
+
+```callout warn 事实核对
+- `compactConversation()`、`compact.ts`、`truncateHeadForPTLRetry()` 和注释原话无法核对：源码不公开。
+- 截掉头部再重试属实（实测），命名无法核对。实测只看到一次截头重试；历史更长时会不会多截几轮，本次没测。
+- 旁证：CHANGELOG 2.1.85 修了一个问题：对话太长、摘要请求自己都放不下时，`/compact` 失败。2.1.97 提到压缩的 “prompt-too-long retries”。
+- 文档写了压缩的兜底办法：一轮完整对话都摘要不了时，原样保留最新一条用户提示，摘要它之前的全部内容。这和截掉头部是两种不同的兜底，文档没有写截头。
+- 有损属实（实测）：截头重试后，摘要只剩标题。
+- StopFailure 的触发与文档不完全一致。文档说它在回合因 API 错误结束时 “Runs instead of Stop”；实测中它在摘要请求被拒时就触发了，回合随后正常结束，Stop 也运行了。只在这个版本上测过 2 次。
+```
+
+### 原文的图 1：恢复决策路径
+
+原文在这里放了一张图，标题是 “Recovery Decision Paths - Cheapest Fix First”。图的意思是：
+
+- prompt too long 先排空 staged collapse，不行再做一次 reactive compact。
+- 输出截断时，能便宜地提高上限就提高，否则追加续写消息。
+- API 或 hook 失败先分类：重试、中止或不可恢复。
+- 最后统一判断预算是否用尽、护栏是否触发：用尽就报错，否则回到 query loop。
+
+图上的注释写着：恢复分层进行。先做局部修复，再做较重的摘要；便宜办法都用尽了，才显式报错。
+
+下图按实测重画。+ 表示按事实补上，− 表示原图有、但与事实不符。切换 Before 和 After，可以分别看原图结构和修正后的结构。
+
+```flow
+(发现可恢复的失败) -&gt; {prompt too long?}
+prompt too long? -&gt; [排空 staged collapse]: 是
+排空 staged collapse -&gt; {解决了?}
+解决了? -&gt; {预算用尽或护栏触发?}: 是
+- 解决了? -&gt; [reactive compact，只做一次]: 否
+- reactive compact，只做一次 -&gt; 预算用尽或护栏触发?
++ 解决了? -&gt; [自动压缩，仍太长时再压缩一次]: 否
++ 自动压缩，仍太长时再压缩一次 -&gt; 预算用尽或护栏触发?
+prompt too long? -&gt; {max_output_tokens?}: 否
+max_output_tokens? -&gt; {能便宜地提高上限?}: 截断
+能便宜地提高上限? -&gt; [提高上限，直接重跑]: 是
+能便宜地提高上限? -&gt; [追加续写消息]: 否
+提高上限，直接重跑 -&gt; 预算用尽或护栏触发?
+追加续写消息 -&gt; 预算用尽或护栏触发?
+- max_output_tokens? -&gt; [分类：重试、中止或不可恢复]: API 或 hook 失败
+- 分类：重试、中止或不可恢复 -&gt; 预算用尽或护栏触发?
++ max_output_tokens? -&gt; [瞬时 API 错误：指数退避重试，默认 10 次]: API 错误
++ 瞬时 API 错误：指数退避重试，默认 10 次 -&gt; 预算用尽或护栏触发?
+预算用尽或护栏触发? -&gt; [报错]: 停止
+预算用尽或护栏触发? -&gt; (回到 query loop): 继续
++ 报错 -&gt; [跑 StopFailure hook，不跑 Stop hook]
+```
+
+```callout warn 事实核对
+- prompt too long 分支：压缩一回合可做两次（实测，见 C 节）。排空 collapse 无法核对。
+- 输出截断分支：续写属实；提高上限本机没观察到（见 D 节）。
+- API 错误分支（实测）：让每次请求都返回 529，Claude Code 共发了 11 次请求，即首次加 10 次重试。前 7 次间隔约为 0.6、1.2、2.3、4.9、9.7、17.3、38.9 秒，此后停在上限附近。文档写的是 “retries transient failures up to 10 times with exponential backoff”，起始 500 毫秒，上限 32 秒。只失败 3 次时，第 4 次成功，回合正常结束。
+- 重试用尽后报 “API Error: 529 Overloaded…”，跑 StopFailure hook（error 为 server_error），不跑 Stop hook。hook 失败这一支本次没测。
+```
+
+### 原文的图 2：压缩自己失败时的兜底
+
+原文在这里放了第二张图，标题是 “Compact Fallbacks - Staying Safe When Compact Itself Fails”。图的意思是：
+
+- 请求压缩后，session memory 够用就走 session memory，下一轮带上 compact boundary。
+- 需要摘要时，先构造摘要请求。摘要请求超长，就截掉最早的历史再试，并计数。
+- 还有次数就继续截，连续失败就停止自动压缩，把控制交回调用方。
+- 摘要请求不超长，就恢复关键文件、技能和增量。
+
+图上的注释写着：压缩本身也会失败；重试加了熔断，防止循环失控，控制交回调用方。
+
+下图按实测重画。+ 表示按事实补上，~ 表示改过的节点。
+
+```flow
+(请求压缩) -&gt; [构造摘要请求]: 需要摘要
+请求压缩 -&gt; [session memory 路径]: session memory 够用
+session memory 路径 -&gt; [下一轮带 compact boundary]
+下一轮带 compact boundary -&gt; (结束)
+构造摘要请求 -&gt; {摘要请求超长?}
+摘要请求超长? -&gt; [截掉最早的历史，重试摘要]: 是
+摘要请求超长? -&gt; [恢复关键文件、技能、增量]: 否
+截掉最早的历史，重试摘要 -&gt; [尝试计数]
+尝试计数 -&gt; {还有尝试次数?}
+还有尝试次数? -&gt; 截掉最早的历史，重试摘要: 还有
+还有尝试次数? -&gt; [停止自动压缩，把控制交回调用方]: 连续失败
+停止自动压缩，把控制交回调用方 -&gt; 结束
+~ 停止自动压缩，把控制交回调用方
++ 截掉最早的历史，重试摘要 -&gt; 恢复关键文件、技能、增量: 重试成功
++ 恢复关键文件、技能、增量 -&gt; 下一轮带 compact boundary
+```
+
+```callout warn 事实核对
+- 截头重试属实（实测）。原图没有画重试成功的路，本页补上：实测中重试成功后，压缩照常完成，写入 compact_boundary。
+- 原图“恢复关键文件、技能、增量”没有接到 compact boundary。第 5 章实测：压缩后补回文件、技能等附件，下一次请求从摘要开始。本页补上这条边。
+- “停止自动压缩，把控制交回调用方”改过：实测中截头重试一次后仍超长，Claude Code 报 “Prompt is too long”，回合结束。
+- 原图把两种计数画成了一个：截头重试的次数，和跨回合的“连续失败 3 次熔断”（见 E 节）。两者是否共用计数，无法核对。
+- session memory 路径无法核对：文档没有写，CHANGELOG 只能证明 session memory 存在（见第 5 章）。
+```
+
+## G 中断也是错误恢复的一部分 {meta=&quot;原文 6.7&quot;}
+
+原文说，很多人把 abort 归为交互体验，不放进错误恢复讨论。从运行时角度看，中断是必须正确回收的失败状态。原文说 Claude Code 在两层都处理了：
+
+- **query 层。** 流式输出被打断时，先消费 `StreamingToolExecutor.getRemainingResults()`，为悬空的 tool_use 生成 synthetic tool_result。
+- **compact 层。** `compact.ts` 把 compact 的 abort controller 传给 forked agent，并处理 `APIUserAbortError`，防止“被 Esc 的 compact”误算成一次成功摘要。
+
+原文说，中断不只是“用户不想看了”，而是需要正确收尾的状态转移。错误恢复只管异常、不管中断，会留下语义半残的执行轨迹：短期无人查，长期都是祸根。
+
+```callout warn 事实核对
+- `StreamingToolExecutor.getRemainingResults()`、abort controller、`APIUserAbortError` 等名字无法核对：源码不公开。
+- 补齐 tool_result 属实（观察，见第 3 章）。本机 6 次中断里，被打断的调用都拿到 is_error 的 tool_result，随后有一条 “[Request interrupted by user for tool use]”。
+- 中断的压缩不算成功属实（文档）。errors 文档写到：压缩时按了停止，之后出现 prompt too long 报错，“your conversation is unchanged and still large enough to need compacting”。CHANGELOG 2.1.302 和 2.1.304 都修过“压缩中途停止后报 Prompt is too long”的问题。
+- 压缩由单独的请求完成（观察）：摘要请求标记为 compact，沿用主会话的 system prompt 和工具定义，并要求 “Respond with TEXT ONLY”。是否叫 forked agent，无法核对。
+- 本次没有在 2.1.312 上重做中断实测。
+```
+
+## H 错误处理真正保护的，是执行叙事的一致性 {meta=&quot;原文 6.8&quot;}
+
+原文说，Claude Code 处理错误与恢复，还有一个常被忽略的目标：保护执行叙事的一致性。系统要能说清楚：
+
+- 刚才试图做什么，为什么没做成。
+- 用了什么恢复路径。
+- 现在是继续、停止，还是换轨。
+
+原文说，`query.ts` 的 `transition.reason`、`maxOutputTokensRecoveryCount`、`hasAttemptedReactiveCompact`，以及 compact boundary 和 synthetic error message，都是防止叙事断裂的机制。
+
+没有叙事一致性的系统，表面还能输出，内部在散。原文举了三步：今天用户看到几句废话；明天运维理不清 hook retry 和 compact retry 的因果；后天团队说不清系统经历过什么。原文说，错误恢复真正修补的，是系统对自己行为的解释能力。
+
+### 观察：会话记录里留下了什么
+
+| 原文提到的机制 | 会话记录或输出里看到的 | 依据 |
+|---|---|---|
+| compact boundary | 每次压缩一条 compact_boundary，记 trigger（auto 或 manual）、压缩前后的 token 数 | 观察 |
+| synthetic error message | 最终报错写成一条合成的 assistant 消息，标为 API 错误，带错误类型 invalid_request | 观察 |
+| Stop hook 阻塞 | 写成一条 meta 用户消息 “Stop hook feedback: …” | 观察 |
+| 压缩状态 | stream-json 输出有 compacting 状态和 compact_result；一次本地失败带 compact_error “too_few_groups” | 观察 |
+| 结束原因 | StopFailure hook 收到错误类型，例如 server_error、invalid_request | 实测 |
+| transition.reason、maxOutputTokensRecoveryCount | 外部看不到 | 无法核对 |
+
+```callout warn 事实核对
+- `transition.reason`、`maxOutputTokensRecoveryCount`、`hasAttemptedReactiveCompact` 无法核对：源码不公开，会话记录里也没有这些字段。
+- compact boundary 和合成错误消息属实（观察），见上表。会话记录能还原“压缩了几次、为什么结束”。
+- 原文的“理不清因果”是观点，不核对。
+```
+
+## I 从源码里可以提炼出的第六个原则 {meta=&quot;原文 6.9&quot;}
+
+原文把本章收成一句话：
+
+&gt; 代理系统是否可靠，体现在错误发生后仍能维持可解释、可限界、可继续的执行秩序。
+
+```callout ok 核对后的结论
+原则成立。六条依据里，三条有实测支持，两条部分成立。熔断有旁证，本机实测没观察到。需要修正的是：压缩现在一回合可做两次；先提高输出上限这一步没观察到；collapse 无法核对。
+```
+
+| 原文的源码依据 | 说明什么 | 核对后的依据 | 详见 |
+|---|---|---|---|
+| query.ts 暂时扣下可恢复错误 | 错误先尝试转化 | 实测：注入一次 prompt too long，用户看不到错误 | B |
+| prompt too long 先 collapse drain，再 reactive compact | 恢复按成本分层 | collapse 无法核对；文档：先减小 max_tokens，再压缩；实测：压缩可做两次 | B、C |
+| hasAttemptedReactiveCompact 与 stop hook guard | 恢复本身受治理 | 实测：两次压缩后报错，跑 StopFailure 不跑 Stop | C |
+| max_output_tokens 先提 cap，再要求续写 | 目标是延续任务 | 续写有实测；提 cap 没观察到 | D |
+| autoCompact.ts 的连续失败熔断 | 自动恢复可熔断 | 旁证：CHANGELOG 2.1.76 加了 3 次熔断。实测：连续 8 轮失败仍每轮尝试，没观察到熔断；一次尝试内部的重试有上限 | E |
+| compact.ts 对压缩自身超长的降级修复 | 修复动作也要有恢复策略 | 实测：截掉最早一轮后重试 | F |
+
+原文抽出的工程原则：
+
+- 恢复分层，不用一把重锤。
+- 恢复逻辑必须防自回环。
+- 自动恢复要可计数、可熔断。
+- 截断后优先续写，而不是总结。
+- 中断也是需要语义收尾的失败状态。
+- 可靠性最终体现在：出错后系统还能不能把自己的行为讲明白。
+
+原文最后预告下一章：多代理与验证。系统开始把任务分给别的 agent，再收回结果复核。这时，错误与恢复就从单线程的秩序问题，变成了组织问题。
+
+## 附录：事实核对 {meta=&quot;本页补充&quot;}
+
+### 逐条核对
+
+| # | 原文的说法 | 核对 | 实际情况和依据 | 正文 |
+|---|---|---|---|---|
+| 1 | query.ts 在流式阶段扣下可恢复错误（prompt too long、media size、max output tokens） | ok 行为属实，命名无法核对 | 实测 e3：注入一次 prompt too long，最终结果 is_error 为 false。输出超长的续写见第 3 章实测。media size 只有文档：“could not be processed and was removed” | B |
+| 2 | prompt too long 先 recoverFromOverflow() 提交 collapse，再 tryReactiveCompact() | warn 部分可核对 | 压缩属实（实测 e3；errors 文档 “normally summarizes your oldest exchanges and keeps the newest”）。collapse 在文档和 CHANGELOG 里查不到。errors 文档：输入加 max_tokens 超限时先减小 max_tokens 重试 | B |
+| 3 | 只有一轮对话时（原文没写） | ok 文档与实测一致 | 实测 e7：不压缩，报 “Prompt is too long · the request is ~215000 tokens (limit 200000) but this conversation is only ~4818 tokens…”，与 errors 文档原句一致 | B |
+| 4 | hasAttemptedReactiveCompact：试过一次就不再压缩 | warn 与现状不完全相符 | 实测 e4：一回合压缩两次，第三次被拒报错。旁证：CHANGELOG 2.1.284 “compacts once more, keeping less” | C |
+| 5 | prompt too long 无法恢复时报错，并跳过 stop hooks，防 death spiral | ok 行为属实，注释无法核对 | 实测 e4、e6：报错后跑 StopFailure，不跑 Stop；Stop hook 先阻塞过一次也一样。hooks 文档：“API errors fire StopFailure instead”。旁证：CHANGELOG 2.1.274 | C |
+| 6 | 输出截断：先把 maxOutputTokensOverride 提高后重跑（src/query.ts:1185 往后） | warn 本机没观察到 | 第 3 章实测：用环境变量设上限 400 时，三次请求都是 400；默认上限已是 128000（claude-haiku-5-5）。位置和名字无法核对 | D |
+| 7 | 输出截断：追加 meta user 消息，不道歉、不 recap、从半句续写、拆小 | ok 行为属实 | 第 3 章实测：消息原话 “Output token limit hit. Resume directly — no apology, no recap…”。旁证：CHANGELOG 2.1.0 自动继续 | D |
+| 8 | AutoCompactTrackingState.consecutiveFailures 超过阈值后跳过自动压缩 | warn 旁证有，本机没观察到 | 旁证：CHANGELOG 2.1.76 “a circuit breaker now stops after 3 attempts”。实测 e9b、e9c：调低触发线，摘要请求一直返回 400，同一进程连续 6 轮、8 轮，每轮都重新尝试；每次尝试发 4–6 个请求后放弃，本轮照常回答。对照 e9a：不注入时 6 轮都压缩成功 | E |
+| 9 | 源码注释：曾有大量会话在连续失败的自动压缩上浪费 API 调用 | 无法核对 | 注释看不到。CHANGELOG 2.1.89（thrashing）写到 “instead of burning API calls” | E |
+| 10 | 五条不变式 | warn 部分可核对 | 逐条结果见 E 节表格 | E |
+| 11 | 失败矩阵八行 | warn 部分可核对 | 逐行结果见 E 节表格 | E |
+| 12 | compactConversation() 承认摘要请求自己也会 prompt too long；truncateHeadForPTLRetry() 成组剥掉早期 API round 再重试 | ok 行为属实，命名无法核对 | 实测 e5、e5b：重试请求开头换成 “[earlier conversation truncated for compaction retry]”，最早一轮被丢掉，压缩成功。实测 e5c：截头一次后仍被拒，就报错。旁证：CHANGELOG 2.1.85、2.1.97 | F |
+| 13 | 注释称之为 last-resort escape hatch；修复有损 | warn 部分可核对 | 注释看不到。有损属实：e5 截头后摘要只剩标题。文档写的兜底是“原样保留最新提示，摘要之前全部”，没写截头 | F |
+| 14 | StopFailure 只在回合因 API 错误结束时运行（文档，原文没写） | warn 与文档不完全一致 | 实测 e5、e5b：摘要请求被拒时 StopFailure 触发一次，回合随后正常结束，Stop 也运行；e5c 一个回合触发 3 次。e9b：每轮自动压缩失败后触发一次（error 为 unknown），回合照常结束 | F |
+| 15 | 原图 1：恢复决策路径 | warn 需要修正 | 压缩改为最多两次；API 错误分支按实测写成“指数退避重试 10 次”（e1、e2；errors 文档 “up to 10 times with exponential backoff”）；报错后补上 StopFailure。collapse 和提高上限两个节点无法核对或没观察到 | F |
+| 16 | 原图 2：压缩自己失败时的兜底 | warn 需要修正 | 补上“截头重试成功”和“恢复附件后写 boundary”两条边；“交回调用方”改为报错结束；session memory 路径无法核对 | F |
+| 17 | 流式打断时消费 getRemainingResults()，为悬空 tool_use 生成 synthetic tool_result | ok 行为属实，命名无法核对 | 第 3 章观察：6 次中断，被打断的调用都有 is_error 的 tool_result | G |
+| 18 | compact 的 abort controller 传给 forked agent，处理 APIUserAbortError，被 Esc 的 compact 不算成功 | ok 行为属实，命名无法核对 | errors 文档：压缩时停止后 “your conversation is unchanged”。旁证：CHANGELOG 2.1.302、2.1.304。观察：摘要请求沿用主会话的 system prompt 和工具定义 | G |
+| 19 | transition.reason、maxOutputTokensRecoveryCount 等字段防止叙事断裂 | warn 部分可核对 | 字段名无法核对。观察：会话记录有 compact_boundary（含 trigger、压缩前后 token 数）、合成的错误消息、Stop hook 反馈 | H |
+
+### 核对范围与局限
+
+- **依据版本**：本机 Claude Code 2.1.312（每次实验前记录 `claude --version`）；官方文档 2026-10-30 查阅（errors、hooks、troubleshooting、how-claude-code-works、model-config、env-vars）；CHANGELOG 最新条目 2.1.312。
+- **实测做法**：在新建的空临时目录里写了一个本地 HTTP 代理，转发到本机网关。只对实验进程用 `--settings` 把 `ANTHROPIC_BASE_URL` 指向代理，没有改用户配置。代理按规则把指定请求换成错误响应：400 prompt too long（Anthropic 错误格式）、529 overloaded、普通 400。用 hook 记录 UserPromptSubmit、Stop、StopFailure、PreCompact、PostCompact 的时间，用 `OTEL_LOG_RAW_API_BODIES` 抓请求，再对照会话记录。
+  - e1、e2：529 失败 3 次、一直失败。
+  - e3、e4：主请求失败 1 次、一直失败。会话里先有两轮写故事的对话，每个实验从它分叉（`--resume --fork-session`）。
+  - e5、e5b、e5c：主请求失败 1 次，摘要请求失败 1 次（做 2 次）或一直失败。
+  - e6：Stop hook 先阻塞一次，之后主请求一直失败。
+  - e7：只有一轮对话时，主请求一直失败。
+  - e9a、e9b、e9c：用 `CLAUDE_CODE_AUTO_COMPACT_WINDOW=100000` 和 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=10` 把触发线调到约 1 万 token。用 stream-json 输入在同一进程里逐轮发 6 或 8 条消息。摘要请求分别是不注入错误、一直返回 400。
+- **局限**：注入的错误是假的，上下文实际并不大。所以压缩前后的 token 数，不能代表真实的长会话。结果只代表这个版本、这个模型和这个网关下的表现，不能证明原文说的内部结构。没观察到某个行为不等于没有，功能可能分批上线或按账号开关。e2 运行时机器休眠过两次，第 8、9 次重试的间隔不可用。
+- **没核对的部分**：熔断只对哪些错误生效；context collapse；默认配置下“提高输出上限”；media size 错误的恢复；hook 失败的分类；中断没有在 2.1.312 上重做；所有函数名、字段名和源码注释。
+- **原文的图**：原文有两张图，都已按事实重画，图上说法见第 15、16 条。两张图是 [恢复决策路径](https://harness-books.agentway.dev/book1-claude-code/diagrams/diag-ch06-01-recovery-decision-paths.png) 和 [压缩自己失败时的兜底](https://harness-books.agentway.dev/book1-claude-code/diagrams/diag-ch06-02-compact-fallbacks.png)。
+- **观点**：“坏事更有仪式感”“不会刹车的汽车”“先恢复呼吸”“玄学对象”等是原文的观点，不核对。
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions and the panel comments.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }].
+// Comment text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+function replyText({ title, decisions, comments, ui }) {
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   → ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) {
+      out.push(`- **${c.panel} · ${c.title}**`, ...c.text.trim().split('\n').map((l) => `  > ${l}`));
+    }
+    out.push('', `_${ui.typed}_`);
+  }
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers and the comments
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  const keyOf = (ask) => ask.querySelector('legend')?.textContent.trim() ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: panel?.querySelector('.am-panel-head h2')?.textContent.trim() ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: ask.querySelector('legend')?.textContent.trim() ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const empty = !decisions.length && !comments.some((c) => c.text.trim());
+    const title = document.querySelector('.am-head h1')?.textContent.trim() ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, ui });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg')].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+
+// ── Change markers: the Before / Changes / After switch ─────────────
+// The switch starts hidden because it needs this script. It swaps the am-view-* class of its diagram; the delta styles show the colors and badges only in
+// the Changes view and hide the items that do not exist in the view.
+(() => {
+  const VIEWS = ['before', 'changes', 'after'];
+  const setView = (el, view) => {
+    el.classList.remove(...VIEWS.map((v) => `am-view-${v}`));
+    el.classList.add(`am-view-${view}`);
+  };
+  for (const bar of document.querySelectorAll('.am-delta-bar')) {
+    const view = bar.parentElement;
+    const group = bar.querySelector('.am-delta-switch');
+    if (!group) continue;
+    group.hidden = false;
+    group.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-view]');
+      if (!btn) return;
+      setView(view, btn.dataset.view);
+      for (const b of group.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b === btn));
+    });
+  }
+  // The expand button copies only the drawing into the viewer; the viewer shows the view the diagram is in.
+  document.addEventListener('click', (e) => {
+    const host = e.target.closest?.('.am-diagram-expand')?.parentElement;
+    const canvas = document.querySelector('.am-lightbox-canvas');
+    const view = host && VIEWS.find((v) => host.classList.contains(`am-view-${v}`));
+    if (view && canvas) setView(canvas, view);
+  });
+})();
+</script>
+</body>
+</html>
