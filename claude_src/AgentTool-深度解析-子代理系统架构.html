@@ -1,0 +1,3537 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="paper" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.4.14">
+<title>AgentTool 深度解析：子代理系统架构（解读）</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-right: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin: 0 6px 0 auto; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-left: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; right: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { left: 50%; }
+.am-timeline--h li:last-child::before { right: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { left: 50%; }
+.am-tree-col:last-child::before { right: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }
+.am-tree-list ul { margin-left: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }
+.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 8px 4px auto;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-right: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */
+  .am-md th, .am-md td { min-width: 6em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="zh-CN" data-am-root-theme="paper" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">主题<select data-am="theme"><option value="blueprint">图纸</option><option value="shadcn">卡片</option><option value="paper" selected>纸张</option></select></label>
+<label class="am-pick">明暗<select data-am="mode"><option value="auto" selected>跟随系统</option><option value="light">亮</option><option value="dark">暗</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;回复&quot;,&quot;comment&quot;:&quot;评论&quot;,&quot;commentHint&quot;:&quot;对这个面板的意见&quot;,&quot;title&quot;:&quot;你的回复&quot;,&quot;hint&quot;:&quot;复制后粘贴到对话里。&quot;,&quot;copy&quot;:&quot;复制回复&quot;,&quot;close&quot;:&quot;关闭&quot;,&quot;suggested&quot;:&quot;建议&quot;,&quot;empty&quot;:&quot;先选择选项，或在面板上写评论。&quot;,&quot;decisions&quot;:&quot;决定&quot;,&quot;comments&quot;:&quot;评论&quot;,&quot;confirmed&quot;:&quot;确认了建议&quot;,&quot;untouched&quot;:&quot;未作答，保留建议&quot;,&quot;was&quot;:&quot;原为&quot;,&quot;typed&quot;:&quot;以 \&quot;&gt;\&quot; 开头的行是读者输入的文字。&quot;,&quot;done&quot;:&quot;已复制 ✓&quot;}">回复</button>
+<button class="am-btn" type="button" data-am="copy" data-done="已复制 ✓">复制源稿</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>AgentTool 深度解析：子代理系统架构（解读）</h1><p class="am-sub">How Claude Code Works · 源码分析篇解读，按原文讲清逻辑，代码改用图和表讲，附白话讲解</p><div class="am-head-meta"><span><b>source</b>https://jwangkun.github.io/how-claude-code-works/source/agent-tool-deep</span></div><div class="am-intro am-md"><div class="am-md"><p>原文：<a href="https://jwangkun.github.io/how-claude-code-works/source/agent-tool-deep">AgentTool 深度解析：子代理系统架构</a></p>
+<p>一句话结论：原文认为，AgentTool 是一个设计精巧的子代理系统，核心理念是递归委派。它提供代理的定义、加载、执行和通信机制，让 Claude Code 能把复杂任务拆成子任务并行处理。</p>
+<ul>
+<li><strong>做什么</strong>：让主代理按需生成子代理。子代理有自己的系统提示词、工具和对话上下文，独立完成多步任务，再把结果交回。</li>
+<li><strong>怎么做</strong>：多来源的代理定义按优先级合并；一次调用经过解析、路由、依赖检查、隔离、提示词构建，再按同步或异步执行。工具过滤、权限模式和 worktree 圈定子代理能做的事。</li>
+</ul>
+<p>白话地说（本页归纳）：你让 Claude 做一件大事，它可以把其中一块交给“分身”去做。分身在自己的小房间里干活，不占主对话的篇幅，干完只交一份总结。</p>
+<p>正文按原文解读，没有核对源码，也不用官方文档核对原文。原文查阅日期为 2026-11-03，站点标注的最后更新日期为 2026-05-26。A 节的用户视角取自官方文档（code.claude.com/docs，2026-11-03 查阅），标“官方文档”。</p>
+</div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="目录"><a href="#panel-A">A · 先看懂：子代理在用户眼里是什么</a><a href="#panel-B">B · 概述与体系架构图</a><a href="#panel-C">C · 代理定义与 AGENTS.md 配置</a><a href="#panel-D">D · 内置代理类型</a><a href="#panel-E">E · 代理生命周期深度分析</a><a href="#panel-F">F · Fork 子代理机制</a><a href="#panel-G">G · 父代理与子代理通信</a><a href="#panel-H">H · 代理沙箱与权限</a><a href="#panel-I">I · Agent 颜色管理</a><a href="#panel-J">J · 代理内存系统</a><a href="#panel-K">K · 错误处理与超时</a><a href="#panel-L">L · 与 tools.ts 的集成</a><a href="#panel-M">M · 子代理执行引擎 runAgent</a><a href="#panel-N">N · 代理恢复机制</a><a href="#panel-O">O · 性能优化策略</a><a href="#panel-P">P · Coordinator 模式</a><a href="#panel-Q">Q · 总结</a><a href="#panel-R">R · 附录：名词表（白话）</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>先看懂：子代理在用户眼里是什么</h2><span class="am-panel-meta">本页补充：用户视角据官方文档；结构为本页归纳</span></header>
+<div class="am-panel-body"><div class="am-md"><p>这篇文章讲源码。读源码之前，先看子代理用起来是什么样子。</p>
+<h3>用户能看到的子代理</h3>
+<p>官方文档说，子代理在自己的上下文里干活，只把总结交回主对话。这样，搜索结果、日志这类用完就丢的内容，不会塞满主对话。下图是示意，据官方文档：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 439 243" width="439" height="243" role="img" aria-label="流程图：你在主对话里提需求、主对话的 Claude、子代理 B（独立上下文）、子代理 A（独立上下文）" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M211.3,49 L211.3,60.5 Q211.3,72 211.3,83.5 L211.3,95" marker-end="url(#am1-arrow)"/></g><g data-step="1"><path class="am-edge" d="M268.2,130 L320.2,146 Q372.2,162 355,178 L337.7,194" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="321.2" y="153" width="102" height="18" rx="3"/><text x="372.2" y="162" text-anchor="middle" dominant-baseline="central">也可以同时派几个</text></g></g><g data-step="2"><path class="am-edge" d="M192.1,130 L174.6,146 Q157.1,162 139.6,178 L122.1,194" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="104.5" y="153" width="105.2" height="18" rx="3"/><text x="157.1" y="162" text-anchor="middle" dominant-baseline="central">用 Agent 工具委派</text></g></g><g data-step="3"><path class="am-edge am-edge--dashed" d="M83.8,194 L66.3,178 Q48.8,162 101.3,146 L153.8,130" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="15" y="153" width="67.5" height="18" rx="3"/><text x="48.8" y="162" text-anchor="middle" dominant-baseline="central">只交回总结</text></g></g><g data-step="4"><path class="am-edge am-edge--dashed" d="M300,194 L282.7,178 Q265.5,162 248,146 L230.4,130" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="231.7" y="153" width="67.5" height="18" rx="3"/><text x="265.5" y="162" text-anchor="middle" dominant-baseline="central">只交回总结</text></g></g></g><g><g class="am-node am-node--rect" data-key="你在主对话里提需求" data-step="0"><rect class="am-node-shape" x="138.8" y="14" width="145" height="35" rx="3"/><text x="211.3" y="31.5" text-anchor="middle" dominant-baseline="central">你在主对话里提需求</text></g><g class="am-node am-node--rect" data-key="主对话的 Claude" data-step="0"><rect class="am-node-shape" x="148.3" y="95" width="126" height="35" rx="3"/><text x="211.3" y="112.5" text-anchor="middle" dominant-baseline="central">主对话的 Claude</text></g><g class="am-node am-node--rect" data-key="子代理 B（独立上下文）" data-step="1"><rect class="am-node-shape" x="233.5" y="194" width="170.7" height="35" rx="3"/><text x="318.8" y="211.5" text-anchor="middle" dominant-baseline="central">子代理 B（独立上下文）</text></g><g class="am-node am-node--rect" data-key="子代理 A（独立上下文）" data-step="2"><rect class="am-node-shape" x="17.6" y="194" width="170.7" height="35" rx="3"/><text x="102.9" y="211.5" text-anchor="middle" dominant-baseline="central">子代理 A（独立上下文）</text></g></g></svg></figure>
+<div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>你怎么做</th>
+<th>效果（官方文档）</th>
+<th>原文对应的部分</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>不用操作</td>
+<td>Claude 读每个子代理的 <code>description</code>，自己决定要不要委派</td>
+<td>C、E 节</td>
+</tr>
+<tr>
+<td>在 <code>.claude/agents/</code>（本项目）或 <code>~/.claude/agents/</code>（你所有项目）放 Markdown 文件</td>
+<td>定义自己的子代理。开头的 frontmatter 只有 <code>name</code> 和 <code>description</code> 必填</td>
+<td>C 节</td>
+</tr>
+<tr>
+<td>启动时用 <code>--agents</code> 传一段 JSON</td>
+<td>定义只在本次会话有效的子代理</td>
+<td>C 节 3.4</td>
+</tr>
+<tr>
+<td>同名的子代理在几处都有定义</td>
+<td>按优先级取一个：组织管理设置 &gt; <code>--agents</code> &gt; 项目 &gt; 个人 &gt; 插件</td>
+<td>C 节 3.4</td>
+</tr>
+<tr>
+<td>输入 <code>@&quot;code-reviewer (agent)&quot;</code> 或 <code>@agent-&lt;名字&gt;</code></td>
+<td>指定这次由哪个子代理来做</td>
+<td>E 节</td>
+</tr>
+<tr>
+<td>不用操作</td>
+<td>有内置的 Explore、Plan、general-purpose 等。Explore 和 Plan 只读，启动时不加载 CLAUDE.md 和 git 状态快照</td>
+<td>D 节</td>
+</tr>
+<tr>
+<td>按 <code>Ctrl+B</code></td>
+<td>把正在跑的命令和子代理转到后台</td>
+<td>E 节 5.5</td>
+</tr>
+<tr>
+<td>在 frontmatter 写 <code>tools</code>、<code>disallowedTools</code></td>
+<td>限制子代理能用的工具。不写 <code>tools</code> 就继承全部可用工具</td>
+<td>H、L 节</td>
+</tr>
+<tr>
+<td>用 <code>claude --agent</code> 运行时，在 <code>tools</code> 里写 <code>Agent(worker, researcher)</code></td>
+<td>只允许生成这两种子代理</td>
+<td>L 节 12.3</td>
+</tr>
+<tr>
+<td>写 <code>permissionMode</code></td>
+<td>设子代理的权限模式。主对话处在 <code>bypassPermissions</code>、<code>acceptEdits</code> 或 auto 模式时，子代理跟主对话一样，忽略这个值</td>
+<td>H 节 8.2</td>
+</tr>
+<tr>
+<td>写 <code>isolation: worktree</code></td>
+<td>子代理在临时的 git worktree 里工作，改动不碰你的工作目录</td>
+<td>H 节 8.3</td>
+</tr>
+<tr>
+<td>写 <code>memory: user</code>、<code>project</code> 或 <code>local</code></td>
+<td>子代理有一个跨会话保留的记忆目录</td>
+<td>J 节</td>
+</tr>
+<tr>
+<td>让 Claude 继续之前的子代理</td>
+<td>Claude 用 <code>SendMessage</code> 按 ID 或名字恢复它。Explore 和 Plan 是一次性的，不能恢复</td>
+<td>G、N 节</td>
+</tr>
+<tr>
+<td>输入 <code>/subtask &lt;任务&gt;</code></td>
+<td>开一个 fork：继承到目前为止的整段对话，在后台运行</td>
+<td>F 节</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">自己动手时按文档：原文和文档写法不同的几处</div><div class="am-callout-body am-md"><p>下面只把两种说法并列，不判断谁对。正文照原文写。</p>
+<ul>
+<li><strong>配置文件</strong>：原文叫“AGENTS.md”。文档写的是 <code>.claude/agents/</code> 和 <code>~/.claude/agents/</code> 目录下的 Markdown 文件，文件名不限。</li>
+<li><strong>转到后台的按键</strong>：原文说同步执行 2 秒后提示按 Ctrl+C 转后台。文档写的是按 <code>Ctrl+B</code>。</li>
+<li><strong>默认前台还是后台</strong>：原文说同步（前台）是默认。文档说什么都不配置时，主对话派出的子代理默认在后台运行。</li>
+<li><strong>Fork 开关</strong>：原文说 Fork 是实验特性，由 <code>FORK_SUBAGENT</code> 功能开关控制。文档说 fork 模式默认打开，设 <code>CLAUDE_CODE_FORK_SUBAGENT=0</code> 可以关掉。</li>
+</ul>
+</div></div>
+<div class="am-md"><h3>原文的整体结构</h3>
+<p>原文分十七章。下面的分组是本页归纳：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="原文的结构" data-step="0">原文的结构</div></div><ul class="am-tree-list"><li data-key="它是什么" data-step="1"><span class="am-tree-label">它是什么</span><span class="am-tree-sub">1 概述 · 2 体系架构图（B 节）</span></li><li data-key="代理从哪来" data-step="2"><span class="am-tree-label">代理从哪来</span><span class="am-tree-sub">3 代理定义与 AGENTS.md 配置 · 4 内置代理类型（C、D 节）</span></li><li data-key="一次调用怎么走" data-step="3"><span class="am-tree-label">一次调用怎么走</span><span class="am-tree-sub">5 代理生命周期（E 节）</span></li><li data-key="特殊的派法" data-step="4"><span class="am-tree-label">特殊的派法</span><span class="am-tree-sub">6 Fork 子代理机制（F 节）</span></li><li data-key="主代理和子代理怎么说话" data-step="5"><span class="am-tree-label">主代理和子代理怎么说话</span><span class="am-tree-sub">7 父代理与子代理通信（G 节）</span></li><li data-key="能做什么、不能做什么" data-step="6"><span class="am-tree-label">能做什么、不能做什么</span><span class="am-tree-sub">8 代理沙箱与权限（H 节）</span></li><li data-key="附属功能" data-step="7"><span class="am-tree-label">附属功能</span><span class="am-tree-sub">9 颜色管理 · 10 代理内存系统（I、J 节）</span></li><li data-key="出错和超时" data-step="8"><span class="am-tree-label">出错和超时</span><span class="am-tree-sub">11 错误处理与超时（K 节）</span></li><li data-key="和其他代码的衔接" data-step="9"><span class="am-tree-label">和其他代码的衔接</span><span class="am-tree-sub">12 与 tools.ts 的集成 · 13 子代理执行引擎 runAgent · 14 代理恢复机制（L、M、N 节）</span></li><li data-key="优化和变体" data-step="10"><span class="am-tree-label">优化和变体</span><span class="am-tree-sub">15 性能优化策略 · 16 Coordinator 模式（O、P 节）</span></li><li data-key="为什么这样设计" data-step="11"><span class="am-tree-label">为什么这样设计</span><span class="am-tree-sub">17 总结（Q 节）</span></li></ul></div>
+<div class="am-md"><p>想先看全局，读 B 节的架构图和 E 节的生命周期图。</p>
+<h3>先认识几个词</h3>
+<p>下面这些词全篇反复出现，先用白话说清。其他名词见文末“附录：名词表（白话）”。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>词</th>
+<th>白话</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>代理（Agent）</td>
+<td>能自己调用工具、一步步完成任务的 AI。主代理是和你对话的 Claude；子代理是它派出去做子任务的另一个 Claude</td>
+</tr>
+<tr>
+<td>工具（Tool）</td>
+<td>模型能调用的功能，例如读文件 Read、搜索 Grep、执行命令 Bash。AgentTool 本身也是一个工具，名叫 Agent</td>
+</tr>
+<tr>
+<td>系统提示词（System Prompt）</td>
+<td>每次请求开头给模型的说明，规定它的角色和规则</td>
+</tr>
+<tr>
+<td>上下文</td>
+<td>模型这一次能看到的全部内容：系统提示词、之前的对话、工具结果</td>
+</tr>
+<tr>
+<td>frontmatter</td>
+<td>Markdown 文件开头两行 <code>---</code> 之间的配置，用 YAML 格式写</td>
+</tr>
+<tr>
+<td>同步与异步</td>
+<td>同步：主代理停下来等子代理做完。异步：子代理在后台跑，主代理接着做别的，做完再通知</td>
+</tr>
+<tr>
+<td>MCP 服务器</td>
+<td>给 Claude Code 接入外部工具的服务，例如 Slack</td>
+</tr>
+<tr>
+<td>功能开关</td>
+<td>代码里控制某个功能开不开的开关，例如 <code>tengu_amber_stoat</code>。GrowthBook 是管理这些开关的服务</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>概述与体系架构图</h2><span class="am-panel-meta">原文 1–2</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：递归指子代理还能再派自己的子代理，一层套一层，形成一棵树。</p>
+</blockquote>
+<h3>AgentTool 是什么</h3>
+<p>原文说，<code>AgentTool</code> 是 Claude Code 中最核心的工具之一。它让主代理能动态生成子代理。子代理是一个独立的 Claude Code 实例，有自己的系统提示词、工具集合和对话上下文。</p>
+<p>从架构上看，AgentTool 是递归式代理架构的核心支点。主代理通过它生成子代理，子代理还能生成自己的子代理，形成代理树。原文说，这种设计借鉴了人类协作中“分工-委派-汇总”的模式。</p>
+<p>原文列了 13 个子系统。下表的分组是本页归纳，条目照原文：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>分组</th>
+<th>文件</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>入口和执行</td>
+<td><code>AgentTool.tsx</code></td>
+<td>工具注册、Schema 定义、<code>call()</code> 执行入口</td>
+</tr>
+<tr>
+<td></td>
+<td><code>runAgent.ts</code></td>
+<td>子代理的完整运行循环（query loop）</td>
+</tr>
+<tr>
+<td></td>
+<td><code>resumeAgent.ts</code></td>
+<td>恢复已暂停的异步子代理</td>
+</tr>
+<tr>
+<td></td>
+<td><code>forkSubagent.ts</code></td>
+<td>实验性的 Fork 机制，子代理继承父代理上下文</td>
+</tr>
+<tr>
+<td>代理定义</td>
+<td><code>loadAgentsDir.ts</code></td>
+<td>从 AGENTS.md、JSON、插件加载代理定义</td>
+</tr>
+<tr>
+<td></td>
+<td><code>builtInAgents.ts</code></td>
+<td>注册内置代理</td>
+</tr>
+<tr>
+<td>工具和提示</td>
+<td><code>agentToolUtils.ts</code></td>
+<td>工具过滤、结果最终化、Schema 校验等</td>
+</tr>
+<tr>
+<td></td>
+<td><code>prompt.ts</code></td>
+<td>AgentTool 的工具描述提示词</td>
+</tr>
+<tr>
+<td>显示</td>
+<td><code>UI.tsx</code></td>
+<td>代理执行过程的终端界面（TUI）渲染</td>
+</tr>
+<tr>
+<td></td>
+<td><code>agentColorManager.ts</code></td>
+<td>用颜色区分不同代理类型</td>
+</tr>
+<tr>
+<td></td>
+<td><code>agentDisplay.ts</code></td>
+<td>代理列表的显示格式</td>
+</tr>
+<tr>
+<td>记忆</td>
+<td><code>agentMemory.ts</code></td>
+<td>代理持久化记忆的目录管理</td>
+</tr>
+<tr>
+<td></td>
+<td><code>agentMemorySnapshot.ts</code></td>
+<td>项目级代理记忆快照同步</td>
+</tr>
+</tbody></table></div>
+<h3>体系架构图</h3>
+<p>下图据原文的 ASCII 图重画。原图的外框标题是“AgentTool 架构总览”，框里分左右两列，只有两根箭头。本页把左列画在上面，右列画在下面：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 480 572" width="480" height="572" role="img" aria-label="流程图：buildTool() 注册为 Tool、tools.ts 注册工具、AgentTool.tsx 共 1397 行、AGENTS.md 配置文件、loadAgentsDir.ts 代理定义加载器、call() 执行入口、runAgent.ts、forkSubagent.ts" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g><rect class="am-cluster" x="14" y="26" width="451" height="267" rx="4"/><text class="am-cluster-label" x="22" y="40">原图左列</text><rect class="am-cluster" x="14" y="313" width="207.9" height="233" rx="4"/><text class="am-cluster-label" x="22" y="327">原图右列</text></g><g><g data-step="1"><path class="am-edge" d="M182.8,151 L202.3,151 Q221.9,151 233.4,151 Q244.9,151 259.1,151 L273.4,151" marker-end="url(#am2-arrow)"/></g><g data-step="2"><path class="am-edge" d="M198.9,239 L210.4,239 Q221.9,239 233.4,239 Q244.9,239 256.4,239 L267.9,239" marker-end="url(#am2-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="buildTool() 注册为 Tool" data-step="0"><rect class="am-node-shape" x="270.8" y="54" width="168.4" height="35" rx="3"/><text x="355" y="71.5" text-anchor="middle" dominant-baseline="central">buildTool() 注册为 Tool</text></g><g class="am-node am-node--rect" data-key="tools.ts 注册工具" data-step="1"><rect class="am-node-shape" x="53.1" y="133.5" width="129.7" height="35" rx="3"/><text x="118" y="151" text-anchor="middle" dominant-baseline="central">tools.ts 注册工具</text></g><g class="am-node am-node--rect" data-key="AgentTool.tsx 共 1397 行" data-step="1"><rect class="am-node-shape" x="273.4" y="125" width="163.2" height="52" rx="3"/><text x="355" y="142.5" text-anchor="middle" dominant-baseline="central">AgentTool.tsx 共 1397</text><text x="355" y="159.5" text-anchor="middle" dominant-baseline="central">行</text></g><g class="am-node am-node--rect" data-key="AGENTS.md 配置文件" data-step="2"><rect class="am-node-shape" x="37" y="221.5" width="161.9" height="35" rx="3"/><text x="118" y="239" text-anchor="middle" dominant-baseline="central">AGENTS.md 配置文件</text></g><g class="am-node am-node--rect" data-key="loadAgentsDir.ts 代理定义加载器" data-step="2"><rect class="am-node-shape" x="267.9" y="213" width="174.1" height="52" rx="3"/><text x="355" y="230.5" text-anchor="middle" dominant-baseline="central">loadAgentsDir.ts 代理定</text><text x="355" y="247.5" text-anchor="middle" dominant-baseline="central">义加载器</text></g><g class="am-node am-node--rect" data-key="call() 执行入口" data-step="3"><rect class="am-node-shape" x="60.4" y="341" width="115.1" height="35" rx="3"/><text x="118" y="358.5" text-anchor="middle" dominant-baseline="central">call() 执行入口</text></g><g class="am-node am-node--rect" data-key="runAgent.ts" data-step="4"><rect class="am-node-shape" x="69.4" y="412" width="97.2" height="35" rx="3"/><text x="118" y="429.5" text-anchor="middle" dominant-baseline="central">runAgent.ts</text></g><g class="am-node am-node--rect" data-key="forkSubagent.ts" data-step="5"><rect class="am-node-shape" x="56.4" y="483" width="123.2" height="35" rx="3"/><text x="118" y="500.5" text-anchor="middle" dominant-baseline="central">forkSubagent.ts</text></g></g></svg></figure>
+<div class="am-md"><p>原图在几个框里列了内容：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>框</th>
+<th>原图列出的内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>buildTool()</code></td>
+<td>注册为 Tool；<code>name: &quot;Agent&quot;</code>，<code>aliases: &quot;Task&quot;</code></td>
+</tr>
+<tr>
+<td><code>call()</code> 执行入口</td>
+<td>解析输入（Schema）、路由代理类型、检查 MCP 依赖、处理隔离模式、异步或同步分支、注册/执行/返回</td>
+</tr>
+<tr>
+<td><code>runAgent.ts</code></td>
+<td>构造系统提示词、组装工具池、创建子代理上下文、<code>query()</code> 循环、消息记录、清理和释放</td>
+</tr>
+<tr>
+<td><code>forkSubagent.ts</code></td>
+<td>Fork 特性门控、构建 Fork 消息、递归 Fork 保护、工作目录通知</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>代理定义与 AGENTS.md 配置</h2><span class="am-panel-meta">原文 3.1–3.4</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：代理定义就是一个子代理的配置：叫什么、什么时候用、能用哪些工具、提示词是什么。联合类型指“几种形状里的一种”。</p>
+</blockquote>
+<h3>三种代理定义</h3>
+<p>所有代理定义都归一成 <code>AgentDefinition</code> 联合类型，有三种（原文 3.1）：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root"><div class="am-tree-box am-tree-box--root" data-key="AgentDefinition" data-step="0">AgentDefinition</div></div><div class="am-tree-cols" style="--n: 3"><div class="am-tree-col"><div class="am-tree-box" data-key="BuiltInAgentDefinition" data-step="1">BuiltInAgentDefinition<small>内置代理，source 为 built-in；用代码里的 getSystemPrompt 动态生成提示词</small></div></div><div class="am-tree-col"><div class="am-tree-box" data-key="CustomAgentDefinition" data-step="2">CustomAgentDefinition<small>自定义代理，source 为 userSettings、projectSettings、localSettings、policySettings 或 flagSettings；从 AGENTS.md 或 JSON 加载</small></div></div><div class="am-tree-col"><div class="am-tree-box" data-key="PluginAgentDefinition" data-step="3">PluginAgentDefinition<small>插件代理，source 为 plugin；由插件系统注册</small></div></div></div></div>
+<div class="am-md"><h3>共有的字段</h3>
+<p>所有代理共享 <code>BaseAgentDefinition</code>，共 18 个字段（原文 3.2）。下表的分组是本页归纳，括号里是原文注释：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>用途</th>
+<th>字段</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>身份和用途</td>
+<td><code>agentType</code>（代理类型名，唯一标识）、<code>whenToUse</code>（使用场景描述）</td>
+</tr>
+<tr>
+<td>工具</td>
+<td><code>tools</code>（允许用哪些工具，<code>*</code> 表示全部）、<code>disallowedTools</code>（禁止用哪些工具）、<code>skills</code>（预加载 Skill）、<code>mcpServers</code>（专属 MCP 服务器）、<code>requiredMcpServers</code>（必需 MCP 服务器名模式）</td>
+</tr>
+<tr>
+<td>模型</td>
+<td><code>model</code>（模型别名 sonnet、opus、haiku、inherit）、<code>effort</code>（努力级别）</td>
+</tr>
+<tr>
+<td>运行方式</td>
+<td><code>permissionMode</code>（权限模式）、<code>maxTurns</code>（最大轮次）、<code>background</code>（是否强制后台运行）、<code>isolation</code>（隔离模式 worktree 或 remote）</td>
+</tr>
+<tr>
+<td>上下文和提示</td>
+<td><code>initialPrompt</code>（首次提示词前置内容）、<code>omitClaudeMd</code>（是否省略 CLAUDE.md）、<code>memory</code>（持久化记忆范围）、<code>hooks</code>（会话钩子）</td>
+</tr>
+<tr>
+<td>显示</td>
+<td><code>color</code>（显示颜色）</td>
+</tr>
+</tbody></table></div>
+<h3>配置文件格式</h3>
+<p>用户在 <code>.claude/agents/</code> 目录下放 Markdown 文件来定义自定义代理。每个文件是一个代理，用 YAML frontmatter 声明元数据（原文 3.3）。原文的示例定义了一个代码审查代理：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>示例值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code>、<code>description</code></td>
+<td><code>code-reviewer</code>；审查代码改动里的 bug、风格问题和安全隐患</td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td><code>sonnet</code></td>
+</tr>
+<tr>
+<td><code>tools</code>、<code>disallowedTools</code></td>
+<td>允许 Read、Glob、Grep、Bash；禁止 Write、Edit</td>
+</tr>
+<tr>
+<td><code>color</code>、<code>maxTurns</code></td>
+<td><code>purple</code>；30</td>
+</tr>
+<tr>
+<td><code>permissionMode</code>、<code>background</code></td>
+<td><code>acceptEdits</code>；<code>false</code></td>
+</tr>
+<tr>
+<td><code>memory</code>、<code>skills</code></td>
+<td><code>project</code>；<code>my-plugin:lint-check</code></td>
+</tr>
+<tr>
+<td><code>mcpServers</code></td>
+<td>引用已有的 <code>slack</code>，再内联定义一个 <code>my-custom-server</code>（用 <code>npx</code> 启动）</td>
+</tr>
+<tr>
+<td><code>hooks</code></td>
+<td><code>SubagentStart</code> 时执行 <code>echo &quot;Agent started&quot;</code></td>
+</tr>
+<tr>
+<td><code>initialPrompt</code></td>
+<td>先关注安全关键路径</td>
+</tr>
+</tbody></table></div>
+<p>frontmatter 之后是正文，原文示例写的是“你是一位代码审查专家...”。</p>
+<p>关键约束：</p>
+<ul>
+<li><code>name</code> 和 <code>description</code> 必填。</li>
+<li>没写 <code>tools</code>，表示允许所有工具；<code>tools: []</code> 表示不允许任何工具。</li>
+<li>加载时按优先级覆盖，见下一小节。</li>
+</ul>
+</div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">原文的名字前后不一</div><div class="am-callout-body am-md"><p>本章标题和 1 节的表都叫“AGENTS.md”。3.3 节正文说的是 <code>.claude/agents/</code> 目录下的 Markdown 文件，每个文件一个代理。</p>
+</div></div>
+<div class="am-md"><h3>加载优先级</h3>
+<p><code>getActiveAgentsFromList()</code> 把多个来源的代理合并。排在后面的组，会覆盖前面组里的同名代理（原文 3.4）：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>组</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1（最低）</td>
+<td><code>builtInAgents</code></td>
+<td>内置</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>pluginAgents</code></td>
+<td>插件注册</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>userAgents</code></td>
+<td>用户级设置</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>projectAgents</code></td>
+<td>项目级设置</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>flagAgents</code></td>
+<td>CLI 参数</td>
+</tr>
+<tr>
+<td>6（最高）</td>
+<td><code>managedAgents</code></td>
+<td>策略管理</td>
+</tr>
+</tbody></table></div>
+<p>为什么这样排：原文说，这样组织策略能覆盖项目配置，项目配置能覆盖用户配置。</p>
+<p>3.1 节的来源里有 <code>localSettings</code>，3.3 和 3.4 节的优先级里没有提到它。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>内置代理类型</h2><span class="am-panel-meta">原文 4.1–4.4</span></header>
+<div class="am-panel-body"><div class="am-md"><h3>内置代理列表</h3>
+<p><code>builtInAgents.ts</code> 里的 <code>getBuiltInAgents()</code> 组装所有内置代理（原文 4.1）：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>代理类型</th>
+<th>描述</th>
+<th>工具</th>
+<th>条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>general-purpose</code></td>
+<td>通用代理，处理复杂多步任务</td>
+<td>全部工具</td>
+<td>始终存在</td>
+</tr>
+<tr>
+<td><code>explore</code></td>
+<td>只读代码搜索，快速定位文件</td>
+<td>Read、Glob、Grep、Bash（只读）</td>
+<td>受 <code>tengu_amber_stoat</code> 功能开关控制</td>
+</tr>
+<tr>
+<td><code>plan</code></td>
+<td>只读架构规划，设计方案</td>
+<td>Read、Glob、Grep、Bash（只读）</td>
+<td>受 <code>tengu_amber_stoat</code> 功能开关控制</td>
+</tr>
+<tr>
+<td><code>statusline-setup</code></td>
+<td>状态栏设置向导</td>
+<td>受限工具</td>
+<td>始终存在</td>
+</tr>
+<tr>
+<td><code>claude-code-guide</code></td>
+<td>Claude Code 使用指南</td>
+<td>搜索和 Web 工具</td>
+<td>非 SDK 入口时</td>
+</tr>
+<tr>
+<td><code>verification</code></td>
+<td>验证代理，尝试破坏性测试</td>
+<td>全部工具</td>
+<td>受 <code>tengu_hive_evidence</code> 功能开关控制</td>
+</tr>
+</tbody></table></div>
+<h3>General-purpose 代理</h3>
+<p>它是默认的子代理类型，有全部工具权限（<code>tools: [&#39;*&#39;]</code>），适合大多数子任务（原文 4.2）。它的系统提示词很短，要点是：完成任务后，给一份简洁的报告，写做了什么和关键发现；调用方会转告用户，所以只要要点。</p>
+<h3>Explore 和 Plan 代理</h3>
+<p>这两个代理只读（原文 4.3）：</p>
+<ul>
+<li><strong>提示词</strong>：开头写明 <code>READ-ONLY MODE</code>，严禁新建、修改、删除文件。</li>
+<li><strong>工具</strong>：没有 Write、Edit 等写工具，从根本上杜绝改文件。</li>
+<li><strong>为什么</strong>：原文说，这样主代理可以放心把探索性任务交给它们。</li>
+<li><strong>优化</strong>：上下文省略 CLAUDE.md 里的提交、PR、Lint 规则（<code>omitClaudeMd: true</code>），也省略 Git 状态信息。原文说每次启动节省约 5-15 Gtok，依据是官方注释，覆盖 34M+ 次 Explore 启动。</li>
+</ul>
+</div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">原文的数字写法</div><div class="am-callout-body am-md"><p>Gtok 指十亿 token。原文写“每次启动”节省 5-15 Gtok，同一句又说覆盖 34M+ 次启动；15 节也写“每次节省 5-15 Gtok”。原文没有说明这个数是每次的还是合计的。</p>
+</div></div>
+<div class="am-md"><h3>Verification 代理</h3>
+<p>验证代理的角色是“尝试破坏实现”，而不是确认工作正常（原文 4.4）。它的系统提示词强调四点：</p>
+<ul>
+<li>识别回避验证的做法，例如只读代码、不跑测试。</li>
+<li>不被“前 80% 的完成度”迷惑。</li>
+<li>按变更类型（前端、后端、CLI、配置等）用不同的验证策略。</li>
+<li>识别并克服自己替结果找理由的倾向。</li>
+</ul>
+</div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>代理生命周期深度分析</h2><span class="am-panel-meta">原文 5.1–5.5</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：</p>
+<ul>
+<li><strong>Schema</strong>：参数格式的说明。<strong>Zod</strong> 是按 Schema 检查参数的库。</li>
+<li><strong>路由</strong>：按参数决定走哪条路径。</li>
+<li><strong>Promise.race</strong>：同时等几件事，谁先完成先处理谁。</li>
+</ul>
+</blockquote>
+<h3>完整生命周期</h3>
+<p>下图据原文 5.1 的 ASCII 图重画：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 573 999" width="573" height="999" role="img" aria-label="流程图：用户或主代理、① Schema 解析与参数校验、② 代理类型路由、③ MCP 依赖检查、④ 隔离处理、⑤ 系统提示词与消息构建、⑥ 执行模式分支、异步执行（后台通知）" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g><rect class="am-cluster" x="14" y="125" width="544.7" height="848" rx="4"/><text class="am-cluster-label" x="22" y="139">AgentTool.call()</text></g><g><g data-step="0"><path class="am-edge" d="M273.2,61 L273.2,77 Q273.2,93 273.2,109 Q273.2,125 273.2,136.5 L273.2,148" marker-end="url(#am3-arrow)"/><g class="am-edge-label"><rect x="138.4" y="84" width="269.4" height="18" rx="3"/><text x="273.2" y="93" text-anchor="middle" dominant-baseline="central">Agent({ description, prompt, subagent_type, ... })</text></g></g><g data-step="1"><path class="am-edge" d="M273.2,200 L273.2,211.5 Q273.2,223 273.2,234.5 L273.2,246" marker-end="url(#am3-arrow)"/></g><g data-step="2"><path class="am-edge" d="M273.2,281 L273.2,292.5 Q273.2,304 273.2,315.5 L273.2,327" marker-end="url(#am3-arrow)"/></g><g data-step="3"><path class="am-edge" d="M273.2,362 L273.2,373.5 Q273.2,385 273.2,396.5 L273.2,408" marker-end="url(#am3-arrow)"/></g><g data-step="4"><path class="am-edge" d="M273.2,443 L273.2,454.5 Q273.2,466 273.2,477.5 L273.2,489" marker-end="url(#am3-arrow)"/></g><g data-step="5"><path class="am-edge" d="M273.2,524 L273.2,535.5 Q273.2,547 273.2,558.5 L273.2,570" marker-end="url(#am3-arrow)"/></g><g data-step="6"><path class="am-edge" d="M306.3,615.4 L338.2,632.2 Q370.2,649 370.2,660.5 L370.2,672" marker-end="url(#am3-arrow)"/></g><g data-step="7"><path class="am-edge" d="M231.6,612.8 L180.5,630.9 Q129.4,649 129.4,660.5 L129.4,672" marker-end="url(#am3-arrow)"/></g><g data-step="8"><path class="am-edge" d="M129.4,707 L129.4,718.5 Q129.4,730 129.4,741.5 L129.4,753" marker-end="url(#am3-arrow)"/></g><g data-step="9"><path class="am-edge" d="M129.4,788 L129.4,799.5 Q129.4,811 129.4,822.5 L129.4,834" marker-end="url(#am3-arrow)"/></g><g data-step="10"><path class="am-edge" d="M370.2,707 L370.2,718.5 Q370.2,730 370.2,741.5 L370.2,753" marker-end="url(#am3-arrow)"/></g><g data-step="11"><path class="am-edge" d="M404.8,788 L427.5,799.5 Q450.3,811 450.3,822.5 L450.3,834" marker-end="url(#am3-arrow)"/></g><g data-step="12"><path class="am-edge" d="M335.6,788 L312.8,799.5 Q290.1,811 290.1,822.5 L290.1,834" marker-end="url(#am3-arrow)"/></g><g data-step="13"><path class="am-edge" d="M450.3,869 L450.3,880.5 Q450.3,892 450.3,903.5 L450.3,915" marker-end="url(#am3-arrow)"/></g></g><g><g class="am-node am-node--round" data-key="用户或主代理" data-step="0"><rect class="am-node-shape" x="214.2" y="26" width="118" height="35" rx="17.5"/><text x="273.2" y="43.5" text-anchor="middle" dominant-baseline="central">用户或主代理</text></g><g class="am-node am-node--rect" data-key="① Schema 解析与参数校验" data-step="0"><rect class="am-node-shape" x="188.1" y="148" width="170.2" height="52" rx="3"/><text x="273.2" y="165.5" text-anchor="middle" dominant-baseline="central">① Schema 解析与参数校</text><text x="273.2" y="182.5" text-anchor="middle" dominant-baseline="central">验</text></g><g class="am-node am-node--rect" data-key="② 代理类型路由" data-step="1"><rect class="am-node-shape" x="214.6" y="246" width="117.2" height="35" rx="3"/><text x="273.2" y="263.5" text-anchor="middle" dominant-baseline="central">② 代理类型路由</text></g><g class="am-node am-node--rect" data-key="③ MCP 依赖检查" data-step="2"><rect class="am-node-shape" x="211.2" y="327" width="123.9" height="35" rx="3"/><text x="273.2" y="344.5" text-anchor="middle" dominant-baseline="central">③ MCP 依赖检查</text></g><g class="am-node am-node--rect" data-key="④ 隔离处理" data-step="3"><rect class="am-node-shape" x="227.6" y="408" width="91.2" height="35" rx="3"/><text x="273.2" y="425.5" text-anchor="middle" dominant-baseline="central">④ 隔离处理</text></g><g class="am-node am-node--rect" data-key="⑤ 系统提示词与消息构建" data-step="4"><rect class="am-node-shape" x="188.6" y="489" width="169.2" height="35" rx="3"/><text x="273.2" y="506.5" text-anchor="middle" dominant-baseline="central">⑤ 系统提示词与消息构建</text></g><g class="am-node am-node--diamond" data-key="⑥ 执行模式分支" data-step="5"><polygon class="am-node-shape" points="273.2,570 361,598 273.2,626 185.3,598"/><text x="273.2" y="598" text-anchor="middle" dominant-baseline="central">⑥ 执行模式分支</text></g><g class="am-node am-node--rect" data-key="异步执行（后台通知）" data-step="6"><rect class="am-node-shape" x="291.2" y="672" width="158" height="35" rx="3"/><text x="370.2" y="689.5" text-anchor="middle" dominant-baseline="central">异步执行（后台通知）</text></g><g class="am-node am-node--rect" data-key="同步执行（前台阻塞）" data-step="7"><rect class="am-node-shape" x="50.4" y="672" width="158" height="35" rx="3"/><text x="129.4" y="689.5" text-anchor="middle" dominant-baseline="central">同步执行（前台阻塞）</text></g><g class="am-node am-node--rect" data-key="runAgent() 的 query 循环" data-step="8"><rect class="am-node-shape" x="42.5" y="753" width="173.9" height="35" rx="3"/><text x="129.4" y="770.5" text-anchor="middle" dominant-baseline="central">runAgent() 的 query 循环</text></g><g class="am-node am-node--rect" data-key="返回结果" data-step="9"><rect class="am-node-shape" x="89.4" y="834" width="80" height="35" rx="3"/><text x="129.4" y="851.5" text-anchor="middle" dominant-baseline="central">返回结果</text></g><g class="am-node am-node--rect" data-key="注册异步任务" data-step="10"><rect class="am-node-shape" x="317.2" y="753" width="106" height="35" rx="3"/><text x="370.2" y="770.5" text-anchor="middle" dominant-baseline="central">注册异步任务</text></g><g class="am-node am-node--rect" data-key="后台运行 runAgent()" data-step="11"><rect class="am-node-shape" x="377.4" y="834" width="145.8" height="35" rx="3"/><text x="450.3" y="851.5" text-anchor="middle" dominant-baseline="central">后台运行 runAgent()</text></g><g class="am-node am-node--rect" data-key="返回 agentId" data-step="12"><rect class="am-node-shape" x="238.8" y="834" width="102.6" height="35" rx="3"/><text x="290.1" y="851.5" text-anchor="middle" dominant-baseline="central">返回 agentId</text></g><g class="am-node am-node--rect" data-key="完成时通知" data-step="13"><rect class="am-node-shape" x="403.8" y="915" width="93" height="35" rx="3"/><text x="450.3" y="932.5" text-anchor="middle" dominant-baseline="central">完成时通知</text></g></g></svg></figure>
+<div class="am-md"><p>异步分支里，原图把四项竖着列出。本页按 5.5 节的说法画：注册后立即返回 agentId，子代理在后台继续跑。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>原图写的内容</th>
+<th>详见</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>①</td>
+<td>解析 description、prompt 等；校验 subagent_type 是否存在</td>
+<td>5.2</td>
+</tr>
+<tr>
+<td>②</td>
+<td>Fork 路径（省略 subagent_type）、常规路径（指定 subagent_type）、Team 路径（team_name + name）</td>
+<td>5.2</td>
+</tr>
+<tr>
+<td>③</td>
+<td>检查 requiredMcpServers 是否存在；等待 Pending 中的服务器</td>
+<td>5.3</td>
+</tr>
+<tr>
+<td>④</td>
+<td>创建 worktree；remote 部署（仅 ant 内部）</td>
+<td>H 节 8.3</td>
+</tr>
+<tr>
+<td>⑤</td>
+<td>Fork 继承父代理；常规路径构建代理专有提示词</td>
+<td>5.4</td>
+</tr>
+<tr>
+<td>⑥</td>
+<td>同步：query 循环，返回结果。异步：注册任务，返回 agentId，完成时通知</td>
+<td>5.5</td>
+</tr>
+</tbody></table></div>
+<p>原图分六步，原文 5.2 到 5.5 节分成四个阶段讲，第 ④ 步在 8.3 节讲。</p>
+<h3>阶段一：Schema 解析与路由</h3>
+<p><code>AgentTool.call()</code> 先用 Zod Schema 解析输入（原文 5.2）：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>description</code></td>
+<td>3-5 个词的任务简述</td>
+</tr>
+<tr>
+<td><code>prompt</code></td>
+<td>交给代理的任务</td>
+</tr>
+<tr>
+<td><code>subagent_type</code></td>
+<td>可选，要用的代理类型</td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td>可选，sonnet、opus 或 haiku</td>
+</tr>
+<tr>
+<td><code>run_in_background</code></td>
+<td>可选，是否后台运行</td>
+</tr>
+</tbody></table></div>
+<p>然后按参数分到三条路径。下图据原文代码绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 487 514" width="487" height="514" role="img" aria-label="流程图：同时给了 team_name 和 name？、确定代理类型、路径 A 多代理团队（spawnTeammate 生成队友，返回 teammate_spawned）、走 Fork 路径？、路径 C 常规子代理（从 activeAgents 查类型，做权限检查）、路径 B Fork 子代理（递归 Fork 保护，构建 Fork 消息，选 FORK_AGENT）" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am4-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M226.2,85.5 L252.5,107.4 Q278.7,129.2 278.7,158 L278.7,186.7" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="267.9" y="120.2" width="21.5" height="18" rx="3"/><text x="278.7" y="129.2" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="1"><path class="am-edge" d="M154.3,85.5 L128.1,107.4 Q101.8,129.2 101.8,145.2 L101.8,161.2" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="91.1" y="120.2" width="21.5" height="18" rx="3"/><text x="101.8" y="129.2" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="2"><path class="am-edge" d="M278.7,221.7 L278.7,246 Q278.7,270.2 278.7,281.7 L278.7,293.2" marker-end="url(#am4-arrow)"/></g><g data-step="3"><path class="am-edge" d="M310.1,339 L347.4,360.1 Q384.7,381.2 384.7,401.5 L384.7,421.7" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="373.9" y="372.2" width="21.5" height="18" rx="3"/><text x="384.7" y="381.2" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="4"><path class="am-edge" d="M247.2,339 L210,360.1 Q172.7,381.2 172.7,397.2 L172.7,413.2" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="162" y="372.2" width="21.5" height="18" rx="3"/><text x="172.7" y="381.2" text-anchor="middle" dominant-baseline="central">是</text></g></g></g><g><g class="am-node am-node--diamond" data-key="同时给了 team_name 和 name？" data-step="0"><polygon class="am-node-shape" points="190.3,14 318.5,55.6 190.3,97.2 62,55.6"/><text x="190.3" y="47.1" text-anchor="middle" dominant-baseline="central">同时给了 team_name 和</text><text x="190.3" y="64.1" text-anchor="middle" dominant-baseline="central">name？</text></g><g class="am-node am-node--rect" data-key="确定代理类型" data-step="0"><rect class="am-node-shape" x="225.7" y="186.7" width="106" height="35" rx="3"/><text x="278.7" y="204.2" text-anchor="middle" dominant-baseline="central">确定代理类型</text></g><g class="am-node am-node--rect" data-key="路径 A 多代理团队（spawnTeammate 生成队友，返回 teammate_spawned）" data-step="1"><rect class="am-node-shape" x="14" y="161.2" width="175.7" height="86" rx="3"/><text x="101.8" y="178.7" text-anchor="middle" dominant-baseline="central">路径 A 多代理团队（</text><text x="101.8" y="195.7" text-anchor="middle" dominant-baseline="central">spawnTeammate 生成队</text><text x="101.8" y="212.7" text-anchor="middle" dominant-baseline="central">友，返回</text><text x="101.8" y="229.7" text-anchor="middle" dominant-baseline="central">teammate_spawned）</text></g><g class="am-node am-node--diamond" data-key="走 Fork 路径？" data-step="2"><polygon class="am-node-shape" points="278.7,293.2 365.2,321.2 278.7,349.2 192.2,321.2"/><text x="278.7" y="321.2" text-anchor="middle" dominant-baseline="central">走 Fork 路径？</text></g><g class="am-node am-node--rect" data-key="路径 C 常规子代理（从 activeAgents 查类型，做权限检查）" data-step="3"><rect class="am-node-shape" x="296.4" y="421.7" width="176.5" height="69" rx="3"/><text x="384.7" y="439.2" text-anchor="middle" dominant-baseline="central">路径 C 常规子代理（从</text><text x="384.7" y="456.2" text-anchor="middle" dominant-baseline="central">activeAgents 查类型，做</text><text x="384.7" y="473.2" text-anchor="middle" dominant-baseline="central">权限检查）</text></g><g class="am-node am-node--rect" data-key="路径 B Fork 子代理（递归 Fork 保护，构建 Fork 消息，选 FORK_AGENT）" data-step="4"><rect class="am-node-shape" x="85" y="413.2" width="175.4" height="86" rx="3"/><text x="172.7" y="430.7" text-anchor="middle" dominant-baseline="central">路径 B Fork 子代理（递</text><text x="172.7" y="447.7" text-anchor="middle" dominant-baseline="central">归 Fork 保护，构建 Fork</text><text x="172.7" y="464.7" text-anchor="middle" dominant-baseline="central">消息，选 FORK_AGENT</text><text x="172.7" y="481.7" text-anchor="middle" dominant-baseline="central">）</text></g></g></svg></figure>
+<div class="am-md"><p>确定代理类型的规则：给了 <code>subagent_type</code> 就用它；没给时，Fork 开关打开则留空，否则用 general-purpose。</p>
+</div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">原图和代码写法不同</div><div class="am-callout-body am-md"><p>5.1 的图写“省略 subagent_type 就走 Fork 路径”。5.2 的代码还要看 Fork 开关：开关没开时，省略 subagent_type 会用 general-purpose。</p>
+</div></div>
+<div class="am-md"><h3>阶段二：MCP 依赖检查</h3>
+<p>代理定义了 <code>requiredMcpServers</code> 时，启动前先检查依赖（原文 5.3）。下图据原文代码绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 304 638" width="304" height="638" role="img" aria-label="流程图：定义了 requiredMcpServers？、等 500ms 后读取最新状态、还有必需的服务器在 Pending，且没到 30 秒？、必需的服务器实际提供了工具？、抛错 requires MCP servers matching、继续启动" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am5-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M147.3,97.2 L147.3,113.2 Q147.3,129.2 147.3,145.2 L147.3,161.2" marker-end="url(#am5-arrow)"/><g class="am-edge-label"><rect x="136.6" y="120.2" width="21.5" height="18" rx="3"/><text x="147.3" y="129.2" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="1"><path class="am-edge" d="M154.4,213.2 L158.8,229.2 Q163.2,245.2 159.5,262.5 L155.7,279.8" marker-end="url(#am5-arrow)"/></g><g data-step="2"><path class="am-edge" d="M138.9,279.8 L135.2,262.5 Q131.4,245.2 135.8,229.2 L140.2,213.2" marker-end="url(#am5-arrow)"/><g class="am-edge-label"><rect x="120.7" y="236.2" width="21.5" height="18" rx="3"/><text x="131.4" y="245.2" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="3"><path class="am-edge" d="M147.3,360.4 L147.3,376.4 Q147.3,392.4 147.3,408.4 L147.3,424.4" marker-end="url(#am5-arrow)"/><g class="am-edge-label"><rect x="136.6" y="383.4" width="21.5" height="18" rx="3"/><text x="147.3" y="392.4" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="4"><path class="am-edge" d="M178.5,497.5 L199.4,518.5 Q220.2,539.6 220.2,555.6 L220.2,571.6" marker-end="url(#am5-arrow)"/><g class="am-edge-label"><rect x="209.5" y="530.6" width="21.5" height="18" rx="3"/><text x="220.2" y="539.6" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="5"><path class="am-edge" d="M116.1,497.5 L95.3,518.5 Q74.4,539.6 74.4,559.9 L74.4,580.1" marker-end="url(#am5-arrow)"/><g class="am-edge-label"><rect x="63.7" y="530.6" width="21.5" height="18" rx="3"/><text x="74.4" y="539.6" text-anchor="middle" dominant-baseline="central">是</text></g></g></g><g><g class="am-node am-node--diamond" data-key="定义了 requiredMcpServers？" data-step="0"><polygon class="am-node-shape" points="147.3,14 268.7,55.6 147.3,97.2 25.9,55.6"/><text x="147.3" y="47.1" text-anchor="middle" dominant-baseline="central">定义了</text><text x="147.3" y="64.1" text-anchor="middle" dominant-baseline="central">requiredMcpServers？</text></g><g class="am-node am-node--rect" data-key="等 500ms 后读取最新状态" data-step="0"><rect class="am-node-shape" x="63.8" y="161.2" width="167.1" height="52" rx="3"/><text x="147.3" y="178.7" text-anchor="middle" dominant-baseline="central">等 500ms 后读取最新状</text><text x="147.3" y="195.7" text-anchor="middle" dominant-baseline="central">态</text></g><g class="am-node am-node--diamond" data-key="还有必需的服务器在 Pending，且没到 30 秒？" data-step="1"><polygon class="am-node-shape" points="147.3,277.2 280.6,318.8 147.3,360.4 14,318.8"/><text x="147.3" y="310.3" text-anchor="middle" dominant-baseline="central">还有必需的服务器在</text><text x="147.3" y="327.3" text-anchor="middle" dominant-baseline="central">Pending，且没到 30 秒？</text></g><g class="am-node am-node--diamond" data-key="必需的服务器实际提供了工具？" data-step="3"><polygon class="am-node-shape" points="147.3,424.4 275.6,466 147.3,507.6 19.1,466"/><text x="147.3" y="457.5" text-anchor="middle" dominant-baseline="central">必需的服务器实际提供了</text><text x="147.3" y="474.5" text-anchor="middle" dominant-baseline="central">工具？</text></g><g class="am-node am-node--rect" data-key="抛错 requires MCP servers matching" data-step="4"><rect class="am-node-shape" x="150.4" y="571.6" width="139.5" height="52" rx="3"/><text x="220.2" y="589.1" text-anchor="middle" dominant-baseline="central">抛错 requires MCP</text><text x="220.2" y="606.1" text-anchor="middle" dominant-baseline="central">servers matching</text></g><g class="am-node am-node--rect" data-key="继续启动" data-step="5"><rect class="am-node-shape" x="34.4" y="580.1" width="80" height="35" rx="3"/><text x="74.4" y="597.6" text-anchor="middle" dominant-baseline="central">继续启动</text></g></g></svg></figure>
+<div class="am-md"><p>为什么：原文说，这确保代理启动时，它需要的外部服务已经就绪。</p>
+<h3>阶段三：系统提示词构建</h3>
+<p>Fork 路径和常规路径用不同的方式构建提示词（原文 5.4）。下图据原文代码绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 737 480" width="737" height="480" role="img" aria-label="流程图：Fork 路径？、调用代理自己的 getSystemPrompt、有父代理已渲染的系统提示词？、直接用它（字节精确，缓存一致）、用 buildEffectiveSystemPrompt 重新计算（可能有微小差异）、消息为父代理完整的 assistant 消息加指令、enhanceSystemPromptWithEnvDetails 加上环境细节、消息为一条普通用户消息，内容是 prompt" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am6-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M397,53.2 L493.7,77.6 Q590.5,102 590.5,125.8 L590.5,149.6" marker-end="url(#am6-arrow)"/><g class="am-edge-label"><rect x="579.7" y="93" width="21.5" height="18" rx="3"/><text x="590.5" y="102" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="1"><path class="am-edge" d="M319.8,57.6 L272.9,79.8 Q226,102 226,118 L226,134" marker-end="url(#am6-arrow)"/><g class="am-edge-label"><rect x="215.3" y="93" width="21.5" height="18" rx="3"/><text x="226" y="102" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="2"><path class="am-edge" d="M268.2,203.5 L302.7,226.4 Q337.2,249.2 337.2,273.7 L337.2,298.2" marker-end="url(#am6-arrow)"/><g class="am-edge-label"><rect x="326.4" y="240.2" width="21.5" height="18" rx="3"/><text x="337.2" y="249.2" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="3"><path class="am-edge" d="M183.8,203.5 L149.3,226.4 Q114.8,249.2 114.8,265.2 L114.8,281.2" marker-end="url(#am6-arrow)"/><g class="am-edge-label"><rect x="104.1" y="240.2" width="21.5" height="18" rx="3"/><text x="114.8" y="249.2" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="4"><path class="am-edge" d="M337.2,350.2 L337.2,370.2 Q337.2,390.2 311.1,401.7 L285,413.2" marker-end="url(#am6-arrow)"/></g><g data-step="5"><path class="am-edge" d="M114.8,367.2 L114.8,378.7 Q114.8,390.2 140.9,401.7 L167,413.2" marker-end="url(#am6-arrow)"/></g><g data-step="6"><path class="am-edge" d="M590.5,201.6 L590.5,225.4 Q590.5,249.2 590.5,273.7 L590.5,298.2" marker-end="url(#am6-arrow)"/></g><g data-step="7"><path class="am-edge" d="M590.5,350.2 L590.5,370.2 Q590.5,390.2 590.5,401.7 L590.5,413.2" marker-end="url(#am6-arrow)"/></g></g><g><g class="am-node am-node--diamond" data-key="Fork 路径？" data-step="0"><polygon class="am-node-shape" points="352.7,14 426.5,42 352.7,70 278.8,42"/><text x="352.7" y="42" text-anchor="middle" dominant-baseline="central">Fork 路径？</text></g><g class="am-node am-node--rect" data-key="调用代理自己的 getSystemPrompt" data-step="0"><rect class="am-node-shape" x="522.6" y="149.6" width="135.6" height="52" rx="3"/><text x="590.5" y="167.1" text-anchor="middle" dominant-baseline="central">调用代理自己的</text><text x="590.5" y="184.1" text-anchor="middle" dominant-baseline="central">getSystemPrompt</text></g><g class="am-node am-node--diamond" data-key="有父代理已渲染的系统提示词？" data-step="1"><polygon class="am-node-shape" points="226,134 354.3,175.6 226,217.2 97.8,175.6"/><text x="226" y="167.1" text-anchor="middle" dominant-baseline="central">有父代理已渲染的系统提</text><text x="226" y="184.1" text-anchor="middle" dominant-baseline="central">示词？</text></g><g class="am-node am-node--rect" data-key="直接用它（字节精确，缓存一致）" data-step="2"><rect class="am-node-shape" x="251.7" y="298.2" width="171" height="52" rx="3"/><text x="337.2" y="315.7" text-anchor="middle" dominant-baseline="central">直接用它（字节精确，缓</text><text x="337.2" y="332.7" text-anchor="middle" dominant-baseline="central">存一致）</text></g><g class="am-node am-node--rect" data-key="用 buildEffectiveSystemPrompt 重新计算（可能有微小差异）" data-step="3"><rect class="am-node-shape" x="14" y="281.2" width="201.7" height="86" rx="3"/><text x="114.8" y="298.7" text-anchor="middle" dominant-baseline="central">用</text><text x="114.8" y="315.7" text-anchor="middle" dominant-baseline="central">buildEffectiveSystemPrompt</text><text x="114.8" y="332.7" text-anchor="middle" dominant-baseline="central">重新计算（可能有微小差</text><text x="114.8" y="349.7" text-anchor="middle" dominant-baseline="central">异）</text></g><g class="am-node am-node--rect" data-key="消息为父代理完整的 assistant 消息加指令" data-step="4"><rect class="am-node-shape" x="149.5" y="413.2" width="153.1" height="52" rx="3"/><text x="226" y="430.7" text-anchor="middle" dominant-baseline="central">消息为父代理完整的</text><text x="226" y="447.7" text-anchor="middle" dominant-baseline="central">assistant 消息加指令</text></g><g class="am-node am-node--rect" data-key="enhanceSystemPromptWithEnvDetails 加上环境细节" data-step="6"><rect class="am-node-shape" x="458.7" y="298.2" width="263.6" height="52" rx="3"/><text x="590.5" y="315.7" text-anchor="middle" dominant-baseline="central">enhanceSystemPromptWithEnvDetails</text><text x="590.5" y="332.7" text-anchor="middle" dominant-baseline="central">加上环境细节</text></g><g class="am-node am-node--rect" data-key="消息为一条普通用户消息，内容是 prompt" data-step="7"><rect class="am-node-shape" x="505" y="413.2" width="171" height="52" rx="3"/><text x="590.5" y="430.7" text-anchor="middle" dominant-baseline="central">消息为一条普通用户消息</text><text x="590.5" y="447.7" text-anchor="middle" dominant-baseline="central">，内容是 prompt</text></g></g></svg></figure>
+<div class="am-md"><p>Fork 路径优先用父代理已渲染的提示词，原文注释给的理由是“字节精确，缓存一致”。</p>
+<h3>阶段四：同步和异步执行</h3>
+<p>AgentTool 有两种执行模式（原文 5.5）：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>同步模式（默认）</th>
+<th>异步模式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>什么时候用</td>
+<td>默认</td>
+<td><code>run_in_background: true</code>，或代理定义里 <code>background: true</code></td>
+</tr>
+<tr>
+<td>主代理</td>
+<td>这一轮保持打开，等子代理</td>
+<td>立即拿到 <code>async_launched</code> 状态和 <code>agentId</code></td>
+</tr>
+<tr>
+<td>结果怎么回来</td>
+<td>子代理的结果直接作为返回值</td>
+<td>完成时，<code>enqueueAgentNotification</code> 通知主代理</td>
+</tr>
+<tr>
+<td>之后怎么联系</td>
+<td>—</td>
+<td>主代理用 <code>SendMessage({to: agentId})</code> 和子代理通信</td>
+</tr>
+<tr>
+<td>其他</td>
+<td>2 秒后显示 BackgroundHint，提示可按 Ctrl+C 转后台；<code>getAutoBackgroundMs()</code> 返回 120000ms 时自动转后台</td>
+<td><code>registerAsyncAgent</code> 注册任务；<code>runAsyncAgentLifecycle</code> 在后台运行 <code>runAgent</code>，不等它结束（原文注释写作 fire-and-forget）</td>
+</tr>
+</tbody></table></div>
+<p>同步模式的核心是一个循环。下图据原文代码绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 412 315" width="412" height="315" role="img" aria-label="流程图：同时等两件事（子代理的下一条消息、用户触发后台化）、先到的是后台化？、记录消息，更新进度，转发 bash_progress 等事件、转到后台继续执行，返回 async_launched" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am7-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M256.7,83 L273.3,94.5 Q290,106 290,117.5 L290,129" marker-end="url(#am7-arrow)"/></g><g data-step="1"><path class="am-edge" d="M257.2,175.7 L221.2,196.4 Q185.1,217 162.2,233 L139.3,249" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="174.4" y="208" width="21.5" height="18" rx="3"/><text x="185.1" y="217" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="2"><path class="am-edge" d="M299.2,182.4 L305.4,199.7 Q311.7,217 311.7,233 L311.7,249" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="301" y="208" width="21.5" height="18" rx="3"/><text x="311.7" y="217" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="3"><path class="am-edge am-edge--dashed" d="M95,249 L90.6,233 Q86.2,217 86.2,187 Q86.2,157 86.2,131.5 Q86.2,106 110.4,94.5 L134.5,83" marker-end="url(#am7-arrow)"/><g class="am-edge-label"><rect x="64" y="148" width="44.5" height="18" rx="3"/><text x="86.2" y="157" text-anchor="middle" dominant-baseline="central">下一轮</text></g></g></g><g><g class="am-node am-node--rect" data-key="同时等两件事（子代理的下一条消息、用户触发后台化）" data-step="0"><rect class="am-node-shape" x="121.4" y="14" width="171" height="69" rx="3"/><text x="206.9" y="31.5" text-anchor="middle" dominant-baseline="central">同时等两件事（子代理的</text><text x="206.9" y="48.5" text-anchor="middle" dominant-baseline="central">下一条消息、用户触发后</text><text x="206.9" y="65.5" text-anchor="middle" dominant-baseline="central">台化）</text></g><g class="am-node am-node--diamond" data-key="先到的是后台化？" data-step="0"><polygon class="am-node-shape" points="290,129 389,157 290,185 191,157"/><text x="290" y="157" text-anchor="middle" dominant-baseline="central">先到的是后台化？</text></g><g class="am-node am-node--rect" data-key="记录消息，更新进度，转发 bash_progress 等事件" data-step="1"><rect class="am-node-shape" x="14" y="249" width="176.2" height="52" rx="3"/><text x="102.1" y="266.5" text-anchor="middle" dominant-baseline="central">记录消息，更新进度，转</text><text x="102.1" y="283.5" text-anchor="middle" dominant-baseline="central">发 bash_progress 等事件</text></g><g class="am-node am-node--rect" data-key="转到后台继续执行，返回 async_launched" data-step="2"><rect class="am-node-shape" x="226.2" y="249" width="171" height="52" rx="3"/><text x="311.7" y="266.5" text-anchor="middle" dominant-baseline="central">转到后台继续执行，返回</text><text x="311.7" y="283.5" text-anchor="middle" dominant-baseline="central">async_launched</text></g></g></svg></figure></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>Fork 子代理机制</h2><span class="am-panel-meta">原文 6.1–6.4</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：</p>
+<ul>
+<li><strong>Fork</strong>：复制当前对话，派出一个“分身”接着做子任务。</li>
+<li><strong>Prompt Cache</strong>：请求开头和之前的请求完全相同时，服务端复用已处理过的部分，更快也更省。</li>
+<li><strong>字节一致</strong>：逐个字节都相同。差一个字，缓存就用不上。</li>
+</ul>
+</blockquote>
+<h3>设计目标</h3>
+<p>Fork 子代理是 AgentTool 的一个实验特性，由 <code>FORK_SUBAGENT</code> 功能开关控制（原文 6.1）。原文给了三个设计目标：</p>
+<ul>
+<li><strong>上下文继承</strong>：子代理继承父代理的全部对话上下文和系统提示词，不用重新交代背景。</li>
+<li><strong>缓存共享</strong>：所有 Fork 子代理的 API 请求前缀字节一致，让 Prompt Cache 命中率最大。</li>
+<li><strong>统一交互模型</strong>：所有代理都通过“异步后台 + 通知”执行。</li>
+</ul>
+<h3>Fork 消息怎样构建</h3>
+<p><code>forkSubagent.ts</code> 中的 <code>buildForkedMessages()</code> 构建 Fork 消息（原文 6.2）。下图据原文代码绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 203 310" width="203" height="310" role="img" aria-label="流程图：克隆父代理的 assistant 消息（保留所有 tool_use 块，换新 UUID）、为每个 tool_use 造一个占位 tool_result、返回两条消息（克隆的 assistant 消息、装着占位结果的消息）" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am8-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M101.5,83 L101.5,94.5 Q101.5,106 101.5,117.5 L101.5,129" marker-end="url(#am8-arrow)"/></g><g data-step="1"><path class="am-edge" d="M101.5,181 L101.5,192.5 Q101.5,204 101.5,215.5 L101.5,227" marker-end="url(#am8-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="克隆父代理的 assistant 消息（保留所有 tool_use 块，换新 UUID）" data-step="0"><rect class="am-node-shape" x="14" y="14" width="174.9" height="69" rx="3"/><text x="101.5" y="31.5" text-anchor="middle" dominant-baseline="central">克隆父代理的 assistant</text><text x="101.5" y="48.5" text-anchor="middle" dominant-baseline="central">消息（保留所有 tool_use</text><text x="101.5" y="65.5" text-anchor="middle" dominant-baseline="central">块，换新 UUID）</text></g><g class="am-node am-node--rect" data-key="为每个 tool_use 造一个占位 tool_result" data-step="0"><rect class="am-node-shape" x="18.5" y="129" width="165.8" height="52" rx="3"/><text x="101.5" y="146.5" text-anchor="middle" dominant-baseline="central">为每个 tool_use 造一个</text><text x="101.5" y="163.5" text-anchor="middle" dominant-baseline="central">占位 tool_result</text></g><g class="am-node am-node--rect" data-key="返回两条消息（克隆的 assistant 消息、装着占位结果的消息）" data-step="1"><rect class="am-node-shape" x="18.4" y="227" width="166.1" height="69" rx="3"/><text x="101.5" y="244.5" text-anchor="middle" dominant-baseline="central">返回两条消息（克隆的</text><text x="101.5" y="261.5" text-anchor="middle" dominant-baseline="central">assistant 消息、装着占</text><text x="101.5" y="278.5" text-anchor="middle" dominant-baseline="central">位结果的消息）</text></g></g></svg></figure>
+<div class="am-md"><ul>
+<li><strong>占位内容</strong>：所有 Fork 子代理的占位文本完全相同，都是 <code>Fork started — processing in background</code>。</li>
+<li><strong>为什么</strong>：这样 API 请求前缀字节一致，Prompt Cache 命中率最大。</li>
+<li><strong>指令放在哪</strong>：5.4 节说 Fork 消息是“父代理的完整 assistant 消息 + 指令”。6.2 节的代码片段只返回上面两条消息，原文没有说明指令放在哪。</li>
+</ul>
+<h3>Fork 指令的格式</h3>
+<p>Fork 指令包在 <code>&lt;fork&gt;</code> 标签里，开头是 <code>STOP. READ THIS FIRST.</code>，说明“你是一个 fork 出来的工作进程”（原文 6.3）。规则有三条写明，其余原文省略：</p>
+<ol>
+<li>不要再生成子代理，直接执行。</li>
+<li>不要对话，不要提问。</li>
+<li>直接用工具：Bash、Read、Write 等。</li>
+</ol>
+<p>输出格式规定了五项：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Scope</code></td>
+<td>复述分配给自己的范围</td>
+</tr>
+<tr>
+<td><code>Result</code></td>
+<td>答案或关键发现</td>
+</tr>
+<tr>
+<td><code>Key files</code></td>
+<td>相关的文件路径</td>
+</tr>
+<tr>
+<td><code>Files changed</code></td>
+<td>改过的文件，带 commit hash</td>
+</tr>
+<tr>
+<td><code>Issues</code></td>
+<td>问题列表</td>
+</tr>
+</tbody></table></div>
+<h3>递归 Fork 保护</h3>
+<p>用两重检查，防止 Fork 出来的子代理再 Fork（原文 6.4）。任一检查命中，就抛错 <code>Fork is not available inside a forked worker</code>：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>检查</th>
+<th>看什么</th>
+<th>原文的说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主要检查</td>
+<td><code>querySource</code> 是否为 <code>agent:builtin:fork</code></td>
+<td>不受自动压缩影响</td>
+</tr>
+<tr>
+<td>后备检查</td>
+<td><code>isInForkChild()</code> 在对话历史里找 Fork 标记</td>
+<td>—</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>父代理与子代理通信</h2><span class="am-panel-meta">原文 7.1–7.4</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：</p>
+<ul>
+<li><strong>旁链对话记录（sidechain transcript）</strong>：子代理的对话单独记一份，不混进主对话。</li>
+<li><strong>回调</strong>：事先交给对方的函数。对方有进展时调用它，把消息带回来。</li>
+</ul>
+</blockquote>
+<h3>通信架构</h3>
+<p>下图据原文 7.1 的 ASCII 图重画：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 381 261" width="381" height="261" role="img" aria-label="流程图：主代理（Parent）、子代理（Sub-agent）、共享数据平面" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am9-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M151.7,49 L151.7,65 Q151.7,81 132.6,97 L113.4,113" marker-end="url(#am9-arrow)"/><g class="am-edge-label"><rect x="100.7" y="72" width="102" height="18" rx="3"/><text x="151.7" y="81" text-anchor="middle" dominant-baseline="central">同步或异步消息流</text></g></g><g data-step="1"><path class="am-edge" d="M79.8,113 L68.1,97 Q56.5,81 87.3,65 L118,49" marker-end="url(#am9-arrow)"/></g><g data-step="2"><path class="am-edge" d="M198.1,49 L240.5,65 Q282.9,81 282.9,105.8 Q282.9,130.5 282.9,155.3 Q282.9,180 252.2,196 L221.4,212" marker-end="url(#am9-arrow)"/><g class="am-edge-label"><rect x="200" y="121.5" width="165.9" height="18" rx="3"/><text x="282.9" y="130.5" text-anchor="middle" dominant-baseline="central">AgentTool.call() 返回 agentId</text></g></g><g data-step="3"><path class="am-edge" d="M92.5,148 L92.5,164 Q92.5,180 123.3,196 L154,212" marker-end="url(#am9-arrow)"/><g class="am-edge-label"><rect x="19.3" y="171" width="146.4" height="18" rx="3"/><text x="92.5" y="180" text-anchor="middle" dominant-baseline="central">runAgent() 的 query() 循环</text></g></g></g><g><g class="am-node am-node--rect" data-key="主代理（Parent）" data-step="0"><rect class="am-node-shape" x="85.7" y="14" width="132" height="35" rx="3"/><text x="151.7" y="31.5" text-anchor="middle" dominant-baseline="central">主代理（Parent）</text></g><g class="am-node am-node--rect" data-key="子代理（Sub-agent）" data-step="0"><rect class="am-node-shape" x="14" y="113" width="157" height="35" rx="3"/><text x="92.5" y="130.5" text-anchor="middle" dominant-baseline="central">子代理（Sub-agent）</text></g><g class="am-node am-node--rect" data-key="共享数据平面" data-step="2"><rect class="am-node-shape" x="134.7" y="212" width="106" height="35" rx="3"/><text x="187.7" y="229.5" text-anchor="middle" dominant-baseline="central">共享数据平面</text></g></g></svg></figure>
+<div class="am-md"><p>原图在共享数据平面里列了四项：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>数据</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>agentNameRegistry</code></td>
+<td>名称到 ID 的映射</td>
+</tr>
+<tr>
+<td><code>LocalAgentTask</code></td>
+<td>任务注册、进度、通知</td>
+</tr>
+<tr>
+<td><code>sidechainTranscript</code></td>
+<td>旁链对话记录</td>
+</tr>
+<tr>
+<td><code>AppState.todos</code></td>
+<td>共享的待办事项</td>
+</tr>
+</tbody></table></div>
+<h3>SendMessage 通信</h3>
+<p>原文 7.2 说，异步子代理可以用 <code>SendMessage</code> 工具和主代理继续对话。代码做了两件事：</p>
+<ul>
+<li>在工具列表里找到 <code>SendMessage</code> 工具。注释说，主代理可以按 agentId 或名称发消息。</li>
+<li>把“名称 → ID”写进 <code>agentNameRegistry</code>，这样用名称也能找到子代理。</li>
+</ul>
+</div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">原文前后写法不同</div><div class="am-callout-body am-md"><p>7.2 节正文说“异步子代理用 SendMessage 与主代理对话”。同节代码注释和 5.5 节都说，是主代理用 SendMessage 发消息给子代理。</p>
+</div></div>
+<div class="am-md"><h3>异步完成的通知</h3>
+<p>异步子代理完成后，按下面的链路通知主代理（原文 7.3）。下图据原文绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 212 519" width="212" height="519" role="img" aria-label="流程图：runAgent 消息流、finalizeAgentTool()、completeAgentTask()、enqueueAgentNotification（任务 ID、completed 状态、最终消息、用量）、AppState 更新、task-notification 触发主代理的下一轮" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am10-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M106,49 L106,60.5 Q106,72 106,83.5 L106,95" marker-end="url(#am10-arrow)"/></g><g data-step="1"><path class="am-edge" d="M106,130 L106,141.5 Q106,153 106,164.5 L106,176" marker-end="url(#am10-arrow)"/></g><g data-step="2"><path class="am-edge" d="M106,211 L106,222.5 Q106,234 106,245.5 L106,257" marker-end="url(#am10-arrow)"/></g><g data-step="3"><path class="am-edge" d="M106,326 L106,337.5 Q106,349 106,360.5 L106,372" marker-end="url(#am10-arrow)"/></g><g data-step="4"><path class="am-edge" d="M106,407 L106,418.5 Q106,430 106,441.5 L106,453" marker-end="url(#am10-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="runAgent 消息流" data-step="0"><rect class="am-node-shape" x="43.8" y="14" width="124.5" height="35" rx="3"/><text x="106" y="31.5" text-anchor="middle" dominant-baseline="central">runAgent 消息流</text></g><g class="am-node am-node--rect" data-key="finalizeAgentTool()" data-step="0"><rect class="am-node-shape" x="33.8" y="95" width="144.5" height="35" rx="3"/><text x="106" y="112.5" text-anchor="middle" dominant-baseline="central">finalizeAgentTool()</text></g><g class="am-node am-node--rect" data-key="completeAgentTask()" data-step="1"><rect class="am-node-shape" x="27.1" y="176" width="157.7" height="35" rx="3"/><text x="106" y="193.5" text-anchor="middle" dominant-baseline="central">completeAgentTask()</text></g><g class="am-node am-node--rect" data-key="enqueueAgentNotification（任务 ID、completed 状态、最终消息、用量）" data-step="2"><rect class="am-node-shape" x="14" y="257" width="184" height="69" rx="3"/><text x="106" y="274.5" text-anchor="middle" dominant-baseline="central">enqueueAgentNotification</text><text x="106" y="291.5" text-anchor="middle" dominant-baseline="central">（任务 ID、completed</text><text x="106" y="308.5" text-anchor="middle" dominant-baseline="central">状态、最终消息、用量）</text></g><g class="am-node am-node--rect" data-key="AppState 更新" data-step="3"><rect class="am-node-shape" x="49.5" y="372" width="113" height="35" rx="3"/><text x="106" y="389.5" text-anchor="middle" dominant-baseline="central">AppState 更新</text></g><g class="am-node am-node--rect" data-key="task-notification 触发主代理的下一轮" data-step="4"><rect class="am-node-shape" x="19.6" y="453" width="172.8" height="52" rx="3"/><text x="106" y="470.5" text-anchor="middle" dominant-baseline="central">task-notification 触发主</text><text x="106" y="487.5" text-anchor="middle" dominant-baseline="central">代理的下一轮</text></g></g></svg></figure>
+<div class="am-md"><p>用量包括总 token 数、工具调用次数和耗时。</p>
+<h3>同步代理的实时进度</h3>
+<p>同步执行时，子代理的每条消息都经 <code>onProgress</code> 回调转给主代理的终端界面（原文 7.4）。进度的类型是 <code>agent_progress</code>，带上子代理的 agentId。<code>UI.tsx</code> 把这些进度渲染成可折叠的消息组，最多显示 3 条。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>代理沙箱与权限</h2><span class="am-panel-meta">原文 8.1–8.3</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：</p>
+<ul>
+<li><strong>沙箱</strong>：把子代理能做的事圈在一个范围里。</li>
+<li><strong>Git worktree</strong>：同一个仓库的另一份工作目录。在里面改文件，不影响你正在用的那份。</li>
+</ul>
+</blockquote>
+<h3>工具隔离</h3>
+<p><code>agentToolUtils.ts</code> 中的 <code>filterToolsForAgent()</code> 逐个检查工具，按顺序判断，命中一条就定结果（原文 8.1）：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>条件</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>MCP 工具（名字以 <code>mcp__</code> 开头）</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>允许</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td>在 <code>ALL_AGENT_DISALLOWED_TOOLS</code> 里</td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>禁止，所有代理都不能用</span></td>
+</tr>
+<tr>
+<td>3</td>
+<td>自定义代理，且在 <code>CUSTOM_AGENT_DISALLOWED_TOOLS</code> 里</td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>禁止</span></td>
+</tr>
+<tr>
+<td>4</td>
+<td>异步代理，且不在 <code>ASYNC_AGENT_ALLOWED_TOOLS</code> 里</td>
+<td><span class="am-status am-status--no"><span class="am-status-icon" aria-hidden="true">✗</span>禁止</span></td>
+</tr>
+<tr>
+<td>5</td>
+<td>前面都不满足</td>
+<td><span class="am-status am-status--ok"><span class="am-status-icon" aria-hidden="true">✓</span>允许</span></td>
+</tr>
+</tbody></table></div>
+<h3>权限模式</h3>
+<p><code>runAgent.ts</code> 按下面的规则决定子代理的权限（原文 8.2）：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>情况</th>
+<th>子代理的权限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>代理定义了 <code>permissionMode</code>，且父代理不是 <code>bypassPermissions</code> 或 <code>acceptEdits</code></td>
+<td>用代理自己的权限模式</td>
+</tr>
+<tr>
+<td>父代理是 <code>bypassPermissions</code> 或 <code>acceptEdits</code></td>
+<td>代码不改动，保持原来的权限设置</td>
+</tr>
+<tr>
+<td>异步代理</td>
+<td>设 <code>shouldAvoidPermissionPrompts: true</code>，自动避免权限提示</td>
+</tr>
+</tbody></table></div>
+<h3>Git Worktree 隔离</h3>
+<p>设了 <code>isolation: &quot;worktree&quot;</code> 时，子代理在一个临时的 Git 工作目录里运行（原文 8.3）。目录名是 <code>agent-</code> 加 agentId 的前 8 位，由 <code>createAgentWorktree</code> 创建。它的生命周期：</p>
+<ul>
+<li>代理完成后，没有改动就自动清理。</li>
+<li>有改动就保留，并返回目录路径。</li>
+<li>自动恢复时，重新检查这个目录还在不在。</li>
+</ul>
+</div></div>
+</section>
+<section class="am-panel" id="panel-I">
+<header class="am-panel-head"><span class="am-panel-id">I</span><h2>Agent 颜色管理</h2><span class="am-panel-meta">原文 9</span></header>
+<div class="am-panel-body"><div class="am-md"><p><code>agentColorManager.ts</code> 给每种代理类型分配一种颜色，用来在界面上区分它们：</p>
+<ul>
+<li><strong>可选颜色</strong>：red、blue、green、yellow、purple、orange、pink、cyan，共 8 种。每种映射到一个只给子代理用的主题色，例如 <code>red_FOR_SUBAGENTS_ONLY</code>。</li>
+<li><strong>何时分配</strong>：<code>loadAgentsDir.ts</code> 加载完代理定义后，给定义了 <code>color</code> 的代理逐个调用 <code>setAgentColor</code>。</li>
+<li><strong>General-purpose 没有颜色</strong>：返回 <code>undefined</code>。原文给的理由是，它实际上是主代理自身的延续。</li>
+</ul>
+</div></div>
+</section>
+<section class="am-panel" id="panel-J">
+<header class="am-panel-head"><span class="am-panel-id">J</span><h2>代理内存系统</h2><span class="am-panel-meta">原文 10.1–10.2</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：持久化记忆是跨会话保存下来的笔记目录。版本控制指 Git 这类记录文件历史的工具。</p>
+</blockquote>
+<p>AgentMemory 支持三种范围（原文 10.1）：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>范围</th>
+<th>存储路径</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>user</code></td>
+<td><code>~/.claude/agent-memory/&lt;agentType&gt;/</code></td>
+<td>跨项目共享，用户级记忆</td>
+</tr>
+<tr>
+<td><code>project</code></td>
+<td><code>.claude/agent-memory/&lt;agentType&gt;/</code></td>
+<td>项目专属，可以进版本控制</td>
+</tr>
+<tr>
+<td><code>local</code></td>
+<td><code>.claude/agent-memory-local/&lt;agentType&gt;/</code></td>
+<td>本地专属，不进版本控制</td>
+</tr>
+</tbody></table></div>
+<p><code>agentMemorySnapshot.ts</code> 把项目快照同步到本地记忆，用于团队协作（原文 10.2）。项目快照比本地已同步的版本新时，自动同步，或把更新标记为待处理。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-K">
+<header class="am-panel-head"><span class="am-panel-id">K</span><h2>错误处理与超时</h2><span class="am-panel-meta">原文 11.1–11.2</span></header>
+<div class="am-panel-body"><div class="am-md"><h3>多层级错误处理</h3>
+<p>下图据原文 11.1 的 ASCII 树重画：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root"><div class="am-tree-box am-tree-box--root" data-key="AgentTool 的错误处理" data-step="0">AgentTool 的错误处理</div></div><div class="am-tree-cols" style="--n: 2"><div class="am-tree-col"><div class="am-tree-box" data-key="call() 层" data-step="1">call() 层</div><ul class="am-tree-list"><li data-key="Schema 校验失败" data-step="2"><span class="am-tree-label">Schema 校验失败</span><span class="am-tree-sub">抛出 Zod 错误</span></li><li data-key="代理类型未找到" data-step="3"><span class="am-tree-label">代理类型未找到</span><span class="am-tree-sub">明确的错误消息，附可用代理列表</span></li><li data-key="MCP 依赖不满足" data-step="4"><span class="am-tree-label">MCP 依赖不满足</span><span class="am-tree-sub">提示用户配置 MCP</span></li><li data-key="权限拒绝" data-step="5"><span class="am-tree-label">权限拒绝</span><span class="am-tree-sub">denyRule 错误消息</span></li><li data-key="Fork 递归" data-step="6"><span class="am-tree-label">Fork 递归</span><span class="am-tree-sub">明确的禁止消息</span></li></ul></div><div class="am-tree-col"><div class="am-tree-box" data-key="runAgent() 层" data-step="7">runAgent() 层</div><ul class="am-tree-list"><li data-key="AbortError" data-step="8"><span class="am-tree-label">AbortError</span><span class="am-tree-sub">用户取消，记录终止事件</span></li><li data-key="同步错误，但已收集到消息" data-step="9"><span class="am-tree-label">同步错误，但已收集到消息</span><span class="am-tree-sub">返回部分结果</span></li><li data-key="同步错误，没有消息" data-step="10"><span class="am-tree-label">同步错误，没有消息</span><span class="am-tree-sub">重新抛出错误</span></li></ul></div></div></div>
+<div class="am-md"><h3>超时保护</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>超时</th>
+<th>时长</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MCP 等待超时</td>
+<td>30 秒</td>
+<td>等必需的 MCP 服务器连接，见 E 节阶段二</td>
+</tr>
+<tr>
+<td>Worktree 清理超时</td>
+<td>1 秒</td>
+<td>转后台时，最多等 1 秒做 MCP 清理</td>
+</tr>
+<tr>
+<td>自动后台化</td>
+<td>120 秒</td>
+<td>120 秒后自动转入后台，由环境变量或 GrowthBook 控制</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">原文写法不一</div><div class="am-callout-body am-md"><p>11.2 节这一条的名字是“Worktree 清理超时”，内容写的却是“等待 MCP 清理”。</p>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-L">
+<header class="am-panel-head"><span class="am-panel-id">L</span><h2>与 tools.ts 的集成</h2><span class="am-panel-meta">原文 12.1–12.3</span></header>
+<div class="am-panel-body"><div class="am-md"><h3>注册机制</h3>
+<p>AgentTool 用 <code>buildTool()</code> 注册成 Claude Code 的标准工具（原文 12.1）。<code>tools.ts</code> 的 <code>getAllBaseTools()</code> 返回全部基础工具，AgentTool 排在第一个，后面是 TaskOutputTool、BashTool 等。</p>
+<h3>工具过滤</h3>
+<p><code>resolveAgentTools()</code> 决定一个代理最终能用哪些工具（原文 12.2）。下图据原文代码绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 393 281" width="393" height="281" role="img" aria-label="流程图：filterToolsForAgent 做基础过滤（见 H 节）、工具列表是通配符 *？、白名单和黑名单组合过滤、返回过滤后的全部工具" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am11-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M193.3,66 L193.3,77.5 Q193.3,89 193.3,100.5 L193.3,112" marker-end="url(#am11-arrow)"/></g><g data-step="1"><path class="am-edge" d="M226.7,160 L260.1,180 Q293.5,200 293.5,216 L293.5,232" marker-end="url(#am11-arrow)"/><g class="am-edge-label"><rect x="282.8" y="191" width="21.5" height="18" rx="3"/><text x="293.5" y="200" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="2"><path class="am-edge" d="M159.8,160 L126.4,180 Q93,200 93,216 L93,232" marker-end="url(#am11-arrow)"/><g class="am-edge-label"><rect x="82.3" y="191" width="21.5" height="18" rx="3"/><text x="93" y="200" text-anchor="middle" dominant-baseline="central">是</text></g></g></g><g><g class="am-node am-node--rect" data-key="filterToolsForAgent 做基础过滤（见 H 节）" data-step="0"><rect class="am-node-shape" x="105.3" y="14" width="175.9" height="52" rx="3"/><text x="193.3" y="31.5" text-anchor="middle" dominant-baseline="central">filterToolsForAgent 做基</text><text x="193.3" y="48.5" text-anchor="middle" dominant-baseline="central">础过滤（见 H 节）</text></g><g class="am-node am-node--diamond" data-key="工具列表是通配符 *？" data-step="0"><polygon class="am-node-shape" points="193.3,112 310.4,140 193.3,168 76.1,140"/><text x="193.3" y="140" text-anchor="middle" dominant-baseline="central">工具列表是通配符 *？</text></g><g class="am-node am-node--rect" data-key="白名单和黑名单组合过滤" data-step="1"><rect class="am-node-shape" x="208" y="232" width="171" height="35" rx="3"/><text x="293.5" y="249.5" text-anchor="middle" dominant-baseline="central">白名单和黑名单组合过滤</text></g><g class="am-node am-node--rect" data-key="返回过滤后的全部工具" data-step="2"><rect class="am-node-shape" x="14" y="232" width="158" height="35" rx="3"/><text x="93" y="249.5" text-anchor="middle" dominant-baseline="central">返回过滤后的全部工具</text></g></g></svg></figure>
+<div class="am-md"><p>组合过滤分两种情况：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>情况</th>
+<th>做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>白名单和黑名单都有</td>
+<td>先用黑名单过滤白名单</td>
+</tr>
+<tr>
+<td>只有黑名单（原文注释写作“白名单仅黑名单”）</td>
+<td>从全部工具里去掉黑名单中的工具</td>
+</tr>
+</tbody></table></div>
+<h3>Agent(x,y) 语法</h3>
+<p>工具规范可以写成 <code>Agent(worker, researcher)</code>，限制能生成的代理类型（原文 12.3）。括号里的内容按逗号切开、去掉空格，得到允许的类型列表 <code>[&quot;worker&quot;, &quot;researcher&quot;]</code>。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-M">
+<header class="am-panel-head"><span class="am-panel-id">M</span><h2>子代理执行引擎 runAgent</h2><span class="am-panel-meta">原文 13.1–13.2</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：钩子（Hooks）是在特定时刻自动执行的命令，例如子代理启动时。</p>
+</blockquote>
+<h3>核心流程</h3>
+<p><code>runAgent.ts</code> 是子代理的执行引擎（原文 13.1）。原文列了七项职责，下面按准备、运行、收尾分组（本页归纳）：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root"><div class="am-tree-box am-tree-box--root" data-key="runAgent 的职责" data-step="0">runAgent 的职责</div></div><div class="am-tree-cols" style="--n: 3"><div class="am-tree-col"><div class="am-tree-box" data-key="准备" data-step="1">准备</div><ul class="am-tree-list"><li data-key="初始化 MCP 服务器" data-step="2"><span class="am-tree-label">初始化 MCP 服务器</span><span class="am-tree-sub">连接代理专属的 MCP 服务器</span></li><li data-key="构建系统提示词" data-step="3"><span class="am-tree-label">构建系统提示词</span><span class="am-tree-sub">结合代理定义、用户上下文和系统上下文</span></li><li data-key="注册 Frontmatter Hooks" data-step="4"><span class="am-tree-label">注册 Frontmatter Hooks</span><span class="am-tree-sub">在代理生命周期内生效</span></li><li data-key="预加载 Skills" data-step="5"><span class="am-tree-label">预加载 Skills</span><span class="am-tree-sub">按代理定义加载指定的技能</span></li></ul></div><div class="am-tree-col"><div class="am-tree-box" data-key="运行" data-step="6">运行</div><ul class="am-tree-list"><li data-key="执行 query 循环" data-step="7"><span class="am-tree-label">执行 query 循环</span><span class="am-tree-sub">运行完整的 LLM 查询循环</span></li><li data-key="记录旁链对话" data-step="8"><span class="am-tree-label">记录旁链对话</span><span class="am-tree-sub">记下子代理的完整对话轨迹</span></li></ul></div><div class="am-tree-col"><div class="am-tree-box" data-key="收尾" data-step="9">收尾</div><ul class="am-tree-list"><li data-key="清理释放" data-step="10"><span class="am-tree-label">清理释放</span><span class="am-tree-sub">释放 MCP 连接、钩子、文件状态缓存等</span></li></ul></div></div></div>
+<div class="am-md"><h3>Agent 专有的 MCP 服务器</h3>
+<p>代理可以在 frontmatter 里定义自己的 MCP 服务器，由 <code>initializeAgentMcpServers</code> 处理（原文 13.2）。下图据原文代码绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 411 441" width="411" height="441" role="img" aria-label="流程图：逐个处理 mcpServers 里的项、这一项是字符串（服务器名）？、内联定义：代理私有，scope 设为 dynamic，记为新建、引用已有服务器：共享连接、返回客户端、工具和 cleanup 函数" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am12-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M204.2,66 L204.2,77.5 Q204.2,89 204.2,100.5 L204.2,112" marker-end="url(#am12-arrow)"/></g><g data-step="1"><path class="am-edge" d="M244.7,182.1 L276.9,204.6 Q309,227.2 309,243.2 L309,259.2" marker-end="url(#am12-arrow)"/><g class="am-edge-label"><rect x="298.2" y="218.2" width="21.5" height="18" rx="3"/><text x="309" y="227.2" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="2"><path class="am-edge" d="M163.7,182.1 L131.6,204.6 Q99.5,227.2 99.5,247.5 L99.5,267.7" marker-end="url(#am12-arrow)"/><g class="am-edge-label"><rect x="88.8" y="218.2" width="21.5" height="18" rx="3"/><text x="99.5" y="227.2" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="3"><path class="am-edge" d="M99.5,319.7 L99.5,335.5 Q99.5,351.2 124.1,362.7 L148.7,374.2" marker-end="url(#am12-arrow)"/></g><g data-step="4"><path class="am-edge" d="M309,328.2 L309,339.7 Q309,351.2 284.4,362.7 L259.8,374.2" marker-end="url(#am12-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="逐个处理 mcpServers 里的项" data-step="0"><rect class="am-node-shape" x="117.8" y="14" width="172.8" height="52" rx="3"/><text x="204.2" y="31.5" text-anchor="middle" dominant-baseline="central">逐个处理 mcpServers 里</text><text x="204.2" y="48.5" text-anchor="middle" dominant-baseline="central">的项</text></g><g class="am-node am-node--diamond" data-key="这一项是字符串（服务器名）？" data-step="0"><polygon class="am-node-shape" points="204.2,112 332.5,153.6 204.2,195.2 76,153.6"/><text x="204.2" y="145.1" text-anchor="middle" dominant-baseline="central">这一项是字符串（服务器</text><text x="204.2" y="162.1" text-anchor="middle" dominant-baseline="central">名）？</text></g><g class="am-node am-node--rect" data-key="内联定义：代理私有，scope 设为 dynamic，记为新建" data-step="1"><rect class="am-node-shape" x="221" y="259.2" width="175.9" height="69" rx="3"/><text x="309" y="276.7" text-anchor="middle" dominant-baseline="central">内联定义：代理私有，</text><text x="309" y="293.7" text-anchor="middle" dominant-baseline="central">scope 设为 dynamic，记</text><text x="309" y="310.7" text-anchor="middle" dominant-baseline="central">为新建</text></g><g class="am-node am-node--rect" data-key="引用已有服务器：共享连接" data-step="2"><rect class="am-node-shape" x="14" y="267.7" width="171" height="52" rx="3"/><text x="99.5" y="285.2" text-anchor="middle" dominant-baseline="central">引用已有服务器：共享连</text><text x="99.5" y="302.2" text-anchor="middle" dominant-baseline="central">接</text></g><g class="am-node am-node--rect" data-key="返回客户端、工具和 cleanup 函数" data-step="3"><rect class="am-node-shape" x="131.7" y="374.2" width="145" height="52" rx="3"/><text x="204.2" y="391.7" text-anchor="middle" dominant-baseline="central">返回客户端、工具和</text><text x="204.2" y="408.7" text-anchor="middle" dominant-baseline="central">cleanup 函数</text></g></g></svg></figure>
+<div class="am-md"><ul>
+<li>返回结果里，客户端列表包括两部分：父代理已有客户端，以及代理新建客户端。</li>
+<li><code>cleanup</code> 只清理新建的服务器连接。原文注释说，引用的服务器是共享连接，内联定义的是代理私有、需要清理。</li>
+</ul>
+</div></div>
+</section>
+<section class="am-panel" id="panel-N">
+<header class="am-panel-head"><span class="am-panel-id">N</span><h2>代理恢复机制</h2><span class="am-panel-meta">原文 14.1</span></header>
+<div class="am-panel-body"><div class="am-md"><p><code>resumeAgent.ts</code> 中的 <code>resumeAgentBackground()</code> 恢复异步代理。代码按六步走，下图据原文代码绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 272 622" width="272" height="622" role="img" aria-label="流程图：1 同时读取之前的对话记录和元数据、2 还原工作目录路径、3 还原工具结果替换状态、4 是 Fork 代理？、5 重新注册异步任务、还原父代理的系统提示词、6 在新的上下文里后台运行 runAgent" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am13-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M162.1,66 L162.1,77.5 Q162.1,89 162.1,100.5 L162.1,112" marker-end="url(#am13-arrow)"/></g><g data-step="1"><path class="am-edge" d="M162.1,147 L162.1,158.5 Q162.1,170 162.1,181.5 L162.1,193" marker-end="url(#am13-arrow)"/></g><g data-step="2"><path class="am-edge" d="M162.1,228 L162.1,239.5 Q162.1,251 162.1,262.5 L162.1,274" marker-end="url(#am13-arrow)"/></g><g data-step="3"><path class="am-edge" d="M184.5,323.4 L204.6,342.7 Q224.8,362 224.8,386.8 Q224.8,411.5 224.8,431.8 Q224.8,452 207,463.5 L189.2,475" marker-end="url(#am13-arrow)"/><g class="am-edge-label"><rect x="214" y="402.5" width="21.5" height="18" rx="3"/><text x="224.8" y="411.5" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="4"><path class="am-edge" d="M139.8,323.4 L119.6,342.7 Q99.5,362 99.5,378 L99.5,394" marker-end="url(#am13-arrow)"/><g class="am-edge-label"><rect x="88.8" y="353" width="21.5" height="18" rx="3"/><text x="99.5" y="362" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="5"><path class="am-edge" d="M99.5,429 L99.5,440.5 Q99.5,452 117.3,463.5 L135.1,475" marker-end="url(#am13-arrow)"/></g><g data-step="6"><path class="am-edge" d="M162.1,510 L162.1,521.5 Q162.1,533 162.1,544.5 L162.1,556" marker-end="url(#am13-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="1 同时读取之前的对话记录和元数据" data-step="0"><rect class="am-node-shape" x="77.5" y="14" width="169.2" height="52" rx="3"/><text x="162.1" y="31.5" text-anchor="middle" dominant-baseline="central">1 同时读取之前的对话记</text><text x="162.1" y="48.5" text-anchor="middle" dominant-baseline="central">录和元数据</text></g><g class="am-node am-node--rect" data-key="2 还原工作目录路径" data-step="0"><rect class="am-node-shape" x="90.5" y="112" width="143.2" height="35" rx="3"/><text x="162.1" y="129.5" text-anchor="middle" dominant-baseline="central">2 还原工作目录路径</text></g><g class="am-node am-node--rect" data-key="3 还原工具结果替换状态" data-step="1"><rect class="am-node-shape" x="77.5" y="193" width="169.2" height="35" rx="3"/><text x="162.1" y="210.5" text-anchor="middle" dominant-baseline="central">3 还原工具结果替换状态</text></g><g class="am-node am-node--diamond" data-key="4 是 Fork 代理？" data-step="2"><polygon class="am-node-shape" points="162.1,274 257,302 162.1,330 67.2,302"/><text x="162.1" y="302" text-anchor="middle" dominant-baseline="central">4 是 Fork 代理？</text></g><g class="am-node am-node--rect" data-key="5 重新注册异步任务" data-step="3"><rect class="am-node-shape" x="90.5" y="475" width="143.2" height="35" rx="3"/><text x="162.1" y="492.5" text-anchor="middle" dominant-baseline="central">5 重新注册异步任务</text></g><g class="am-node am-node--rect" data-key="还原父代理的系统提示词" data-step="4"><rect class="am-node-shape" x="14" y="394" width="171" height="35" rx="3"/><text x="99.5" y="411.5" text-anchor="middle" dominant-baseline="central">还原父代理的系统提示词</text></g><g class="am-node am-node--rect" data-key="6 在新的上下文里后台运行 runAgent" data-step="6"><rect class="am-node-shape" x="77.5" y="556" width="169.2" height="52" rx="3"/><text x="162.1" y="573.5" text-anchor="middle" dominant-baseline="central">6 在新的上下文里后台运</text><text x="162.1" y="590.5" text-anchor="middle" dominant-baseline="central">行 runAgent</text></g></g></svg></figure>
+<div class="am-md"><p>工作目录路径来自元数据里的 <code>worktreePath</code>。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-O">
+<header class="am-panel-head"><span class="am-panel-id">O</span><h2>性能优化策略</h2><span class="am-panel-meta">原文 15</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文汇总了六处性能优化：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>优化</th>
+<th>做法</th>
+<th>原文说的效果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Prompt Cache 共享</td>
+<td>Fork 子代理用字节一致的占位文本（F 节）</td>
+<td>缓存命中最大化</td>
+</tr>
+<tr>
+<td>一次性内置代理省略尾部</td>
+<td><code>ONE_SHOT_BUILTIN_AGENT_TYPES</code>（Explore、Plan）不带 agentId、SendMessage、usage 尾部</td>
+<td>每次约省 135 字符</td>
+</tr>
+<tr>
+<td>省略 CLAUDE.md</td>
+<td>Explore 和 Plan 不带 CLAUDE.md 上下文（D 节）</td>
+<td>每次省 5-15 Gtok</td>
+</tr>
+<tr>
+<td>代理列表放进附件消息</td>
+<td><code>shouldInjectAgentListInMessages()</code> 把代理列表从工具描述里移到附件消息</td>
+<td>避免工具 Schema 一变就让缓存失效</td>
+</tr>
+<tr>
+<td>惰性 Schema</td>
+<td><code>lazySchema()</code> 推迟 Zod Schema 的初始化</td>
+<td>—</td>
+</tr>
+<tr>
+<td>死代码消除</td>
+<td>用 <code>&quot;external&quot; === &#39;ant&#39;</code> 守卫，去掉只给内部用的代码</td>
+<td>—</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-P">
+<header class="am-panel-head"><span class="am-panel-id">P</span><h2>Coordinator 模式</h2><span class="am-panel-meta">原文 16</span></header>
+<div class="am-panel-body"><div class="am-md"><p>设了 <code>CLAUDE_CODE_COORDINATOR_MODE=true</code>，并且 <code>COORDINATOR_MODE</code> 功能开关打开时，所有内置代理被换成 Coordinator 架构的代理，由 <code>getCoordinatorAgents()</code> 提供。</p>
+<p>在这个模式下，主代理是协调者（Coordinator），子代理是工作者（Worker）。下图是示意，据原文 16 节：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 279 162" width="279" height="162" role="img" aria-label="流程图：主代理（协调者）、子代理（工作者）" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am14-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M175,49 L196.9,65 Q218.8,81 196.9,97 L175,113" marker-end="url(#am14-arrow)"/><g class="am-edge-label"><rect x="173.5" y="72" width="90.5" height="18" rx="3"/><text x="218.8" y="81" text-anchor="middle" dominant-baseline="central">分解任务，分配</text></g></g><g data-step="1"><path class="am-edge am-edge--dashed" d="M127,113 L105.1,97 Q83.3,81 105.1,65 L127,49" marker-end="url(#am14-arrow)"/><g class="am-edge-label"><rect x="15" y="72" width="136.5" height="18" rx="3"/><text x="83.3" y="81" text-anchor="middle" dominant-baseline="central">执行结果，由协调者整合</text></g></g></g><g><g class="am-node am-node--rect" data-key="主代理（协调者）" data-step="0"><rect class="am-node-shape" x="85" y="14" width="132" height="35" rx="3"/><text x="151" y="31.5" text-anchor="middle" dominant-baseline="central">主代理（协调者）</text></g><g class="am-node am-node--rect" data-key="子代理（工作者）" data-step="0"><rect class="am-node-shape" x="85" y="113" width="132" height="35" rx="3"/><text x="151" y="130.5" text-anchor="middle" dominant-baseline="central">子代理（工作者）</text></g></g></svg></figure>
+<div class="am-md"><p>原文说，AgentTool 在这个模式下承担更复杂的团队协作角色。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-Q">
+<header class="am-panel-head"><span class="am-panel-id">Q</span><h2>总结</h2><span class="am-panel-meta">原文 17</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p>AgentTool 是 Claude Code 中一个设计精巧的子代理系统，其核心设计理念是递归委派。</p>
+</blockquote>
+<p>原文的结论：它提供一套完整的代理定义、加载、执行和通信机制。Claude Code 由此能把复杂任务分解成子任务并行处理，大幅提升处理能力和扩展性。</p>
+<p>原文列了五条关键设计决策。最后一列是本页加的对照：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>设计决策</th>
+<th>原文的说法</th>
+<th>正文依据（本页加）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>统一的 AgentDefinition 联合类型</td>
+<td>内置、自定义、插件代理能无缝共存和叠加</td>
+<td>C 节 3.1</td>
+</tr>
+<tr>
+<td>灵活的加载优先级</td>
+<td>从用户、项目、策略、内置等多个来源加载，按优先级覆盖</td>
+<td>C 节 3.4</td>
+</tr>
+<tr>
+<td>多执行模式</td>
+<td>同步、异步、后台化、Fork 四种模式满足不同场景</td>
+<td>E 节 5.5、F 节</td>
+</tr>
+<tr>
+<td>多层隔离保护</td>
+<td>工具过滤、权限模式、Worktree 隔离、MCP 依赖检查形成安全边界</td>
+<td>H 节、E 节阶段二</td>
+</tr>
+<tr>
+<td>极致的性能优化</td>
+<td>从 Prompt Cache 共享到上下文省略，每个细节都服务于降低 API 成本和延迟</td>
+<td>O 节</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">原文前后不一致的地方（汇总）</div><div class="am-callout-body am-md"><p>本页没有替原文统一，各处都照原文写，并在对应位置注明：</p>
+<ol>
+<li>3 章标题和 1 节的表叫“AGENTS.md”；3.3 节说的是 <code>.claude/agents/</code> 目录下的文件（C 节）。</li>
+<li>3.1 节的来源里有 <code>localSettings</code>；3.3、3.4 节的优先级里没有它（C 节）。</li>
+<li>4.3、15 节写“每次”节省 5-15 Gtok，又说覆盖 34M+ 次启动（D、O 节）。</li>
+<li>5.1 图说省略 subagent_type 就走 Fork；5.2 代码还要看 Fork 开关（E 节）。</li>
+<li>5.4 节说 Fork 消息含指令；6.2 节代码只返回两条消息（F 节）。</li>
+<li>7.2 节正文说子代理用 SendMessage 找主代理；代码注释和 5.5 节方向相反（G 节）。</li>
+<li>11.2 节“Worktree 清理超时”的内容是 MCP 清理（K 节）。</li>
+</ol>
+</div></div></div>
+</section>
+<section class="am-panel" id="panel-R">
+<header class="am-panel-head"><span class="am-panel-id">R</span><h2>附录：名词表（白话）</h2><span class="am-panel-meta">本页补充</span></header>
+<div class="am-panel-body"><div class="am-md"><p>开头“先看懂”讲过的词，这里不再收。</p>
+<h3>程序与设计</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>白话</th>
+<th>出现在</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>递归</td>
+<td>子代理还能再派子代理，一层套一层</td>
+<td>B 节</td>
+</tr>
+<tr>
+<td>联合类型</td>
+<td>“几种形状里的一种”，例如三种代理定义</td>
+<td>C 节</td>
+</tr>
+<tr>
+<td>Schema、Zod</td>
+<td>Schema 是参数格式的说明；Zod 是按 Schema 检查参数的库</td>
+<td>B、E 节</td>
+</tr>
+<tr>
+<td>路由</td>
+<td>按参数决定走哪条路径</td>
+<td>E 节</td>
+</tr>
+<tr>
+<td>Promise.race</td>
+<td>同时等几件事，谁先完成先处理谁</td>
+<td>E 节</td>
+</tr>
+<tr>
+<td>回调</td>
+<td>事先交给对方的函数，对方有进展时调用它</td>
+<td>G 节</td>
+</tr>
+<tr>
+<td>fire-and-forget</td>
+<td>启动后不等结果，让它自己跑完</td>
+<td>E 节</td>
+</tr>
+<tr>
+<td>死代码消除</td>
+<td>构建时去掉永远不会执行的代码</td>
+<td>O 节</td>
+</tr>
+<tr>
+<td>惰性 Schema</td>
+<td>用到时才创建 Schema，不提前准备</td>
+<td>O 节</td>
+</tr>
+</tbody></table></div>
+<h3>文件与运行环境</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>白话</th>
+<th>出现在</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>YAML</td>
+<td>一种用缩进表示层次的配置格式</td>
+<td>A、C 节</td>
+</tr>
+<tr>
+<td>Git worktree</td>
+<td>同一个仓库的另一份工作目录，改动互不影响</td>
+<td>H、N 节</td>
+</tr>
+<tr>
+<td>版本控制</td>
+<td>Git 这类记录文件历史的工具</td>
+<td>J 节</td>
+</tr>
+<tr>
+<td>终端界面（TUI）</td>
+<td>在命令行窗口里画出来的界面</td>
+<td>B、G 节</td>
+</tr>
+<tr>
+<td>commit hash</td>
+<td>Git 给每次提交的编号</td>
+<td>F 节</td>
+</tr>
+</tbody></table></div>
+<h3>Claude Code 自己的名词</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>白话</th>
+<th>出现在</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AgentTool</td>
+<td>生成子代理的那个工具，工具名是 Agent，别名 Task</td>
+<td>全篇</td>
+</tr>
+<tr>
+<td>general-purpose</td>
+<td>默认的通用子代理，有全部工具</td>
+<td>D、E 节</td>
+</tr>
+<tr>
+<td>Explore、Plan</td>
+<td>只读的内置子代理，用来搜代码和做规划</td>
+<td>D、O 节</td>
+</tr>
+<tr>
+<td>Verification</td>
+<td>内置的验证代理，任务是尝试破坏实现</td>
+<td>D 节</td>
+</tr>
+<tr>
+<td>Fork 子代理</td>
+<td>继承父代理全部上下文的子代理</td>
+<td>E、F 节</td>
+</tr>
+<tr>
+<td>FORK_AGENT</td>
+<td>Fork 路径选用的代理定义</td>
+<td>E、N 节</td>
+</tr>
+<tr>
+<td>Team 路径、spawnTeammate</td>
+<td>给了 team_name 和 name 时，在多代理团队里生成队友</td>
+<td>E 节</td>
+</tr>
+<tr>
+<td>agentId</td>
+<td>每个子代理的编号，异步时用它联系子代理</td>
+<td>E、G、N 节</td>
+</tr>
+<tr>
+<td>async_launched</td>
+<td>异步启动后立即返回的状态</td>
+<td>E 节</td>
+</tr>
+<tr>
+<td>BackgroundHint</td>
+<td>同步执行时，提示用户可以转后台的消息</td>
+<td>E 节</td>
+</tr>
+<tr>
+<td>querySource</td>
+<td>标记请求来源的值，例如 <code>agent:builtin:fork</code></td>
+<td>F 节</td>
+</tr>
+<tr>
+<td>自动压缩</td>
+<td>对话太长时，Claude Code 把早先的内容压成摘要</td>
+<td>F 节</td>
+</tr>
+<tr>
+<td>SendMessage</td>
+<td>给指定子代理发消息的工具</td>
+<td>G、O 节</td>
+</tr>
+<tr>
+<td>task-notification</td>
+<td>异步子代理完成后，触发主代理下一轮的通知</td>
+<td>G 节</td>
+</tr>
+<tr>
+<td>AppState</td>
+<td>Claude Code 的全局状态</td>
+<td>G 节</td>
+</tr>
+<tr>
+<td>权限模式</td>
+<td>决定工具调用要不要问用户，例如 <code>acceptEdits</code>、<code>bypassPermissions</code></td>
+<td>C、H 节</td>
+</tr>
+<tr>
+<td>Gtok</td>
+<td>十亿 token</td>
+<td>D、O 节</td>
+</tr>
+<tr>
+<td>Coordinator、Worker</td>
+<td>协调者负责分解、分配和整合任务；工作者负责执行</td>
+<td>P 节</td>
+</tr>
+<tr>
+<td>ant</td>
+<td>Anthropic 内部；“ant-only”指只给内部用</td>
+<td>E、O 节</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="图表查看" data-expand="展开查看图表">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="关闭" aria-label="关闭">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.4.14 · 2026-11-03 15:57</footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+title: AgentTool 深度解析：子代理系统架构（解读）
+subtitle: How Claude Code Works · 源码分析篇解读，按原文讲清逻辑，代码改用图和表讲，附白话讲解
+source: https://jwangkun.github.io/how-claude-code-works/source/agent-tool-deep
+---
+原文：[AgentTool 深度解析：子代理系统架构](https://jwangkun.github.io/how-claude-code-works/source/agent-tool-deep)
+
+一句话结论：原文认为，AgentTool 是一个设计精巧的子代理系统，核心理念是递归委派。它提供代理的定义、加载、执行和通信机制，让 Claude Code 能把复杂任务拆成子任务并行处理。
+
+- **做什么**：让主代理按需生成子代理。子代理有自己的系统提示词、工具和对话上下文，独立完成多步任务，再把结果交回。
+- **怎么做**：多来源的代理定义按优先级合并；一次调用经过解析、路由、依赖检查、隔离、提示词构建，再按同步或异步执行。工具过滤、权限模式和 worktree 圈定子代理能做的事。
+
+白话地说（本页归纳）：你让 Claude 做一件大事，它可以把其中一块交给“分身”去做。分身在自己的小房间里干活，不占主对话的篇幅，干完只交一份总结。
+
+正文按原文解读，没有核对源码，也不用官方文档核对原文。原文查阅日期为 2026-11-03，站点标注的最后更新日期为 2026-05-26。A 节的用户视角取自官方文档（code.claude.com/docs，2026-11-03 查阅），标“官方文档”。
+
+## A 先看懂：子代理在用户眼里是什么 {meta=&quot;本页补充：用户视角据官方文档；结构为本页归纳&quot;}
+
+这篇文章讲源码。读源码之前，先看子代理用起来是什么样子。
+
+### 用户能看到的子代理
+
+官方文档说，子代理在自己的上下文里干活，只把总结交回主对话。这样，搜索结果、日志这类用完就丢的内容，不会塞满主对话。下图是示意，据官方文档：
+
+```flow
+[你在主对话里提需求] -&gt; [主对话的 Claude]
+[主对话的 Claude] -&gt; [子代理 B（独立上下文）]: 也可以同时派几个
+[主对话的 Claude] -&gt; [子代理 A（独立上下文）]: 用 Agent 工具委派
+[子代理 A（独立上下文）] --&gt; [主对话的 Claude]: 只交回总结
+[子代理 B（独立上下文）] --&gt; [主对话的 Claude]: 只交回总结
+```
+
+| 你怎么做 | 效果（官方文档） | 原文对应的部分 |
+|---|---|---|
+| 不用操作 | Claude 读每个子代理的 `description`，自己决定要不要委派 | C、E 节 |
+| 在 `.claude/agents/`（本项目）或 `~/.claude/agents/`（你所有项目）放 Markdown 文件 | 定义自己的子代理。开头的 frontmatter 只有 `name` 和 `description` 必填 | C 节 |
+| 启动时用 `--agents` 传一段 JSON | 定义只在本次会话有效的子代理 | C 节 3.4 |
+| 同名的子代理在几处都有定义 | 按优先级取一个：组织管理设置 &gt; `--agents` &gt; 项目 &gt; 个人 &gt; 插件 | C 节 3.4 |
+| 输入 `@&quot;code-reviewer (agent)&quot;` 或 `@agent-&lt;名字&gt;` | 指定这次由哪个子代理来做 | E 节 |
+| 不用操作 | 有内置的 Explore、Plan、general-purpose 等。Explore 和 Plan 只读，启动时不加载 CLAUDE.md 和 git 状态快照 | D 节 |
+| 按 `Ctrl+B` | 把正在跑的命令和子代理转到后台 | E 节 5.5 |
+| 在 frontmatter 写 `tools`、`disallowedTools` | 限制子代理能用的工具。不写 `tools` 就继承全部可用工具 | H、L 节 |
+| 用 `claude --agent` 运行时，在 `tools` 里写 `Agent(worker, researcher)` | 只允许生成这两种子代理 | L 节 12.3 |
+| 写 `permissionMode` | 设子代理的权限模式。主对话处在 `bypassPermissions`、`acceptEdits` 或 auto 模式时，子代理跟主对话一样，忽略这个值 | H 节 8.2 |
+| 写 `isolation: worktree` | 子代理在临时的 git worktree 里工作，改动不碰你的工作目录 | H 节 8.3 |
+| 写 `memory: user`、`project` 或 `local` | 子代理有一个跨会话保留的记忆目录 | J 节 |
+| 让 Claude 继续之前的子代理 | Claude 用 `SendMessage` 按 ID 或名字恢复它。Explore 和 Plan 是一次性的，不能恢复 | G、N 节 |
+| 输入 `/subtask &lt;任务&gt;` | 开一个 fork：继承到目前为止的整段对话，在后台运行 | F 节 |
+
+```callout warn 自己动手时按文档：原文和文档写法不同的几处
+下面只把两种说法并列，不判断谁对。正文照原文写。
+
+- **配置文件**：原文叫“AGENTS.md”。文档写的是 `.claude/agents/` 和 `~/.claude/agents/` 目录下的 Markdown 文件，文件名不限。
+- **转到后台的按键**：原文说同步执行 2 秒后提示按 Ctrl+C 转后台。文档写的是按 `Ctrl+B`。
+- **默认前台还是后台**：原文说同步（前台）是默认。文档说什么都不配置时，主对话派出的子代理默认在后台运行。
+- **Fork 开关**：原文说 Fork 是实验特性，由 `FORK_SUBAGENT` 功能开关控制。文档说 fork 模式默认打开，设 `CLAUDE_CODE_FORK_SUBAGENT=0` 可以关掉。
+```
+
+### 原文的整体结构
+
+原文分十七章。下面的分组是本页归纳：
+
+```tree list
+原文的结构
+  它是什么 | 1 概述 · 2 体系架构图（B 节）
+  代理从哪来 | 3 代理定义与 AGENTS.md 配置 · 4 内置代理类型（C、D 节）
+  一次调用怎么走 | 5 代理生命周期（E 节）
+  特殊的派法 | 6 Fork 子代理机制（F 节）
+  主代理和子代理怎么说话 | 7 父代理与子代理通信（G 节）
+  能做什么、不能做什么 | 8 代理沙箱与权限（H 节）
+  附属功能 | 9 颜色管理 · 10 代理内存系统（I、J 节）
+  出错和超时 | 11 错误处理与超时（K 节）
+  和其他代码的衔接 | 12 与 tools.ts 的集成 · 13 子代理执行引擎 runAgent · 14 代理恢复机制（L、M、N 节）
+  优化和变体 | 15 性能优化策略 · 16 Coordinator 模式（O、P 节）
+  为什么这样设计 | 17 总结（Q 节）
+```
+
+想先看全局，读 B 节的架构图和 E 节的生命周期图。
+
+### 先认识几个词
+
+下面这些词全篇反复出现，先用白话说清。其他名词见文末“附录：名词表（白话）”。
+
+| 词 | 白话 |
+|---|---|
+| 代理（Agent） | 能自己调用工具、一步步完成任务的 AI。主代理是和你对话的 Claude；子代理是它派出去做子任务的另一个 Claude |
+| 工具（Tool） | 模型能调用的功能，例如读文件 Read、搜索 Grep、执行命令 Bash。AgentTool 本身也是一个工具，名叫 Agent |
+| 系统提示词（System Prompt） | 每次请求开头给模型的说明，规定它的角色和规则 |
+| 上下文 | 模型这一次能看到的全部内容：系统提示词、之前的对话、工具结果 |
+| frontmatter | Markdown 文件开头两行 `---` 之间的配置，用 YAML 格式写 |
+| 同步与异步 | 同步：主代理停下来等子代理做完。异步：子代理在后台跑，主代理接着做别的，做完再通知 |
+| MCP 服务器 | 给 Claude Code 接入外部工具的服务，例如 Slack |
+| 功能开关 | 代码里控制某个功能开不开的开关，例如 `tengu_amber_stoat`。GrowthBook 是管理这些开关的服务 |
+
+## B 概述与体系架构图 {meta=&quot;原文 1–2&quot;}
+
+&gt; **白话**：递归指子代理还能再派自己的子代理，一层套一层，形成一棵树。
+
+### AgentTool 是什么
+
+原文说，`AgentTool` 是 Claude Code 中最核心的工具之一。它让主代理能动态生成子代理。子代理是一个独立的 Claude Code 实例，有自己的系统提示词、工具集合和对话上下文。
+
+从架构上看，AgentTool 是递归式代理架构的核心支点。主代理通过它生成子代理，子代理还能生成自己的子代理，形成代理树。原文说，这种设计借鉴了人类协作中“分工-委派-汇总”的模式。
+
+原文列了 13 个子系统。下表的分组是本页归纳，条目照原文：
+
+| 分组 | 文件 | 职责 |
+|---|---|---|
+| 入口和执行 | `AgentTool.tsx` | 工具注册、Schema 定义、`call()` 执行入口 |
+| | `runAgent.ts` | 子代理的完整运行循环（query loop） |
+| | `resumeAgent.ts` | 恢复已暂停的异步子代理 |
+| | `forkSubagent.ts` | 实验性的 Fork 机制，子代理继承父代理上下文 |
+| 代理定义 | `loadAgentsDir.ts` | 从 AGENTS.md、JSON、插件加载代理定义 |
+| | `builtInAgents.ts` | 注册内置代理 |
+| 工具和提示 | `agentToolUtils.ts` | 工具过滤、结果最终化、Schema 校验等 |
+| | `prompt.ts` | AgentTool 的工具描述提示词 |
+| 显示 | `UI.tsx` | 代理执行过程的终端界面（TUI）渲染 |
+| | `agentColorManager.ts` | 用颜色区分不同代理类型 |
+| | `agentDisplay.ts` | 代理列表的显示格式 |
+| 记忆 | `agentMemory.ts` | 代理持久化记忆的目录管理 |
+| | `agentMemorySnapshot.ts` | 项目级代理记忆快照同步 |
+
+### 体系架构图
+
+下图据原文的 ASCII 图重画。原图的外框标题是“AgentTool 架构总览”，框里分左右两列，只有两根箭头。本页把左列画在上面，右列画在下面：
+
+```flow LR
+[buildTool() 注册为 Tool]
+[tools.ts 注册工具] -&gt; [AgentTool.tsx 共 1397 行]
+[AGENTS.md 配置文件] -&gt; [loadAgentsDir.ts 代理定义加载器]
+[call() 执行入口]
+[runAgent.ts]
+[forkSubagent.ts]
+group 原图左列: buildTool() 注册为 Tool, tools.ts 注册工具, AgentTool.tsx 共 1397 行, AGENTS.md 配置文件, loadAgentsDir.ts 代理定义加载器
+group 原图右列: call() 执行入口, runAgent.ts, forkSubagent.ts
+```
+
+原图在几个框里列了内容：
+
+| 框 | 原图列出的内容 |
+|---|---|
+| `buildTool()` | 注册为 Tool；`name: &quot;Agent&quot;`，`aliases: &quot;Task&quot;` |
+| `call()` 执行入口 | 解析输入（Schema）、路由代理类型、检查 MCP 依赖、处理隔离模式、异步或同步分支、注册/执行/返回 |
+| `runAgent.ts` | 构造系统提示词、组装工具池、创建子代理上下文、`query()` 循环、消息记录、清理和释放 |
+| `forkSubagent.ts` | Fork 特性门控、构建 Fork 消息、递归 Fork 保护、工作目录通知 |
+
+## C 代理定义与 AGENTS.md 配置 {meta=&quot;原文 3.1–3.4&quot;}
+
+&gt; **白话**：代理定义就是一个子代理的配置：叫什么、什么时候用、能用哪些工具、提示词是什么。联合类型指“几种形状里的一种”。
+
+### 三种代理定义
+
+所有代理定义都归一成 `AgentDefinition` 联合类型，有三种（原文 3.1）：
+
+```tree
+AgentDefinition
+  BuiltInAgentDefinition | 内置代理，source 为 built-in；用代码里的 getSystemPrompt 动态生成提示词
+  CustomAgentDefinition | 自定义代理，source 为 userSettings、projectSettings、localSettings、policySettings 或 flagSettings；从 AGENTS.md 或 JSON 加载
+  PluginAgentDefinition | 插件代理，source 为 plugin；由插件系统注册
+```
+
+### 共有的字段
+
+所有代理共享 `BaseAgentDefinition`，共 18 个字段（原文 3.2）。下表的分组是本页归纳，括号里是原文注释：
+
+| 用途 | 字段 |
+|---|---|
+| 身份和用途 | `agentType`（代理类型名，唯一标识）、`whenToUse`（使用场景描述） |
+| 工具 | `tools`（允许用哪些工具，`*` 表示全部）、`disallowedTools`（禁止用哪些工具）、`skills`（预加载 Skill）、`mcpServers`（专属 MCP 服务器）、`requiredMcpServers`（必需 MCP 服务器名模式） |
+| 模型 | `model`（模型别名 sonnet、opus、haiku、inherit）、`effort`（努力级别） |
+| 运行方式 | `permissionMode`（权限模式）、`maxTurns`（最大轮次）、`background`（是否强制后台运行）、`isolation`（隔离模式 worktree 或 remote） |
+| 上下文和提示 | `initialPrompt`（首次提示词前置内容）、`omitClaudeMd`（是否省略 CLAUDE.md）、`memory`（持久化记忆范围）、`hooks`（会话钩子） |
+| 显示 | `color`（显示颜色） |
+
+### 配置文件格式
+
+用户在 `.claude/agents/` 目录下放 Markdown 文件来定义自定义代理。每个文件是一个代理，用 YAML frontmatter 声明元数据（原文 3.3）。原文的示例定义了一个代码审查代理：
+
+| 字段 | 示例值 |
+|---|---|
+| `name`、`description` | `code-reviewer`；审查代码改动里的 bug、风格问题和安全隐患 |
+| `model` | `sonnet` |
+| `tools`、`disallowedTools` | 允许 Read、Glob、Grep、Bash；禁止 Write、Edit |
+| `color`、`maxTurns` | `purple`；30 |
+| `permissionMode`、`background` | `acceptEdits`；`false` |
+| `memory`、`skills` | `project`；`my-plugin:lint-check` |
+| `mcpServers` | 引用已有的 `slack`，再内联定义一个 `my-custom-server`（用 `npx` 启动） |
+| `hooks` | `SubagentStart` 时执行 `echo &quot;Agent started&quot;` |
+| `initialPrompt` | 先关注安全关键路径 |
+
+frontmatter 之后是正文，原文示例写的是“你是一位代码审查专家...”。
+
+关键约束：
+
+- `name` 和 `description` 必填。
+- 没写 `tools`，表示允许所有工具；`tools: []` 表示不允许任何工具。
+- 加载时按优先级覆盖，见下一小节。
+
+```callout info 原文的名字前后不一
+本章标题和 1 节的表都叫“AGENTS.md”。3.3 节正文说的是 `.claude/agents/` 目录下的 Markdown 文件，每个文件一个代理。
+```
+
+### 加载优先级
+
+`getActiveAgentsFromList()` 把多个来源的代理合并。排在后面的组，会覆盖前面组里的同名代理（原文 3.4）：
+
+| 顺序 | 组 | 来源 |
+|---|---|---|
+| 1（最低） | `builtInAgents` | 内置 |
+| 2 | `pluginAgents` | 插件注册 |
+| 3 | `userAgents` | 用户级设置 |
+| 4 | `projectAgents` | 项目级设置 |
+| 5 | `flagAgents` | CLI 参数 |
+| 6（最高） | `managedAgents` | 策略管理 |
+
+为什么这样排：原文说，这样组织策略能覆盖项目配置，项目配置能覆盖用户配置。
+
+3.1 节的来源里有 `localSettings`，3.3 和 3.4 节的优先级里没有提到它。
+
+## D 内置代理类型 {meta=&quot;原文 4.1–4.4&quot;}
+
+### 内置代理列表
+
+`builtInAgents.ts` 里的 `getBuiltInAgents()` 组装所有内置代理（原文 4.1）：
+
+| 代理类型 | 描述 | 工具 | 条件 |
+|---|---|---|---|
+| `general-purpose` | 通用代理，处理复杂多步任务 | 全部工具 | 始终存在 |
+| `explore` | 只读代码搜索，快速定位文件 | Read、Glob、Grep、Bash（只读） | 受 `tengu_amber_stoat` 功能开关控制 |
+| `plan` | 只读架构规划，设计方案 | Read、Glob、Grep、Bash（只读） | 受 `tengu_amber_stoat` 功能开关控制 |
+| `statusline-setup` | 状态栏设置向导 | 受限工具 | 始终存在 |
+| `claude-code-guide` | Claude Code 使用指南 | 搜索和 Web 工具 | 非 SDK 入口时 |
+| `verification` | 验证代理，尝试破坏性测试 | 全部工具 | 受 `tengu_hive_evidence` 功能开关控制 |
+
+### General-purpose 代理
+
+它是默认的子代理类型，有全部工具权限（`tools: [&#39;*&#39;]`），适合大多数子任务（原文 4.2）。它的系统提示词很短，要点是：完成任务后，给一份简洁的报告，写做了什么和关键发现；调用方会转告用户，所以只要要点。
+
+### Explore 和 Plan 代理
+
+这两个代理只读（原文 4.3）：
+
+- **提示词**：开头写明 `READ-ONLY MODE`，严禁新建、修改、删除文件。
+- **工具**：没有 Write、Edit 等写工具，从根本上杜绝改文件。
+- **为什么**：原文说，这样主代理可以放心把探索性任务交给它们。
+- **优化**：上下文省略 CLAUDE.md 里的提交、PR、Lint 规则（`omitClaudeMd: true`），也省略 Git 状态信息。原文说每次启动节省约 5-15 Gtok，依据是官方注释，覆盖 34M+ 次 Explore 启动。
+
+```callout info 原文的数字写法
+Gtok 指十亿 token。原文写“每次启动”节省 5-15 Gtok，同一句又说覆盖 34M+ 次启动；15 节也写“每次节省 5-15 Gtok”。原文没有说明这个数是每次的还是合计的。
+```
+
+### Verification 代理
+
+验证代理的角色是“尝试破坏实现”，而不是确认工作正常（原文 4.4）。它的系统提示词强调四点：
+
+- 识别回避验证的做法，例如只读代码、不跑测试。
+- 不被“前 80% 的完成度”迷惑。
+- 按变更类型（前端、后端、CLI、配置等）用不同的验证策略。
+- 识别并克服自己替结果找理由的倾向。
+
+## E 代理生命周期深度分析 {meta=&quot;原文 5.1–5.5&quot;}
+
+&gt; **白话**：
+&gt; - **Schema**：参数格式的说明。**Zod** 是按 Schema 检查参数的库。
+&gt; - **路由**：按参数决定走哪条路径。
+&gt; - **Promise.race**：同时等几件事，谁先完成先处理谁。
+
+### 完整生命周期
+
+下图据原文 5.1 的 ASCII 图重画：
+
+```flow
+(用户或主代理) -&gt; [① Schema 解析与参数校验]: Agent({ description, prompt, subagent_type, ... })
+[① Schema 解析与参数校验] -&gt; [② 代理类型路由]
+[② 代理类型路由] -&gt; [③ MCP 依赖检查]
+[③ MCP 依赖检查] -&gt; [④ 隔离处理]
+[④ 隔离处理] -&gt; [⑤ 系统提示词与消息构建]
+[⑤ 系统提示词与消息构建] -&gt; {⑥ 执行模式分支}
+{⑥ 执行模式分支} -&gt; [异步执行（后台通知）]
+{⑥ 执行模式分支} -&gt; [同步执行（前台阻塞）]
+[同步执行（前台阻塞）] -&gt; [runAgent() 的 query 循环]
+[runAgent() 的 query 循环] -&gt; [返回结果]
+[异步执行（后台通知）] -&gt; [注册异步任务]
+[注册异步任务] -&gt; [后台运行 runAgent()]
+[注册异步任务] -&gt; [返回 agentId]
+[后台运行 runAgent()] -&gt; [完成时通知]
+group AgentTool.call(): ① Schema 解析与参数校验, ② 代理类型路由, ③ MCP 依赖检查, ④ 隔离处理, ⑤ 系统提示词与消息构建, ⑥ 执行模式分支, 同步执行（前台阻塞）, 异步执行（后台通知）, runAgent() 的 query 循环, 返回结果, 注册异步任务, 后台运行 runAgent(), 返回 agentId, 完成时通知
+```
+
+异步分支里，原图把四项竖着列出。本页按 5.5 节的说法画：注册后立即返回 agentId，子代理在后台继续跑。
+
+| 步骤 | 原图写的内容 | 详见 |
+|---|---|---|
+| ① | 解析 description、prompt 等；校验 subagent_type 是否存在 | 5.2 |
+| ② | Fork 路径（省略 subagent_type）、常规路径（指定 subagent_type）、Team 路径（team_name + name） | 5.2 |
+| ③ | 检查 requiredMcpServers 是否存在；等待 Pending 中的服务器 | 5.3 |
+| ④ | 创建 worktree；remote 部署（仅 ant 内部） | H 节 8.3 |
+| ⑤ | Fork 继承父代理；常规路径构建代理专有提示词 | 5.4 |
+| ⑥ | 同步：query 循环，返回结果。异步：注册任务，返回 agentId，完成时通知 | 5.5 |
+
+原图分六步，原文 5.2 到 5.5 节分成四个阶段讲，第 ④ 步在 8.3 节讲。
+
+### 阶段一：Schema 解析与路由
+
+`AgentTool.call()` 先用 Zod Schema 解析输入（原文 5.2）：
+
+| 参数 | 说明 |
+|---|---|
+| `description` | 3-5 个词的任务简述 |
+| `prompt` | 交给代理的任务 |
+| `subagent_type` | 可选，要用的代理类型 |
+| `model` | 可选，sonnet、opus 或 haiku |
+| `run_in_background` | 可选，是否后台运行 |
+
+然后按参数分到三条路径。下图据原文代码绘制：
+
+```flow
+{同时给了 team_name 和 name？} -&gt; [确定代理类型]: 否
+{同时给了 team_name 和 name？} -&gt; [路径 A 多代理团队（spawnTeammate 生成队友，返回 teammate_spawned）]: 是
+[确定代理类型] -&gt; {走 Fork 路径？}
+{走 Fork 路径？} -&gt; [路径 C 常规子代理（从 activeAgents 查类型，做权限检查）]: 否
+{走 Fork 路径？} -&gt; [路径 B Fork 子代理（递归 Fork 保护，构建 Fork 消息，选 FORK_AGENT）]: 是
+```
+
+确定代理类型的规则：给了 `subagent_type` 就用它；没给时，Fork 开关打开则留空，否则用 general-purpose。
+
+```callout info 原图和代码写法不同
+5.1 的图写“省略 subagent_type 就走 Fork 路径”。5.2 的代码还要看 Fork 开关：开关没开时，省略 subagent_type 会用 general-purpose。
+```
+
+### 阶段二：MCP 依赖检查
+
+代理定义了 `requiredMcpServers` 时，启动前先检查依赖（原文 5.3）。下图据原文代码绘制：
+
+```flow
+{定义了 requiredMcpServers？} -&gt; [等 500ms 后读取最新状态]: 是
+[等 500ms 后读取最新状态] -&gt; {还有必需的服务器在 Pending，且没到 30 秒？}
+{还有必需的服务器在 Pending，且没到 30 秒？} -&gt; [等 500ms 后读取最新状态]: 是
+{还有必需的服务器在 Pending，且没到 30 秒？} -&gt; {必需的服务器实际提供了工具？}: 否
+{必需的服务器实际提供了工具？} -&gt; [抛错 requires MCP servers matching]: 否
+{必需的服务器实际提供了工具？} -&gt; [继续启动]: 是
+```
+
+为什么：原文说，这确保代理启动时，它需要的外部服务已经就绪。
+
+### 阶段三：系统提示词构建
+
+Fork 路径和常规路径用不同的方式构建提示词（原文 5.4）。下图据原文代码绘制：
+
+```flow
+{Fork 路径？} -&gt; [调用代理自己的 getSystemPrompt]: 否
+{Fork 路径？} -&gt; {有父代理已渲染的系统提示词？}: 是
+{有父代理已渲染的系统提示词？} -&gt; [直接用它（字节精确，缓存一致）]: 是
+{有父代理已渲染的系统提示词？} -&gt; [用 buildEffectiveSystemPrompt 重新计算（可能有微小差异）]: 否
+[直接用它（字节精确，缓存一致）] -&gt; [消息为父代理完整的 assistant 消息加指令]
+[用 buildEffectiveSystemPrompt 重新计算（可能有微小差异）] -&gt; [消息为父代理完整的 assistant 消息加指令]
+[调用代理自己的 getSystemPrompt] -&gt; [enhanceSystemPromptWithEnvDetails 加上环境细节]
+[enhanceSystemPromptWithEnvDetails 加上环境细节] -&gt; [消息为一条普通用户消息，内容是 prompt]
+```
+
+Fork 路径优先用父代理已渲染的提示词，原文注释给的理由是“字节精确，缓存一致”。
+
+### 阶段四：同步和异步执行
+
+AgentTool 有两种执行模式（原文 5.5）：
+
+| | 同步模式（默认） | 异步模式 |
+|---|---|---|
+| 什么时候用 | 默认 | `run_in_background: true`，或代理定义里 `background: true` |
+| 主代理 | 这一轮保持打开，等子代理 | 立即拿到 `async_launched` 状态和 `agentId` |
+| 结果怎么回来 | 子代理的结果直接作为返回值 | 完成时，`enqueueAgentNotification` 通知主代理 |
+| 之后怎么联系 | — | 主代理用 `SendMessage({to: agentId})` 和子代理通信 |
+| 其他 | 2 秒后显示 BackgroundHint，提示可按 Ctrl+C 转后台；`getAutoBackgroundMs()` 返回 120000ms 时自动转后台 | `registerAsyncAgent` 注册任务；`runAsyncAgentLifecycle` 在后台运行 `runAgent`，不等它结束（原文注释写作 fire-and-forget） |
+
+同步模式的核心是一个循环。下图据原文代码绘制：
+
+```flow
+[同时等两件事（子代理的下一条消息、用户触发后台化）] -&gt; {先到的是后台化？}
+{先到的是后台化？} -&gt; [记录消息，更新进度，转发 bash_progress 等事件]: 否
+{先到的是后台化？} -&gt; [转到后台继续执行，返回 async_launched]: 是
+[记录消息，更新进度，转发 bash_progress 等事件] --&gt; [同时等两件事（子代理的下一条消息、用户触发后台化）]: 下一轮
+```
+
+## F Fork 子代理机制 {meta=&quot;原文 6.1–6.4&quot;}
+
+&gt; **白话**：
+&gt; - **Fork**：复制当前对话，派出一个“分身”接着做子任务。
+&gt; - **Prompt Cache**：请求开头和之前的请求完全相同时，服务端复用已处理过的部分，更快也更省。
+&gt; - **字节一致**：逐个字节都相同。差一个字，缓存就用不上。
+
+### 设计目标
+
+Fork 子代理是 AgentTool 的一个实验特性，由 `FORK_SUBAGENT` 功能开关控制（原文 6.1）。原文给了三个设计目标：
+
+- **上下文继承**：子代理继承父代理的全部对话上下文和系统提示词，不用重新交代背景。
+- **缓存共享**：所有 Fork 子代理的 API 请求前缀字节一致，让 Prompt Cache 命中率最大。
+- **统一交互模型**：所有代理都通过“异步后台 + 通知”执行。
+
+### Fork 消息怎样构建
+
+`forkSubagent.ts` 中的 `buildForkedMessages()` 构建 Fork 消息（原文 6.2）。下图据原文代码绘制：
+
+```flow
+[克隆父代理的 assistant 消息（保留所有 tool_use 块，换新 UUID）] -&gt; [为每个 tool_use 造一个占位 tool_result]
+[为每个 tool_use 造一个占位 tool_result] -&gt; [返回两条消息（克隆的 assistant 消息、装着占位结果的消息）]
+```
+
+- **占位内容**：所有 Fork 子代理的占位文本完全相同，都是 `Fork started — processing in background`。
+- **为什么**：这样 API 请求前缀字节一致，Prompt Cache 命中率最大。
+- **指令放在哪**：5.4 节说 Fork 消息是“父代理的完整 assistant 消息 + 指令”。6.2 节的代码片段只返回上面两条消息，原文没有说明指令放在哪。
+
+### Fork 指令的格式
+
+Fork 指令包在 `&lt;fork&gt;` 标签里，开头是 `STOP. READ THIS FIRST.`，说明“你是一个 fork 出来的工作进程”（原文 6.3）。规则有三条写明，其余原文省略：
+
+1. 不要再生成子代理，直接执行。
+2. 不要对话，不要提问。
+3. 直接用工具：Bash、Read、Write 等。
+
+输出格式规定了五项：
+
+| 项 | 内容 |
+|---|---|
+| `Scope` | 复述分配给自己的范围 |
+| `Result` | 答案或关键发现 |
+| `Key files` | 相关的文件路径 |
+| `Files changed` | 改过的文件，带 commit hash |
+| `Issues` | 问题列表 |
+
+### 递归 Fork 保护
+
+用两重检查，防止 Fork 出来的子代理再 Fork（原文 6.4）。任一检查命中，就抛错 `Fork is not available inside a forked worker`：
+
+| 检查 | 看什么 | 原文的说明 |
+|---|---|---|
+| 主要检查 | `querySource` 是否为 `agent:builtin:fork` | 不受自动压缩影响 |
+| 后备检查 | `isInForkChild()` 在对话历史里找 Fork 标记 | — |
+
+## G 父代理与子代理通信 {meta=&quot;原文 7.1–7.4&quot;}
+
+&gt; **白话**：
+&gt; - **旁链对话记录（sidechain transcript）**：子代理的对话单独记一份，不混进主对话。
+&gt; - **回调**：事先交给对方的函数。对方有进展时调用它，把消息带回来。
+
+### 通信架构
+
+下图据原文 7.1 的 ASCII 图重画：
+
+```flow
+[主代理（Parent）] -&gt; [子代理（Sub-agent）]: 同步或异步消息流
+[子代理（Sub-agent）] -&gt; [主代理（Parent）]
+[主代理（Parent）] -&gt; [共享数据平面]: AgentTool.call() 返回 agentId
+[子代理（Sub-agent）] -&gt; [共享数据平面]: runAgent() 的 query() 循环
+```
+
+原图在共享数据平面里列了四项：
+
+| 数据 | 作用 |
+|---|---|
+| `agentNameRegistry` | 名称到 ID 的映射 |
+| `LocalAgentTask` | 任务注册、进度、通知 |
+| `sidechainTranscript` | 旁链对话记录 |
+| `AppState.todos` | 共享的待办事项 |
+
+### SendMessage 通信
+
+原文 7.2 说，异步子代理可以用 `SendMessage` 工具和主代理继续对话。代码做了两件事：
+
+- 在工具列表里找到 `SendMessage` 工具。注释说，主代理可以按 agentId 或名称发消息。
+- 把“名称 → ID”写进 `agentNameRegistry`，这样用名称也能找到子代理。
+
+```callout info 原文前后写法不同
+7.2 节正文说“异步子代理用 SendMessage 与主代理对话”。同节代码注释和 5.5 节都说，是主代理用 SendMessage 发消息给子代理。
+```
+
+### 异步完成的通知
+
+异步子代理完成后，按下面的链路通知主代理（原文 7.3）。下图据原文绘制：
+
+```flow
+[runAgent 消息流] -&gt; [finalizeAgentTool()]
+[finalizeAgentTool()] -&gt; [completeAgentTask()]
+[completeAgentTask()] -&gt; [enqueueAgentNotification（任务 ID、completed 状态、最终消息、用量）]
+[enqueueAgentNotification（任务 ID、completed 状态、最终消息、用量）] -&gt; [AppState 更新]
+[AppState 更新] -&gt; [task-notification 触发主代理的下一轮]
+```
+
+用量包括总 token 数、工具调用次数和耗时。
+
+### 同步代理的实时进度
+
+同步执行时，子代理的每条消息都经 `onProgress` 回调转给主代理的终端界面（原文 7.4）。进度的类型是 `agent_progress`，带上子代理的 agentId。`UI.tsx` 把这些进度渲染成可折叠的消息组，最多显示 3 条。
+
+## H 代理沙箱与权限 {meta=&quot;原文 8.1–8.3&quot;}
+
+&gt; **白话**：
+&gt; - **沙箱**：把子代理能做的事圈在一个范围里。
+&gt; - **Git worktree**：同一个仓库的另一份工作目录。在里面改文件，不影响你正在用的那份。
+
+### 工具隔离
+
+`agentToolUtils.ts` 中的 `filterToolsForAgent()` 逐个检查工具，按顺序判断，命中一条就定结果（原文 8.1）：
+
+| 顺序 | 条件 | 结果 |
+|---|---|---|
+| 1 | MCP 工具（名字以 `mcp__` 开头） | ok 允许 |
+| 2 | 在 `ALL_AGENT_DISALLOWED_TOOLS` 里 | no 禁止，所有代理都不能用 |
+| 3 | 自定义代理，且在 `CUSTOM_AGENT_DISALLOWED_TOOLS` 里 | no 禁止 |
+| 4 | 异步代理，且不在 `ASYNC_AGENT_ALLOWED_TOOLS` 里 | no 禁止 |
+| 5 | 前面都不满足 | ok 允许 |
+
+### 权限模式
+
+`runAgent.ts` 按下面的规则决定子代理的权限（原文 8.2）：
+
+| 情况 | 子代理的权限 |
+|---|---|
+| 代理定义了 `permissionMode`，且父代理不是 `bypassPermissions` 或 `acceptEdits` | 用代理自己的权限模式 |
+| 父代理是 `bypassPermissions` 或 `acceptEdits` | 代码不改动，保持原来的权限设置 |
+| 异步代理 | 设 `shouldAvoidPermissionPrompts: true`，自动避免权限提示 |
+
+### Git Worktree 隔离
+
+设了 `isolation: &quot;worktree&quot;` 时，子代理在一个临时的 Git 工作目录里运行（原文 8.3）。目录名是 `agent-` 加 agentId 的前 8 位，由 `createAgentWorktree` 创建。它的生命周期：
+
+- 代理完成后，没有改动就自动清理。
+- 有改动就保留，并返回目录路径。
+- 自动恢复时，重新检查这个目录还在不在。
+
+## I Agent 颜色管理 {meta=&quot;原文 9&quot;}
+
+`agentColorManager.ts` 给每种代理类型分配一种颜色，用来在界面上区分它们：
+
+- **可选颜色**：red、blue、green、yellow、purple、orange、pink、cyan，共 8 种。每种映射到一个只给子代理用的主题色，例如 `red_FOR_SUBAGENTS_ONLY`。
+- **何时分配**：`loadAgentsDir.ts` 加载完代理定义后，给定义了 `color` 的代理逐个调用 `setAgentColor`。
+- **General-purpose 没有颜色**：返回 `undefined`。原文给的理由是，它实际上是主代理自身的延续。
+
+## J 代理内存系统 {meta=&quot;原文 10.1–10.2&quot;}
+
+&gt; **白话**：持久化记忆是跨会话保存下来的笔记目录。版本控制指 Git 这类记录文件历史的工具。
+
+AgentMemory 支持三种范围（原文 10.1）：
+
+| 范围 | 存储路径 | 特点 |
+|---|---|---|
+| `user` | `~/.claude/agent-memory/&lt;agentType&gt;/` | 跨项目共享，用户级记忆 |
+| `project` | `.claude/agent-memory/&lt;agentType&gt;/` | 项目专属，可以进版本控制 |
+| `local` | `.claude/agent-memory-local/&lt;agentType&gt;/` | 本地专属，不进版本控制 |
+
+`agentMemorySnapshot.ts` 把项目快照同步到本地记忆，用于团队协作（原文 10.2）。项目快照比本地已同步的版本新时，自动同步，或把更新标记为待处理。
+
+## K 错误处理与超时 {meta=&quot;原文 11.1–11.2&quot;}
+
+### 多层级错误处理
+
+下图据原文 11.1 的 ASCII 树重画：
+
+```tree
+AgentTool 的错误处理
+  call() 层
+    Schema 校验失败 | 抛出 Zod 错误
+    代理类型未找到 | 明确的错误消息，附可用代理列表
+    MCP 依赖不满足 | 提示用户配置 MCP
+    权限拒绝 | denyRule 错误消息
+    Fork 递归 | 明确的禁止消息
+  runAgent() 层
+    AbortError | 用户取消，记录终止事件
+    同步错误，但已收集到消息 | 返回部分结果
+    同步错误，没有消息 | 重新抛出错误
+```
+
+### 超时保护
+
+| 超时 | 时长 | 说明 |
+|---|---|---|
+| MCP 等待超时 | 30 秒 | 等必需的 MCP 服务器连接，见 E 节阶段二 |
+| Worktree 清理超时 | 1 秒 | 转后台时，最多等 1 秒做 MCP 清理 |
+| 自动后台化 | 120 秒 | 120 秒后自动转入后台，由环境变量或 GrowthBook 控制 |
+
+```callout info 原文写法不一
+11.2 节这一条的名字是“Worktree 清理超时”，内容写的却是“等待 MCP 清理”。
+```
+
+## L 与 tools.ts 的集成 {meta=&quot;原文 12.1–12.3&quot;}
+
+### 注册机制
+
+AgentTool 用 `buildTool()` 注册成 Claude Code 的标准工具（原文 12.1）。`tools.ts` 的 `getAllBaseTools()` 返回全部基础工具，AgentTool 排在第一个，后面是 TaskOutputTool、BashTool 等。
+
+### 工具过滤
+
+`resolveAgentTools()` 决定一个代理最终能用哪些工具（原文 12.2）。下图据原文代码绘制：
+
+```flow
+[filterToolsForAgent 做基础过滤（见 H 节）] -&gt; {工具列表是通配符 *？}
+{工具列表是通配符 *？} -&gt; [白名单和黑名单组合过滤]: 否
+{工具列表是通配符 *？} -&gt; [返回过滤后的全部工具]: 是
+```
+
+组合过滤分两种情况：
+
+| 情况 | 做法 |
+|---|---|
+| 白名单和黑名单都有 | 先用黑名单过滤白名单 |
+| 只有黑名单（原文注释写作“白名单仅黑名单”） | 从全部工具里去掉黑名单中的工具 |
+
+### Agent(x,y) 语法
+
+工具规范可以写成 `Agent(worker, researcher)`，限制能生成的代理类型（原文 12.3）。括号里的内容按逗号切开、去掉空格，得到允许的类型列表 `[&quot;worker&quot;, &quot;researcher&quot;]`。
+
+## M 子代理执行引擎 runAgent {meta=&quot;原文 13.1–13.2&quot;}
+
+&gt; **白话**：钩子（Hooks）是在特定时刻自动执行的命令，例如子代理启动时。
+
+### 核心流程
+
+`runAgent.ts` 是子代理的执行引擎（原文 13.1）。原文列了七项职责，下面按准备、运行、收尾分组（本页归纳）：
+
+```tree
+runAgent 的职责
+  准备
+    初始化 MCP 服务器 | 连接代理专属的 MCP 服务器
+    构建系统提示词 | 结合代理定义、用户上下文和系统上下文
+    注册 Frontmatter Hooks | 在代理生命周期内生效
+    预加载 Skills | 按代理定义加载指定的技能
+  运行
+    执行 query 循环 | 运行完整的 LLM 查询循环
+    记录旁链对话 | 记下子代理的完整对话轨迹
+  收尾
+    清理释放 | 释放 MCP 连接、钩子、文件状态缓存等
+```
+
+### Agent 专有的 MCP 服务器
+
+代理可以在 frontmatter 里定义自己的 MCP 服务器，由 `initializeAgentMcpServers` 处理（原文 13.2）。下图据原文代码绘制：
+
+```flow
+[逐个处理 mcpServers 里的项] -&gt; {这一项是字符串（服务器名）？}
+{这一项是字符串（服务器名）？} -&gt; [内联定义：代理私有，scope 设为 dynamic，记为新建]: 否
+{这一项是字符串（服务器名）？} -&gt; [引用已有服务器：共享连接]: 是
+[引用已有服务器：共享连接] -&gt; [返回客户端、工具和 cleanup 函数]
+[内联定义：代理私有，scope 设为 dynamic，记为新建] -&gt; [返回客户端、工具和 cleanup 函数]
+```
+
+- 返回结果里，客户端列表包括两部分：父代理已有客户端，以及代理新建客户端。
+- `cleanup` 只清理新建的服务器连接。原文注释说，引用的服务器是共享连接，内联定义的是代理私有、需要清理。
+
+## N 代理恢复机制 {meta=&quot;原文 14.1&quot;}
+
+`resumeAgent.ts` 中的 `resumeAgentBackground()` 恢复异步代理。代码按六步走，下图据原文代码绘制：
+
+```flow
+[1 同时读取之前的对话记录和元数据] -&gt; [2 还原工作目录路径]
+[2 还原工作目录路径] -&gt; [3 还原工具结果替换状态]
+[3 还原工具结果替换状态] -&gt; {4 是 Fork 代理？}
+{4 是 Fork 代理？} -&gt; [5 重新注册异步任务]: 否
+{4 是 Fork 代理？} -&gt; [还原父代理的系统提示词]: 是
+[还原父代理的系统提示词] -&gt; [5 重新注册异步任务]
+[5 重新注册异步任务] -&gt; [6 在新的上下文里后台运行 runAgent]
+```
+
+工作目录路径来自元数据里的 `worktreePath`。
+
+## O 性能优化策略 {meta=&quot;原文 15&quot;}
+
+原文汇总了六处性能优化：
+
+| 优化 | 做法 | 原文说的效果 |
+|---|---|---|
+| Prompt Cache 共享 | Fork 子代理用字节一致的占位文本（F 节） | 缓存命中最大化 |
+| 一次性内置代理省略尾部 | `ONE_SHOT_BUILTIN_AGENT_TYPES`（Explore、Plan）不带 agentId、SendMessage、usage 尾部 | 每次约省 135 字符 |
+| 省略 CLAUDE.md | Explore 和 Plan 不带 CLAUDE.md 上下文（D 节） | 每次省 5-15 Gtok |
+| 代理列表放进附件消息 | `shouldInjectAgentListInMessages()` 把代理列表从工具描述里移到附件消息 | 避免工具 Schema 一变就让缓存失效 |
+| 惰性 Schema | `lazySchema()` 推迟 Zod Schema 的初始化 | — |
+| 死代码消除 | 用 `&quot;external&quot; === &#39;ant&#39;` 守卫，去掉只给内部用的代码 | — |
+
+## P Coordinator 模式 {meta=&quot;原文 16&quot;}
+
+设了 `CLAUDE_CODE_COORDINATOR_MODE=true`，并且 `COORDINATOR_MODE` 功能开关打开时，所有内置代理被换成 Coordinator 架构的代理，由 `getCoordinatorAgents()` 提供。
+
+在这个模式下，主代理是协调者（Coordinator），子代理是工作者（Worker）。下图是示意，据原文 16 节：
+
+```flow
+[主代理（协调者）] -&gt; [子代理（工作者）]: 分解任务，分配
+[子代理（工作者）] --&gt; [主代理（协调者）]: 执行结果，由协调者整合
+```
+
+原文说，AgentTool 在这个模式下承担更复杂的团队协作角色。
+
+## Q 总结 {meta=&quot;原文 17&quot;}
+
+&gt; AgentTool 是 Claude Code 中一个设计精巧的子代理系统，其核心设计理念是递归委派。
+
+原文的结论：它提供一套完整的代理定义、加载、执行和通信机制。Claude Code 由此能把复杂任务分解成子任务并行处理，大幅提升处理能力和扩展性。
+
+原文列了五条关键设计决策。最后一列是本页加的对照：
+
+| 设计决策 | 原文的说法 | 正文依据（本页加） |
+|---|---|---|
+| 统一的 AgentDefinition 联合类型 | 内置、自定义、插件代理能无缝共存和叠加 | C 节 3.1 |
+| 灵活的加载优先级 | 从用户、项目、策略、内置等多个来源加载，按优先级覆盖 | C 节 3.4 |
+| 多执行模式 | 同步、异步、后台化、Fork 四种模式满足不同场景 | E 节 5.5、F 节 |
+| 多层隔离保护 | 工具过滤、权限模式、Worktree 隔离、MCP 依赖检查形成安全边界 | H 节、E 节阶段二 |
+| 极致的性能优化 | 从 Prompt Cache 共享到上下文省略，每个细节都服务于降低 API 成本和延迟 | O 节 |
+
+```callout warn 原文前后不一致的地方（汇总）
+本页没有替原文统一，各处都照原文写，并在对应位置注明：
+
+1. 3 章标题和 1 节的表叫“AGENTS.md”；3.3 节说的是 `.claude/agents/` 目录下的文件（C 节）。
+2. 3.1 节的来源里有 `localSettings`；3.3、3.4 节的优先级里没有它（C 节）。
+3. 4.3、15 节写“每次”节省 5-15 Gtok，又说覆盖 34M+ 次启动（D、O 节）。
+4. 5.1 图说省略 subagent_type 就走 Fork；5.2 代码还要看 Fork 开关（E 节）。
+5. 5.4 节说 Fork 消息含指令；6.2 节代码只返回两条消息（F 节）。
+6. 7.2 节正文说子代理用 SendMessage 找主代理；代码注释和 5.5 节方向相反（G 节）。
+7. 11.2 节“Worktree 清理超时”的内容是 MCP 清理（K 节）。
+```
+
+## R 附录：名词表（白话） {meta=&quot;本页补充&quot;}
+
+开头“先看懂”讲过的词，这里不再收。
+
+### 程序与设计
+
+| 名词 | 白话 | 出现在 |
+|---|---|---|
+| 递归 | 子代理还能再派子代理，一层套一层 | B 节 |
+| 联合类型 | “几种形状里的一种”，例如三种代理定义 | C 节 |
+| Schema、Zod | Schema 是参数格式的说明；Zod 是按 Schema 检查参数的库 | B、E 节 |
+| 路由 | 按参数决定走哪条路径 | E 节 |
+| Promise.race | 同时等几件事，谁先完成先处理谁 | E 节 |
+| 回调 | 事先交给对方的函数，对方有进展时调用它 | G 节 |
+| fire-and-forget | 启动后不等结果，让它自己跑完 | E 节 |
+| 死代码消除 | 构建时去掉永远不会执行的代码 | O 节 |
+| 惰性 Schema | 用到时才创建 Schema，不提前准备 | O 节 |
+
+### 文件与运行环境
+
+| 名词 | 白话 | 出现在 |
+|---|---|---|
+| YAML | 一种用缩进表示层次的配置格式 | A、C 节 |
+| Git worktree | 同一个仓库的另一份工作目录，改动互不影响 | H、N 节 |
+| 版本控制 | Git 这类记录文件历史的工具 | J 节 |
+| 终端界面（TUI） | 在命令行窗口里画出来的界面 | B、G 节 |
+| commit hash | Git 给每次提交的编号 | F 节 |
+
+### Claude Code 自己的名词
+
+| 名词 | 白话 | 出现在 |
+|---|---|---|
+| AgentTool | 生成子代理的那个工具，工具名是 Agent，别名 Task | 全篇 |
+| general-purpose | 默认的通用子代理，有全部工具 | D、E 节 |
+| Explore、Plan | 只读的内置子代理，用来搜代码和做规划 | D、O 节 |
+| Verification | 内置的验证代理，任务是尝试破坏实现 | D 节 |
+| Fork 子代理 | 继承父代理全部上下文的子代理 | E、F 节 |
+| FORK_AGENT | Fork 路径选用的代理定义 | E、N 节 |
+| Team 路径、spawnTeammate | 给了 team_name 和 name 时，在多代理团队里生成队友 | E 节 |
+| agentId | 每个子代理的编号，异步时用它联系子代理 | E、G、N 节 |
+| async_launched | 异步启动后立即返回的状态 | E 节 |
+| BackgroundHint | 同步执行时，提示用户可以转后台的消息 | E 节 |
+| querySource | 标记请求来源的值，例如 `agent:builtin:fork` | F 节 |
+| 自动压缩 | 对话太长时，Claude Code 把早先的内容压成摘要 | F 节 |
+| SendMessage | 给指定子代理发消息的工具 | G、O 节 |
+| task-notification | 异步子代理完成后，触发主代理下一轮的通知 | G 节 |
+| AppState | Claude Code 的全局状态 | G 节 |
+| 权限模式 | 决定工具调用要不要问用户，例如 `acceptEdits`、`bypassPermissions` | C、H 节 |
+| Gtok | 十亿 token | D、O 节 |
+| Coordinator、Worker | 协调者负责分解、分配和整合任务；工作者负责执行 | P 节 |
+| ant | Anthropic 内部；“ant-only”指只给内部用 | E、O 节 |
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions and the panel comments.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }].
+// Comment text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+function replyText({ title, decisions, comments, ui }) {
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   → ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) {
+      out.push(`- **${c.panel} · ${c.title}**`, ...c.text.trim().split('\n').map((l) => `  > ${l}`));
+    }
+    out.push('', `_${ui.typed}_`);
+  }
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers and the comments
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  const keyOf = (ask) => ask.querySelector('legend')?.textContent.trim() ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: panel?.querySelector('.am-panel-head h2')?.textContent.trim() ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: ask.querySelector('legend')?.textContent.trim() ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const empty = !decisions.length && !comments.some((c) => c.text.trim());
+    const title = document.querySelector('.am-head h1')?.textContent.trim() ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, ui });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg')].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,3342 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="paper" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.4.14">
+<title>Plugins System Deep Dive：插件系统深度剖析（解读）</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-right: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin: 0 6px 0 auto; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-left: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; right: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { left: 50%; }
+.am-timeline--h li:last-child::before { right: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { left: 50%; }
+.am-tree-col:last-child::before { right: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }
+.am-tree-list ul { margin-left: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }
+.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 8px 4px auto;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-right: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */
+  .am-md th, .am-md td { min-width: 6em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="zh-CN" data-am-root-theme="paper" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">主题<select data-am="theme"><option value="blueprint">图纸</option><option value="shadcn">卡片</option><option value="paper" selected>纸张</option></select></label>
+<label class="am-pick">明暗<select data-am="mode"><option value="auto" selected>跟随系统</option><option value="light">亮</option><option value="dark">暗</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;回复&quot;,&quot;comment&quot;:&quot;评论&quot;,&quot;commentHint&quot;:&quot;对这个面板的意见&quot;,&quot;title&quot;:&quot;你的回复&quot;,&quot;hint&quot;:&quot;复制后粘贴到对话里。&quot;,&quot;copy&quot;:&quot;复制回复&quot;,&quot;close&quot;:&quot;关闭&quot;,&quot;suggested&quot;:&quot;建议&quot;,&quot;empty&quot;:&quot;先选择选项，或在面板上写评论。&quot;,&quot;decisions&quot;:&quot;决定&quot;,&quot;comments&quot;:&quot;评论&quot;,&quot;confirmed&quot;:&quot;确认了建议&quot;,&quot;untouched&quot;:&quot;未作答，保留建议&quot;,&quot;was&quot;:&quot;原为&quot;,&quot;typed&quot;:&quot;以 \&quot;&gt;\&quot; 开头的行是读者输入的文字。&quot;,&quot;done&quot;:&quot;已复制 ✓&quot;}">回复</button>
+<button class="am-btn" type="button" data-am="copy" data-done="已复制 ✓">复制源稿</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>Plugins System Deep Dive：插件系统深度剖析（解读）</h1><p class="am-sub">How Claude Code Works · 源码分析篇解读，按原文讲清逻辑，代码改用图和表讲，附白话讲解</p><div class="am-head-meta"><span><b>source</b>https://jwangkun.github.io/how-claude-code-works/source/plugins-system-deep</span></div><div class="am-intro am-md"><div class="am-md"><p>原文：<a href="https://jwangkun.github.io/how-claude-code-works/source/plugins-system-deep">Plugins System Deep Dive</a></p>
+<p>一句话结论：原文认为，插件是从市场分发的自包含扩展，一个包就能给 Claude Code 加上命令、技能、钩子和 MCP 服务器。和内置技能、磁盘上的技能不同，插件有正式的清单、信任模型、版本管理和管理界面。</p>
+<ul>
+<li><strong>做什么</strong>：发现、加载、管理插件，并控制插件的安全。</li>
+<li><strong>怎么做</strong>：启动时只读本地缓存，从几种来源找到插件。插件经过清单校验、信任检查和依赖解析，再把命令、技能、钩子、MCP 服务器登记到各自的注册表。<code>/plugin</code> 界面管理安装和配置，后台负责自动更新。</li>
+</ul>
+<p>白话地说（本页归纳）：插件是一个打包好的目录，里面装着几样扩展功能。装一次，这几样功能就一起能用。</p>
+<p>正文按原文解读，没有核对源码，也不用官方文档核对原文。原文是英文，本页译成中文，函数名、文件名和关键英文名词照原文保留。原文查阅日期为 2026-11-03，站点标注的最后更新日期为 2026-05-26。A 节的用户视角取自官方文档（code.claude.com/docs，2026-11-03 查阅），标“官方文档”。</p>
+</div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="目录"><a href="#panel-A">A · 先看懂：插件在用户眼里是什么</a><a href="#panel-B">B · 架构总览</a><a href="#panel-C">C · 插件清单格式</a><a href="#panel-D">D · 插件生命周期（一）：发现、加载与信任</a><a href="#panel-E">E · 插件生命周期（二）：命令、技能加载与能力注册</a><a href="#panel-F">F · 插件 CLI 命令</a><a href="#panel-G">G · 插件更新机制</a><a href="#panel-H">H · 插件安全模型</a><a href="#panel-I">I · 插件、MCP 与内置工具对比</a><a href="#panel-J">J · 实现细节（一）：内置插件、MCP 集成与依赖</a><a href="#panel-K">K · 实现细节（二）：加载错误与冷启动</a><a href="#panel-L">L · 关键源码文件</a><a href="#panel-M">M · 原文前后不一致的地方</a><a href="#panel-N">N · 附录：名词表（白话）</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>先看懂：插件在用户眼里是什么</h2><span class="am-panel-meta">本页补充：用户视角据官方文档；结构为本页归纳</span></header>
+<div class="am-panel-body"><div class="am-md"><p>这篇文章讲源码。读源码之前，先看插件用起来是什么样子。</p>
+<h3>用户能看到的插件</h3>
+<p>官方文档说，插件是一个目录，里面放技能、子代理、钩子、MCP 服务器等组件，Claude Code 把它当一个整体安装和加载。插件大多来自插件市场。下图是示意，据官方文档：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 703 376" width="703" height="376" role="img" aria-label="流程图：插件市场（一份插件目录清单）、插件（一个目录）、你的 Claude Code 会话、MCP 服务器（给 Claude 加工具）、钩子（在生命周期事件时运行）、子代理、技能（例如 /my-plugin:review）" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M318,66 L318,82 Q318,98 318,114 L318,130" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="301.5" y="89" width="33" height="18" rx="3"/><text x="318" y="98" text-anchor="middle" dominant-baseline="central">列出</text></g></g><g data-step="1"><path class="am-edge" d="M318,165 L318,181 Q318,197 318,213 L318,229" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="261.2" y="188" width="113.5" height="18" rx="3"/><text x="318" y="197" text-anchor="middle" dominant-baseline="central">你安装并启用后加载</text></g></g><g data-step="2"><path class="am-edge" d="M400.2,258.2 L501.5,272.6 Q602.9,287 602.9,298.5 L602.9,310" marker-end="url(#am1-arrow)"/></g><g data-step="3"><path class="am-edge" d="M351.4,264 L373.5,275.5 Q395.5,287 395.5,298.5 L395.5,310" marker-end="url(#am1-arrow)"/></g><g data-step="4"><path class="am-edge" d="M284.5,264 L262.5,275.5 Q240.5,287 240.5,302.8 L240.5,318.5" marker-end="url(#am1-arrow)"/></g><g data-step="5"><path class="am-edge" d="M235.7,261.3 L164.1,274.1 Q92.5,287 92.5,298.5 L92.5,310" marker-end="url(#am1-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="插件市场（一份插件目录清单）" data-step="0"><rect class="am-node-shape" x="232.5" y="14" width="171" height="52" rx="3"/><text x="318" y="31.5" text-anchor="middle" dominant-baseline="central">插件市场（一份插件目录</text><text x="318" y="48.5" text-anchor="middle" dominant-baseline="central">清单）</text></g><g class="am-node am-node--rect" data-key="插件（一个目录）" data-step="0"><rect class="am-node-shape" x="252" y="130" width="132" height="35" rx="3"/><text x="318" y="147.5" text-anchor="middle" dominant-baseline="central">插件（一个目录）</text></g><g class="am-node am-node--rect" data-key="你的 Claude Code 会话" data-step="1"><rect class="am-node-shape" x="235.7" y="229" width="164.5" height="35" rx="3"/><text x="318" y="246.5" text-anchor="middle" dominant-baseline="central">你的 Claude Code 会话</text></g><g class="am-node am-node--rect" data-key="MCP 服务器（给 Claude 加工具）" data-step="2"><rect class="am-node-shape" x="517" y="310" width="171.8" height="52" rx="3"/><text x="602.9" y="327.5" text-anchor="middle" dominant-baseline="central">MCP 服务器（给 Claude</text><text x="602.9" y="344.5" text-anchor="middle" dominant-baseline="central">加工具）</text></g><g class="am-node am-node--rect" data-key="钩子（在生命周期事件时运行）" data-step="3"><rect class="am-node-shape" x="310" y="310" width="171" height="52" rx="3"/><text x="395.5" y="327.5" text-anchor="middle" dominant-baseline="central">钩子（在生命周期事件时</text><text x="395.5" y="344.5" text-anchor="middle" dominant-baseline="central">运行）</text></g><g class="am-node am-node--rect" data-key="子代理" data-step="4"><rect class="am-node-shape" x="207" y="318.5" width="67" height="35" rx="3"/><text x="240.5" y="336" text-anchor="middle" dominant-baseline="central">子代理</text></g><g class="am-node am-node--rect" data-key="技能（例如 /my-plugin:review）" data-step="5"><rect class="am-node-shape" x="14" y="310" width="157" height="52" rx="3"/><text x="92.5" y="327.5" text-anchor="middle" dominant-baseline="central">技能（例如</text><text x="92.5" y="344.5" text-anchor="middle" dominant-baseline="central">/my-plugin:review）</text></g></g></svg></figure>
+<div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>你怎么做</th>
+<th>效果（官方文档）</th>
+<th>原文对应的部分</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>输入 <code>/plugin</code></td>
+<td>打开插件面板，有 Discover、Installed、Marketplaces、Errors 等标签页</td>
+<td>F 节</td>
+</tr>
+<tr>
+<td>在 Discover 里选一个插件，或输入 <code>/plugin install &lt;插件&gt;@&lt;市场&gt;</code></td>
+<td>安装插件。安装时选范围：user 是本机所有项目，project 写进 <code>.claude/settings.json</code> 给整个仓库用，local 只给你在这个仓库用</td>
+<td>D、F 节</td>
+</tr>
+<tr>
+<td>什么都不做</td>
+<td>第一次启动交互式会话时，Claude Code 自动添加官方市场 <code>claude-plugins-official</code></td>
+<td>D 节 3.1</td>
+</tr>
+<tr>
+<td>输入 <code>/plugin marketplace add &lt;来源&gt;</code></td>
+<td>添加一个插件市场。市场是带 <code>.claude-plugin/marketplace.json</code> 的仓库或目录，是一份目录清单，不是托管的商店</td>
+<td>D 节 3.1</td>
+</tr>
+<tr>
+<td>启动时加 <code>--plugin-dir &lt;目录&gt;</code></td>
+<td>只在这次会话加载一个本地插件，不用安装</td>
+<td>D 节 3.1</td>
+</tr>
+<tr>
+<td>运行插件里的技能</td>
+<td>命令名是 <code>/&lt;插件名&gt;:&lt;目录名&gt;</code>，例如 <code>/my-plugin:review</code></td>
+<td>E 节 3.4</td>
+</tr>
+<tr>
+<td>输入 <code>/reload-plugins</code></td>
+<td>不重启，就把插件的改动加载进当前会话</td>
+<td>F 节 4.4</td>
+</tr>
+<tr>
+<td>插件所在的市场开了自动更新</td>
+<td>后台更新磁盘上的插件。正在运行的会话继续用旧版本，并提示运行 <code>/reload-plugins</code></td>
+<td>G 节</td>
+</tr>
+<tr>
+<td>安装一个声明了依赖的插件</td>
+<td>依赖的插件也一起安装并启用</td>
+<td>J 节 8.3</td>
+</tr>
+<tr>
+<td>在 <code>/plugin</code> 里禁用，或在终端运行 <code>claude plugin disable</code></td>
+<td>不卸载，只停用插件</td>
+<td>F 节</td>
+</tr>
+</tbody></table></div>
+</div>
+<div class="am-callout am-callout--warn" role="note"><div class="am-callout-title">自己动手时按文档：原文和文档写法不同的几处</div><div class="am-callout-body am-md"><p>下面只把两种说法并列，不判断谁对。正文照原文写。</p>
+<ul>
+<li><strong>清单文件</strong>：原文的图里叫 <code>manifest.json</code>，类型定义在 <code>schemas.ts</code>。文档写的是插件目录里的 <code>.claude-plugin/plugin.json</code>。</li>
+<li><strong>打包格式</strong>：原文说插件以 <code>.mcpb</code> 文件（zip 包）或目录分发。文档说插件是一个目录；<code>.mcpb</code> 是插件里打包 MCP 服务器的格式。</li>
+<li><strong>官方市场在哪</strong>：原文说官方插件托管在 <code>api.anthropic.com/mcp-registry/</code>。文档说市场是一个仓库或目录，官方市场叫 <code>claude-plugins-official</code>；官方和社区市场的名字只认 <code>github.com/anthropics/</code> 下的仓库。</li>
+<li><strong>依赖字段</strong>：原文的清单里叫 <code>requires</code>。文档里叫 <code>dependencies</code>。</li>
+<li><strong>官方市场的信任</strong>：原文说官方市场的插件完全信任，不弹警告。文档说不管来自哪一级市场，装上的插件都能用你的用户权限运行代码，安装前要先审查。</li>
+</ul>
+</div></div>
+<div class="am-md"><h3>原文的整体结构</h3>
+<p>原文分八章，最后附一张关键源码文件表。下面的分组是本页归纳：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root am-tree-root--solo"><div class="am-tree-box am-tree-box--root" data-key="原文的结构" data-step="0">原文的结构</div></div><ul class="am-tree-list"><li data-key="它是什么" data-step="1"><span class="am-tree-label">它是什么</span><span class="am-tree-sub">1 架构总览（B 节）</span></li><li data-key="插件长什么样" data-step="2"><span class="am-tree-label">插件长什么样</span><span class="am-tree-sub">2 插件清单格式（C 节）</span></li><li data-key="插件怎样进到 Claude Code" data-step="3"><span class="am-tree-label">插件怎样进到 Claude Code</span><span class="am-tree-sub">3 插件生命周期：发现到集成（D、E 节）</span></li><li data-key="用户怎样管理插件" data-step="4"><span class="am-tree-label">用户怎样管理插件</span><span class="am-tree-sub">4 插件 CLI 命令 · 5 插件更新机制（F、G 节）</span></li><li data-key="怎样保证安全" data-step="5"><span class="am-tree-label">怎样保证安全</span><span class="am-tree-sub">6 插件安全模型（H 节）</span></li><li data-key="和其他扩展方式比" data-step="6"><span class="am-tree-label">和其他扩展方式比</span><span class="am-tree-sub">7 插件、MCP 与内置工具对比（I 节）</span></li><li data-key="实现细节" data-step="7"><span class="am-tree-label">实现细节</span><span class="am-tree-sub">8 值得注意的实现细节 · 关键源码文件（J、K、L 节）</span></li></ul></div>
+<div class="am-md"><p>想先看全局，读 B 节的架构图和 D 节的加载管线图。原文没有总结一章；本页在 M 节汇总了原文前后不一致的地方。</p>
+<h3>先认识几个词</h3>
+<p>下面这些词全篇反复出现，先用白话说清。其他名词见文末“附录：名词表（白话）”。</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>词</th>
+<th>白话</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>插件（Plugin）</td>
+<td>一个打包好的扩展，能同时给 Claude Code 加上命令、技能、钩子和 MCP 服务器</td>
+</tr>
+<tr>
+<td>插件市场（Marketplace）</td>
+<td>列出可安装插件的地方。用户从市场里找插件、安装插件</td>
+</tr>
+<tr>
+<td>清单（Manifest）</td>
+<td>插件的说明文件，写插件叫什么、什么版本、带了哪些能力</td>
+</tr>
+<tr>
+<td>命令和技能（Command、Skill）</td>
+<td>用 Markdown 写的指令。命令由用户按名字运行；技能是放在带 <code>SKILL.md</code> 目录里的指令</td>
+</tr>
+<tr>
+<td>钩子（Hook）</td>
+<td>在特定时刻自动执行的动作，例如每次查询前后</td>
+</tr>
+<tr>
+<td>MCP 服务器</td>
+<td>给 Claude Code 接入外部工具的服务</td>
+</tr>
+<tr>
+<td>注册表（Registry）</td>
+<td>Claude Code 记录“现在有哪些命令、技能、钩子”的清单。插件的能力登记进去后才能用</td>
+</tr>
+<tr>
+<td>缓存</td>
+<td>存在本机的一份副本。下次直接读它，不用再联网下载</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>架构总览</h2><span class="am-panel-meta">原文 1</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：</p>
+<ul>
+<li><strong>bundled skills（内置技能）</strong>：编译进 Claude Code 程序本身的技能。</li>
+<li><strong>disk-based skills（磁盘技能）</strong>：用户自己写、放在磁盘上的 <code>.md</code> 文件。</li>
+</ul>
+</blockquote>
+<p>原文说，插件系统让第三方扩展用一个包提供几种能力。插件和另外两种技能的区别是：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>内置技能</th>
+<th>磁盘技能</th>
+<th>插件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>从哪来</td>
+<td>编译进程序</td>
+<td>用户自己写的 <code>.md</code> 文件</td>
+<td>从市场分发</td>
+</tr>
+<tr>
+<td>有没有正式清单、信任模型、版本管理和管理界面</td>
+<td>—</td>
+<td>—</td>
+<td>都有</td>
+</tr>
+</tbody></table></div>
+<p>下图据原文的架构图重画。原图有四个分组，其中“CLI 集成”和另外三组之间没有连线。本页把它拆出来，单独画在第二张图里：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 939 745" width="939" height="745" role="img" aria-label="流程图：Marketplace api.anthropic.com、pluginLoader.ts、Built-in src/plugins/builtin、Inline --plugin-dir 参数、Local ~/.claude/plugins/、loadAllPluginsCacheOnly、信任校验、依赖解析" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g><rect class="am-cluster" x="88.9" y="26" width="763" height="98" rx="4"/><text class="am-cluster-label" x="96.9" y="40">插件来源 Plugin Sources</text><rect class="am-cluster" x="14" y="170" width="910.5" height="405" rx="4"/><text class="am-cluster-label" x="22" y="184">加载管线 Loading Pipeline</text><rect class="am-cluster" x="71.3" y="621" width="798.2" height="98" rx="4"/><text class="am-cluster-label" x="79.3" y="635">插件提供的能力 Contributed Capabilities</text></g><g><g data-step="0"><path class="am-edge" d="M185.4,101 L185.4,112.5 Q185.4,124 185.4,135.5 Q185.4,147 185.4,158.5 Q185.4,170 321.3,186.5 L457.1,203" marker-end="url(#am2-arrow)"/></g><g data-step="1"><path class="am-edge" d="M362.1,101 L362.1,112.5 Q362.1,124 362.1,135.5 Q362.1,147 362.1,158.5 Q362.1,170 409.6,182.3 L457.1,194.6" marker-end="url(#am2-arrow)"/></g><g data-step="2"><path class="am-edge" d="M555.8,92.5 L555.8,108.3 Q555.8,124 555.8,135.5 Q555.8,147 555.8,158.5 Q555.8,170 545.3,181.5 L534.8,193" marker-end="url(#am2-arrow)"/></g><g data-step="3"><path class="am-edge" d="M750.6,101 L750.6,112.5 Q750.6,124 750.6,135.5 Q750.6,147 750.6,158.5 Q750.6,170 665.5,184.9 L580.3,199.7" marker-end="url(#am2-arrow)"/></g><g data-step="4"><path class="am-edge" d="M518.7,228 L518.7,239.5 Q518.7,251 518.7,262.5 L518.7,274" marker-end="url(#am2-arrow)"/></g><g data-step="5"><path class="am-edge" d="M518.7,309 L518.7,320.5 Q518.7,332 518.7,343.5 L518.7,355" marker-end="url(#am2-arrow)"/></g><g data-step="6"><path class="am-edge" d="M518.7,390 L518.7,401.5 Q518.7,413 518.7,424.5 L518.7,436" marker-end="url(#am2-arrow)"/></g><g data-step="7"><path class="am-edge" d="M518.7,471 L518.7,482.5 Q518.7,494 518.7,505.5 L518.7,517" marker-end="url(#am2-arrow)"/></g><g data-step="8"><path class="am-edge" d="M571.7,541.9 L690.6,558.4 Q809.5,575 809.5,586.5 Q809.5,598 809.5,609.5 Q809.5,621 809.5,636.8 L809.5,652.5" marker-end="url(#am2-arrow)"/></g><g data-step="9"><path class="am-edge" d="M571.7,546.9 L631.7,561 Q691.7,575 691.7,586.5 Q691.7,598 691.7,609.5 Q691.7,621 691.7,636.8 L691.7,652.5" marker-end="url(#am2-arrow)"/></g><g data-step="10"><path class="am-edge" d="M518.7,552 L518.7,563.5 Q518.7,575 518.7,586.5 Q518.7,598 518.7,609.5 Q518.7,621 518.7,632.5 L518.7,644" marker-end="url(#am2-arrow)"/></g><g data-step="11"><path class="am-edge" d="M465.7,545.3 L393.2,560.2 Q320.7,575 320.7,586.5 Q320.7,598 320.7,609.5 Q320.7,621 320.7,636.8 L320.7,652.5" marker-end="url(#am2-arrow)"/></g><g data-step="12"><path class="am-edge" d="M465.7,540.4 L310.1,557.7 Q154.5,575 154.5,586.5 Q154.5,598 154.5,609.5 Q154.5,621 154.5,636.8 L154.5,652.5" marker-end="url(#am2-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="Marketplace api.anthropic.com" data-step="0"><rect class="am-node-shape" x="116.9" y="49" width="136.9" height="52" rx="3"/><text x="185.4" y="66.5" text-anchor="middle" dominant-baseline="central">Marketplace</text><text x="185.4" y="83.5" text-anchor="middle" dominant-baseline="central">api.anthropic.com</text></g><g class="am-node am-node--rect" data-key="pluginLoader.ts" data-step="0"><rect class="am-node-shape" x="457.1" y="193" width="123.2" height="35" rx="3"/><text x="518.7" y="210.5" text-anchor="middle" dominant-baseline="central">pluginLoader.ts</text></g><g class="am-node am-node--rect" data-key="Built-in src/plugins/builtin" data-step="1"><rect class="am-node-shape" x="289.9" y="49" width="144.5" height="52" rx="3"/><text x="362.1" y="66.5" text-anchor="middle" dominant-baseline="central">Built-in</text><text x="362.1" y="83.5" text-anchor="middle" dominant-baseline="central">src/plugins/builtin</text></g><g class="am-node am-node--rect" data-key="Inline --plugin-dir 参数" data-step="2"><rect class="am-node-shape" x="470.3" y="57.5" width="171" height="35" rx="3"/><text x="555.8" y="75" text-anchor="middle" dominant-baseline="central">Inline --plugin-dir 参数</text></g><g class="am-node am-node--rect" data-key="Local ~/.claude/plugins/" data-step="3"><rect class="am-node-shape" x="677.4" y="49" width="146.6" height="52" rx="3"/><text x="750.6" y="66.5" text-anchor="middle" dominant-baseline="central">Local</text><text x="750.6" y="83.5" text-anchor="middle" dominant-baseline="central">~/.claude/plugins/</text></g><g class="am-node am-node--rect" data-key="loadAllPluginsCacheOnly" data-step="4"><rect class="am-node-shape" x="426.1" y="274" width="185.3" height="35" rx="3"/><text x="518.7" y="291.5" text-anchor="middle" dominant-baseline="central">loadAllPluginsCacheOnly</text></g><g class="am-node am-node--rect" data-key="信任校验" data-step="5"><rect class="am-node-shape" x="478.7" y="355" width="80" height="35" rx="3"/><text x="518.7" y="372.5" text-anchor="middle" dominant-baseline="central">信任校验</text></g><g class="am-node am-node--rect" data-key="依赖解析" data-step="6"><rect class="am-node-shape" x="478.7" y="436" width="80" height="35" rx="3"/><text x="518.7" y="453.5" text-anchor="middle" dominant-baseline="central">依赖解析</text></g><g class="am-node am-node--rect" data-key="插件清单校验" data-step="7"><rect class="am-node-shape" x="465.7" y="517" width="106" height="35" rx="3"/><text x="518.7" y="534.5" text-anchor="middle" dominant-baseline="central">插件清单校验</text></g><g class="am-node am-node--rect" data-key="代理" data-step="8"><rect class="am-node-shape" x="777.5" y="652.5" width="64" height="35" rx="3"/><text x="809.5" y="670" text-anchor="middle" dominant-baseline="central">代理</text></g><g class="am-node am-node--rect" data-key="MCP 服务器" data-step="9"><rect class="am-node-shape" x="641.8" y="652.5" width="99.8" height="35" rx="3"/><text x="691.7" y="670" text-anchor="middle" dominant-baseline="central">MCP 服务器</text></g><g class="am-node am-node--rect" data-key="钩子 beforeQuery/afterQuery" data-step="10"><rect class="am-node-shape" x="431.7" y="644" width="174.1" height="52" rx="3"/><text x="518.7" y="661.5" text-anchor="middle" dominant-baseline="central">钩子</text><text x="518.7" y="678.5" text-anchor="middle" dominant-baseline="central">beforeQuery/afterQuery</text></g><g class="am-node am-node--rect" data-key="技能 SKILL.md 目录" data-step="11"><rect class="am-node-shape" x="245.7" y="652.5" width="149.9" height="35" rx="3"/><text x="320.7" y="670" text-anchor="middle" dominant-baseline="central">技能 SKILL.md 目录</text></g><g class="am-node am-node--rect" data-key="命令 .md 文件" data-step="12"><rect class="am-node-shape" x="99.3" y="652.5" width="110.4" height="35" rx="3"/><text x="154.5" y="670" text-anchor="middle" dominant-baseline="central">命令 .md 文件</text></g></g></svg></figure>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 425 295" width="425" height="295" role="img" aria-label="流程图：/plugin 命令、PluginSettings 组件、PluginTrustWarning、PluginOptionsDialog" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g><rect class="am-cluster" x="14" y="26" width="396.3" height="243" rx="4"/><text class="am-cluster-label" x="22" y="40">CLI 集成 CLI Integration</text></g><g><g data-step="0"><path class="am-edge" d="M214.6,84 L214.6,95.5 Q214.6,107 214.6,118.5 L214.6,130" marker-end="url(#am3-arrow)"/></g><g data-step="1"><path class="am-edge" d="M255.2,165 L281.9,176.5 Q308.6,188 308.6,199.5 L308.6,211" marker-end="url(#am3-arrow)"/></g><g data-step="2"><path class="am-edge" d="M173.9,165 L147.2,176.5 Q120.5,188 120.5,199.5 L120.5,211" marker-end="url(#am3-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="/plugin 命令" data-step="0"><rect class="am-node-shape" x="163.2" y="49" width="102.6" height="35" rx="3"/><text x="214.6" y="66.5" text-anchor="middle" dominant-baseline="central">/plugin 命令</text></g><g class="am-node am-node--rect" data-key="PluginSettings 组件" data-step="0"><rect class="am-node-shape" x="140.9" y="130" width="147.3" height="35" rx="3"/><text x="214.6" y="147.5" text-anchor="middle" dominant-baseline="central">PluginSettings 组件</text></g><g class="am-node am-node--rect" data-key="PluginTrustWarning" data-step="1"><rect class="am-node-shape" x="235" y="211" width="147.3" height="35" rx="3"/><text x="308.6" y="228.5" text-anchor="middle" dominant-baseline="central">PluginTrustWarning</text></g><g class="am-node am-node--rect" data-key="PluginOptionsDialog" data-step="2"><rect class="am-node-shape" x="42" y="211" width="157" height="35" rx="3"/><text x="120.5" y="228.5" text-anchor="middle" dominant-baseline="central">PluginOptionsDialog</text></g></g></svg></figure>
+<div class="am-md"><p>这张图里，加载管线的顺序是信任校验、依赖解析、清单校验。D 节 3.2 的图顺序不同，见 M 节。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>插件清单格式</h2><span class="am-panel-meta">原文 2</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：zip 包是把一堆文件压成一个文件。清单就是插件的“自我介绍”。</p>
+</blockquote>
+<p>插件有两种分发形式：<code>.mcpb</code> 文件（MCP Bundle，一个 zip 包），或一个目录。清单的类型 <code>PluginManifest</code> 定义在 <code>src/utils/plugins/schemas.ts</code>。下表按用途分组（本页归纳），括号里是原文注释：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>用途</th>
+<th>字段</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>必填</td>
+<td><code>name</code>、<code>description</code>、<code>version</code></td>
+</tr>
+<tr>
+<td>可选的元数据</td>
+<td><code>icon</code>、<code>author</code>、<code>license</code>、<code>homepage</code>、<code>repository</code></td>
+</tr>
+<tr>
+<td>命令</td>
+<td><code>commands</code>（命令 .md 文件路径）、<code>commandsPaths</code>（额外命令目录）、<code>commandsMetadata</code>（命令元数据，见 E 节）</td>
+</tr>
+<tr>
+<td>技能</td>
+<td><code>skills</code>（技能的名字或选择器）、<code>skillsPaths</code>（额外的技能目录）</td>
+</tr>
+<tr>
+<td>钩子和 MCP</td>
+<td><code>hooks</code>、<code>mcpServers</code></td>
+</tr>
+<tr>
+<td>配置和限制</td>
+<td><code>userConfig</code>（让用户填的配置项）、<code>requires</code>（依赖的插件 ID）、<code>platform</code>（平台限制：darwin、win32、linux）</td>
+</tr>
+</tbody></table></div>
+<h3>内置插件的定义</h3>
+<p>内置插件不用清单文件，而是用 TypeScript 定义，类型是 <code>BuiltinPluginDefinition</code>。它和清单的不同之处：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>原文的说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code>、<code>description</code>、<code>version</code></td>
+<td>和清单一样</td>
+</tr>
+<tr>
+<td><code>defaultEnabled</code></td>
+<td>是否默认启用，默认为 true</td>
+</tr>
+<tr>
+<td><code>isAvailable()</code></td>
+<td>按平台或生命周期决定这个插件能不能用</td>
+</tr>
+<tr>
+<td><code>skills</code></td>
+<td>内置技能的定义（<code>BundledSkillDefinition</code>），不是路径</td>
+</tr>
+<tr>
+<td><code>hooks</code>、<code>mcpServers</code></td>
+<td>钩子设置和 MCP 服务器配置</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>插件生命周期（一）：发现、加载与信任</h2><span class="am-panel-meta">原文 3.1–3.3</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文第 3 章讲插件从发现到集成的全过程，本页分 D、E 两节讲。</p>
+<h3>发现：插件从哪来</h3>
+<p>启动时，Claude Code 从下面几种来源发现插件（原文 3.1）：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>来源</th>
+<th>从哪来</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>官方市场（Official Marketplace）</td>
+<td>托管在 <code>api.anthropic.com/mcp-registry/</code></td>
+<td>拉取后缓存在本地；由 <code>marketplaceManager.ts</code> 负责搜索</td>
+</tr>
+<tr>
+<td>内置（Built-in Commands）</td>
+<td>编译进 CLI 程序，位于 <code>src/plugins/builtin/</code></td>
+<td>除非明确禁用，否则始终可用</td>
+</tr>
+<tr>
+<td>内联插件（Inline Plugins）</td>
+<td>启动参数 <code>--plugin-dir /path/to/plugin</code></td>
+<td>直接从文件系统加载</td>
+</tr>
+<tr>
+<td>已安装插件（Installed Plugins）</td>
+<td>之前从市场安装，存在 <code>~/.claude/plugins/</code></td>
+<td>有缓存，离线也能用</td>
+</tr>
+<tr>
+<td>企业管理的插件（Managed Plugins）</td>
+<td>由企业策略管理</td>
+<td>由 <code>managedPlugins.ts</code> 强制执行</td>
+</tr>
+</tbody></table></div>
+<h3>加载管线</h3>
+<p>加载的主入口是 <code>pluginLoader.ts</code> 里的 <code>loadAllPluginsCacheOnly()</code>（原文 3.2）。下图据原文的流程图重画：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 573 831" width="573" height="831" role="img" aria-label="流程图：loadAllPluginsCacheOnly、发现插件来源、来源类型？、从缓存加载、从文件系统加载、使用编译进来的定义、获取清单、校验清单 Schema" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am4-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M286.5,49 L286.5,60.5 Q286.5,72 286.5,83.5 L286.5,95" marker-end="url(#am4-arrow)"/></g><g data-step="1"><path class="am-edge" d="M286.5,130 L286.5,141.5 Q286.5,153 286.5,164.5 L286.5,176" marker-end="url(#am4-arrow)"/></g><g data-step="2"><path class="am-edge" d="M328.5,215.1 L420.5,239.6 Q512.5,264 512.5,280 L512.5,296" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="494.2" y="255" width="36.7" height="18" rx="3"/><text x="512.5" y="264" text-anchor="middle" dominant-baseline="central">local</text></g></g><g data-step="3"><path class="am-edge" d="M311.6,221.9 L341,243 Q370.5,264 370.5,280 L370.5,296" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="350.3" y="255" width="40.4" height="18" rx="3"/><text x="370.5" y="264" text-anchor="middle" dominant-baseline="central">inline</text></g></g><g data-step="4"><path class="am-edge" d="M261.4,221.9 L232,243 Q202.5,264 202.5,280 L202.5,296" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="180.5" y="255" width="44" height="18" rx="3"/><text x="202.5" y="264" text-anchor="middle" dominant-baseline="central">builtin</text></g></g><g data-step="5"><path class="am-edge" d="M244,215 L149,239.5 Q54,264 54,280 L54,296" marker-end="url(#am4-arrow)"/><g class="am-edge-label"><rect x="16" y="255" width="76" height="18" rx="3"/><text x="54" y="264" text-anchor="middle" dominant-baseline="central">marketplace</text></g></g><g data-step="6"><path class="am-edge" d="M54,331 L54,342.5 Q54,354 137,368.5 L220,382.9" marker-end="url(#am4-arrow)"/></g><g data-step="7"><path class="am-edge" d="M202.5,331 L202.5,342.5 Q202.5,354 226.4,365.5 L250.2,377" marker-end="url(#am4-arrow)"/></g><g data-step="8"><path class="am-edge" d="M370.5,331 L370.5,342.5 Q370.5,354 346.6,365.5 L322.8,377" marker-end="url(#am4-arrow)"/></g><g data-step="9"><path class="am-edge" d="M512.5,331 L512.5,342.5 Q512.5,354 432.8,368.3 L353,382.6" marker-end="url(#am4-arrow)"/></g><g data-step="10"><path class="am-edge" d="M286.5,412 L286.5,423.5 Q286.5,435 286.5,446.5 L286.5,458" marker-end="url(#am4-arrow)"/></g><g data-step="11"><path class="am-edge" d="M286.5,493 L286.5,504.5 Q286.5,516 286.5,527.5 L286.5,539" marker-end="url(#am4-arrow)"/></g><g data-step="12"><path class="am-edge" d="M286.5,574 L286.5,585.5 Q286.5,597 286.5,608.5 L286.5,620" marker-end="url(#am4-arrow)"/></g><g data-step="13"><path class="am-edge" d="M286.5,655 L286.5,666.5 Q286.5,678 286.5,689.5 L286.5,701" marker-end="url(#am4-arrow)"/></g><g data-step="14"><path class="am-edge" d="M286.5,736 L286.5,747.5 Q286.5,759 286.5,770.5 L286.5,782" marker-end="url(#am4-arrow)"/></g></g><g><g class="am-node am-node--round" data-key="loadAllPluginsCacheOnly" data-step="0"><rect class="am-node-shape" x="187.9" y="14" width="197.3" height="35" rx="17.5"/><text x="286.5" y="31.5" text-anchor="middle" dominant-baseline="central">loadAllPluginsCacheOnly</text></g><g class="am-node am-node--rect" data-key="发现插件来源" data-step="0"><rect class="am-node-shape" x="233.5" y="95" width="106" height="35" rx="3"/><text x="286.5" y="112.5" text-anchor="middle" dominant-baseline="central">发现插件来源</text></g><g class="am-node am-node--diamond" data-key="来源类型？" data-step="1"><polygon class="am-node-shape" points="286.5,176 356.3,204 286.5,232 216.8,204"/><text x="286.5" y="204" text-anchor="middle" dominant-baseline="central">来源类型？</text></g><g class="am-node am-node--rect" data-key="从缓存加载" data-step="2"><rect class="am-node-shape" x="466" y="296" width="93" height="35" rx="3"/><text x="512.5" y="313.5" text-anchor="middle" dominant-baseline="central">从缓存加载</text></g><g class="am-node am-node--rect" data-key="从文件系统加载" data-step="3"><rect class="am-node-shape" x="311" y="296" width="119" height="35" rx="3"/><text x="370.5" y="313.5" text-anchor="middle" dominant-baseline="central">从文件系统加载</text></g><g class="am-node am-node--rect" data-key="使用编译进来的定义" data-step="4"><rect class="am-node-shape" x="130" y="296" width="145" height="35" rx="3"/><text x="202.5" y="313.5" text-anchor="middle" dominant-baseline="central">使用编译进来的定义</text></g><g class="am-node am-node--rect" data-key="获取清单" data-step="5"><rect class="am-node-shape" x="14" y="296" width="80" height="35" rx="3"/><text x="54" y="313.5" text-anchor="middle" dominant-baseline="central">获取清单</text></g><g class="am-node am-node--rect" data-key="校验清单 Schema" data-step="6"><rect class="am-node-shape" x="220" y="377" width="133" height="35" rx="3"/><text x="286.5" y="394.5" text-anchor="middle" dominant-baseline="central">校验清单 Schema</text></g><g class="am-node am-node--rect" data-key="检查信任和黑名单" data-step="10"><rect class="am-node-shape" x="220.5" y="458" width="132" height="35" rx="3"/><text x="286.5" y="475.5" text-anchor="middle" dominant-baseline="central">检查信任和黑名单</text></g><g class="am-node am-node--rect" data-key="解析依赖" data-step="11"><rect class="am-node-shape" x="246.5" y="539" width="80" height="35" rx="3"/><text x="286.5" y="556.5" text-anchor="middle" dominant-baseline="central">解析依赖</text></g><g class="am-node am-node--rect" data-key="加载插件组件" data-step="12"><rect class="am-node-shape" x="233.5" y="620" width="106" height="35" rx="3"/><text x="286.5" y="637.5" text-anchor="middle" dominant-baseline="central">加载插件组件</text></g><g class="am-node am-node--rect" data-key="区分启用和禁用" data-step="13"><rect class="am-node-shape" x="227" y="701" width="119" height="35" rx="3"/><text x="286.5" y="718.5" text-anchor="middle" dominant-baseline="central">区分启用和禁用</text></g><g class="am-node am-node--rect" data-key="返回 LoadedPlugin 对象" data-step="14"><rect class="am-node-shape" x="200.5" y="782" width="172" height="35" rx="3"/><text x="286.5" y="799.5" text-anchor="middle" dominant-baseline="central">返回 LoadedPlugin 对象</text></g></g></svg></figure>
+<div class="am-md"><p>管线的产物是 <code>LoadedPlugin</code> 对象，它带着解析好的路径和配置。下表按用途分组（本页归纳），括号里是原文注释：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>用途</th>
+<th>字段</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>身份</td>
+<td><code>name</code>、<code>manifest</code>、<code>source</code>（市场标识，例如 <code>slack@anthropic</code>）、<code>repository</code>（完整的仓库标识）</td>
+</tr>
+<tr>
+<td>位置</td>
+<td><code>path</code>（插件在磁盘上的根目录）</td>
+</tr>
+<tr>
+<td>状态</td>
+<td><code>enabled</code>（当前是否启用）、<code>isBuiltin</code>（是否为编译进来的插件）</td>
+</tr>
+<tr>
+<td>能力</td>
+<td><code>hooksConfig</code>、<code>mcpServers</code>、<code>commandsPath</code>（默认命令目录）、<code>commandsPaths</code>（额外的命令路径）、<code>skillsPath</code>（默认技能目录）、<code>skillsPaths</code>（额外的技能目录）、<code>commandsMetadata</code></td>
+</tr>
+<tr>
+<td>用户配置</td>
+<td><code>userConfig</code>（已保存的用户偏好）</td>
+</tr>
+</tbody></table></div>
+<h3>信任校验</h3>
+<p>来自市场的插件要经过信任校验。安装前，<code>PluginTrustWarning</code> 组件（<code>src/commands/plugin/PluginTrustWarning.tsx</code>）显示信任信息（原文 3.3）。信任分四级：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>来源</th>
+<th>信任级别</th>
+<th>用户看到什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>官方 Anthropic 市场</td>
+<td>完全信任</td>
+<td>自动安装，不警告</td>
+</tr>
+<tr>
+<td>用户添加的市场</td>
+<td>中等信任</td>
+<td>第一次从这个市场安装时警告</td>
+</tr>
+<tr>
+<td>本地目录、<code>--plugin-dir</code></td>
+<td>中等信任</td>
+<td>警告；路径是用户自己选的</td>
+</tr>
+<tr>
+<td>黑名单里的插件</td>
+<td>不信任</td>
+<td>拒绝加载，显示错误</td>
+</tr>
+</tbody></table></div>
+<p>黑名单由 <code>pluginBlocklist.ts</code> 管理，可以通过企业策略远程更新。H 节 6.1 对这四级有更细的说明。</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>插件生命周期（二）：命令、技能加载与能力注册</h2><span class="am-panel-meta">原文 3.4–3.5</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：</p>
+<ul>
+<li><strong>memoize（记忆化）</strong>：函数第一次算出结果后记住它，之后再调用直接返回，不重算。</li>
+<li><strong>命名空间</strong>：在名字前加前缀，例如 <code>pluginName:</code>，让不同插件的同名命令不冲突。</li>
+</ul>
+</blockquote>
+<h3>命令和技能的加载</h3>
+<p><code>loadPluginCommands.ts</code> 里，<code>getPluginCommands()</code> 加载插件命令，<code>getPluginSkills()</code> 加载插件技能。两个函数都做了 memoize（原文 3.4）。</p>
+<p>实际遍历目录的是 <code>loadCommandsFromDirectory()</code>。它接收命令目录、插件名、来源名、清单和插件路径，返回一组命令。下图据原文代码绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 213 374" width="213" height="374" role="img" aria-label="流程图：collectMarkdownFiles 递归收集所有 .md 文件、transformPluginSkillFiles 把含 SKILL.md 的目录变成一个命令、createPluginCommand 把每个文件转成一个命令、返回命令列表" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am5-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M106.1,66 L106.1,77.5 Q106.1,89 106.1,100.5 L106.1,112" marker-end="url(#am5-arrow)"/></g><g data-step="1"><path class="am-edge" d="M106.1,181 L106.1,192.5 Q106.1,204 106.1,215.5 L106.1,227" marker-end="url(#am5-arrow)"/></g><g data-step="2"><path class="am-edge" d="M106.1,279 L106.1,290.5 Q106.1,302 106.1,313.5 L106.1,325" marker-end="url(#am5-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="collectMarkdownFiles 递归收集所有 .md 文件" data-step="0"><rect class="am-node-shape" x="24" y="14" width="164.2" height="52" rx="3"/><text x="106.1" y="31.5" text-anchor="middle" dominant-baseline="central">collectMarkdownFiles</text><text x="106.1" y="48.5" text-anchor="middle" dominant-baseline="central">递归收集所有 .md 文件</text></g><g class="am-node am-node--rect" data-key="transformPluginSkillFiles 把含 SKILL.md 的目录变成一个命令" data-step="0"><rect class="am-node-shape" x="14" y="112" width="184.3" height="69" rx="3"/><text x="106.1" y="129.5" text-anchor="middle" dominant-baseline="central">transformPluginSkillFiles</text><text x="106.1" y="146.5" text-anchor="middle" dominant-baseline="central">把含 SKILL.md 的目录变</text><text x="106.1" y="163.5" text-anchor="middle" dominant-baseline="central">成一个命令</text></g><g class="am-node am-node--rect" data-key="createPluginCommand 把每个文件转成一个命令" data-step="1"><rect class="am-node-shape" x="20.6" y="227" width="171" height="52" rx="3"/><text x="106.1" y="244.5" text-anchor="middle" dominant-baseline="central">createPluginCommand</text><text x="106.1" y="261.5" text-anchor="middle" dominant-baseline="central">把每个文件转成一个命令</text></g><g class="am-node am-node--rect" data-key="返回命令列表" data-step="2"><rect class="am-node-shape" x="53.1" y="325" width="106" height="35" rx="3"/><text x="106.1" y="342.5" text-anchor="middle" dominant-baseline="central">返回命令列表</text></g></g></svg></figure>
+<div class="am-md"><h3>支持的文件组织方式</h3>
+<p>插件命令支持三种文件组织方式：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>文件</th>
+<th>得到的命令名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>平铺文件</td>
+<td><code>commands/review-pr.md</code></td>
+<td><code>pluginName:review-pr</code></td>
+</tr>
+<tr>
+<td>SKILL.md 目录</td>
+<td><code>commands/code-review/SKILL.md</code></td>
+<td><code>pluginName:code-review</code></td>
+</tr>
+<tr>
+<td>嵌套的命名空间</td>
+<td><code>commands/github/pr/review.md</code></td>
+<td><code>pluginName:github:pr:review</code></td>
+</tr>
+</tbody></table></div>
+<h3>变量替换</h3>
+<p>插件命令的内容里可以写下面这些变量，加载时替换成实际的值：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>变量</th>
+<th>替换成什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>${CLAUDE_PLUGIN_ROOT}</code></td>
+<td>插件的安装目录</td>
+</tr>
+<tr>
+<td><code>${CLAUDE_PLUGIN_DATA}</code></td>
+<td>插件的数据目录</td>
+</tr>
+<tr>
+<td><code>${CLAUDE_SKILL_DIR}</code></td>
+<td>技能专用：这个技能在插件里的子目录</td>
+</tr>
+<tr>
+<td><code>${CLAUDE_SESSION_ID}</code></td>
+<td>当前会话的 ID</td>
+</tr>
+<tr>
+<td><code>${user_config.X}</code></td>
+<td>用户保存的配置值；敏感的值会被遮住</td>
+</tr>
+<tr>
+<td><code>!`command`</code></td>
+<td>内联的 shell 命令，由 <code>executeShellCommandsInPrompt</code> 执行</td>
+</tr>
+</tbody></table></div>
+<h3>元数据覆盖</h3>
+<p>清单可以用 <code>commandsMetadata</code> 覆盖命令文件 frontmatter 里的字段。原文的例子给 <code>review-pr</code> 命令设了这几项：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>示例值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>source</code></td>
+<td><code>commands/custom-review.md</code></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>借助 AI 审查一个 pull request</td>
+</tr>
+<tr>
+<td><code>argumentHint</code></td>
+<td><code>&lt;pr-number&gt;</code></td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td><code>sonnet</code></td>
+</tr>
+<tr>
+<td><code>allowedTools</code></td>
+<td>Read、Write、Bash</td>
+</tr>
+</tbody></table></div>
+<p>为什么：原文说，这样插件作者不用改 <code>.md</code> 文件本身，就能提供元数据。</p>
+<h3>能力注册</h3>
+<p>插件加载后，它的各项能力登记到对应的注册表（原文 3.5）。下图据原文的流程图重画：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 437 515" width="437" height="515" role="img" aria-label="流程图：manifest.json、MCP 连接池 getPluginMcpServers、钩子注册表 loadPluginHooks、代理注册表 loadPluginAgents、commands/、命令注册表 getPluginCommands、skills/、技能注册表 getPluginSkills" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am6-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g><rect class="am-cluster" x="14" y="27.5" width="159" height="453" rx="4"/><text class="am-cluster-label" x="22" y="41.5">插件 Plugin</text><rect class="am-cluster" x="219" y="26" width="203.7" height="463" rx="4"/><text class="am-cluster-label" x="227" y="40">Claude Code 的注册表</text></g><g><g data-step="0"><path class="am-edge" d="M119.3,153.5 L146.1,135.3 Q173,117 184.5,117 Q196,117 207.5,117 Q219,117 231,113 L243,109" marker-end="url(#am6-arrow)"/></g><g data-step="1"><path class="am-edge" d="M149,171 L161,171 Q173,171 184.5,171 Q196,171 207.5,171 Q219,171 237.2,171 L255.4,171" marker-end="url(#am6-arrow)"/></g><g data-step="2"><path class="am-edge" d="M109.3,188.5 L141.2,223.8 Q173,259 184.5,259 Q196,259 207.5,259 Q219,259 236.2,259 L253.3,259" marker-end="url(#am6-arrow)"/></g><g data-step="3"><path class="am-edge" d="M144.2,347 L158.6,347 Q173,347 184.5,347 Q196,347 207.5,347 Q219,347 231.6,347 L244.2,347" marker-end="url(#am6-arrow)"/></g><g data-step="4"><path class="am-edge" d="M128.3,435 L150.7,435 Q173,435 184.5,435 Q196,435 207.5,435 Q219,435 239.6,435 L260.1,435" marker-end="url(#am6-arrow)"/></g><g data-step="5"><path class="am-edge" d="M150,73 L161.5,73 Q173,73 184.5,73 Q196,73 207.5,73 Q219,73 230.5,74.1 L242,75.3" marker-end="url(#am6-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="manifest.json" data-step="0"><rect class="am-node-shape" x="38" y="153.5" width="110.9" height="35" rx="3"/><text x="93.5" y="171" text-anchor="middle" dominant-baseline="central">manifest.json</text></g><g class="am-node am-node--rect" data-key="MCP 连接池 getPluginMcpServers" data-step="0"><rect class="am-node-shape" x="242" y="57" width="157.7" height="52" rx="3"/><text x="320.9" y="74.5" text-anchor="middle" dominant-baseline="central">MCP 连接池</text><text x="320.9" y="91.5" text-anchor="middle" dominant-baseline="central">getPluginMcpServers</text></g><g class="am-node am-node--rect" data-key="钩子注册表 loadPluginHooks" data-step="1"><rect class="am-node-shape" x="255.4" y="145" width="131" height="52" rx="3"/><text x="320.9" y="162.5" text-anchor="middle" dominant-baseline="central">钩子注册表</text><text x="320.9" y="179.5" text-anchor="middle" dominant-baseline="central">loadPluginHooks</text></g><g class="am-node am-node--rect" data-key="代理注册表 loadPluginAgents" data-step="2"><rect class="am-node-shape" x="253.3" y="233" width="135.1" height="52" rx="3"/><text x="320.9" y="250.5" text-anchor="middle" dominant-baseline="central">代理注册表</text><text x="320.9" y="267.5" text-anchor="middle" dominant-baseline="central">loadPluginAgents</text></g><g class="am-node am-node--rect" data-key="commands/" data-step="3"><rect class="am-node-shape" x="42.8" y="329.5" width="101.3" height="35" rx="3"/><text x="93.5" y="347" text-anchor="middle" dominant-baseline="central">commands/</text></g><g class="am-node am-node--rect" data-key="命令注册表 getPluginCommands" data-step="3"><rect class="am-node-shape" x="244.2" y="321" width="153.3" height="52" rx="3"/><text x="320.9" y="338.5" text-anchor="middle" dominant-baseline="central">命令注册表</text><text x="320.9" y="355.5" text-anchor="middle" dominant-baseline="central">getPluginCommands</text></g><g class="am-node am-node--rect" data-key="skills/" data-step="4"><rect class="am-node-shape" x="58.7" y="417.5" width="69.6" height="35" rx="3"/><text x="93.5" y="435" text-anchor="middle" dominant-baseline="central">skills/</text></g><g class="am-node am-node--rect" data-key="技能注册表 getPluginSkills" data-step="4"><rect class="am-node-shape" x="260.1" y="409" width="121.6" height="52" rx="3"/><text x="320.9" y="426.5" text-anchor="middle" dominant-baseline="central">技能注册表</text><text x="320.9" y="443.5" text-anchor="middle" dominant-baseline="central">getPluginSkills</text></g><g class="am-node am-node--rect" data-key="mcp_servers/" data-step="5"><rect class="am-node-shape" x="37" y="55.5" width="113" height="35" rx="3"/><text x="93.5" y="73" text-anchor="middle" dominant-baseline="central">mcp_servers/</text></g></g></svg></figure></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>插件 CLI 命令</h2><span class="am-panel-meta">原文 4.1–4.4</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：React 组件是用 React 写的一块界面。Claude Code 在终端里也用它画界面。</p>
+</blockquote>
+<h3><code>/plugin</code> 命令</h3>
+<p>插件管理的主界面由 <code>/plugin</code> 命令打开（<code>src/commands/plugin/plugin.tsx</code>）。这个命令只做一件事：渲染 <code>PluginSettings</code> 组件，并把参数和完成回调传给它（原文 4.1）。<code>PluginSettings</code> 提供：</p>
+<ul>
+<li>已安装插件的列表，每个插件可以启用或禁用。</li>
+<li>市场浏览器，用来发现新插件。</li>
+<li>从新来源安装前的信任警告。</li>
+<li>配置对话框，给声明了 <code>userConfig</code> 字段的插件用。</li>
+<li>市场管理，用来添加或删除市场来源。</li>
+</ul>
+<h3>插件界面组件</h3>
+<p>原文列了 13 个界面组件。下表的分组是本页归纳，条目照原文（原文 4.2）：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>分组</th>
+<th>组件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>总入口</td>
+<td><code>PluginSettings</code></td>
+<td>插件管理主界面，统筹所有子界面</td>
+</tr>
+<tr>
+<td>已安装的插件</td>
+<td><code>ManagePlugins</code></td>
+<td>已安装插件列表，可启用、禁用</td>
+</tr>
+<tr>
+<td></td>
+<td><code>UnifiedInstalledCell</code></td>
+<td>显示一个已安装插件的统一单元格</td>
+</tr>
+<tr>
+<td></td>
+<td><code>PluginDetailsHelpers</code></td>
+<td>详情界面用的辅助函数（文件名 <code>pluginDetailsHelpers.tsx</code>）</td>
+</tr>
+<tr>
+<td>市场</td>
+<td><code>BrowseMarketplace</code></td>
+<td>搜索和浏览市场</td>
+</tr>
+<tr>
+<td></td>
+<td><code>DiscoverPlugins</code></td>
+<td>发现插件的界面</td>
+</tr>
+<tr>
+<td></td>
+<td><code>AddMarketplace</code></td>
+<td>添加自定义市场的 URL</td>
+</tr>
+<tr>
+<td></td>
+<td><code>ManageMarketplaces</code></td>
+<td>查看和管理市场来源</td>
+</tr>
+<tr>
+<td>安装和配置</td>
+<td><code>PluginTrustWarning</code></td>
+<td>安装前的信任校验对话框</td>
+</tr>
+<tr>
+<td></td>
+<td><code>PluginOptionsDialog</code></td>
+<td>单个插件的配置对话框</td>
+</tr>
+<tr>
+<td></td>
+<td><code>PluginOptionsFlow</code></td>
+<td>分几步引导用户完成配置</td>
+</tr>
+<tr>
+<td>校验和报错</td>
+<td><code>ValidatePlugin</code></td>
+<td>插件校验检查</td>
+</tr>
+<tr>
+<td></td>
+<td><code>PluginErrors</code></td>
+<td>显示错误</td>
+</tr>
+</tbody></table></div>
+<h3>服务层</h3>
+<p>服务层负责实际的安装和管理操作（原文 4.3）：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>文件</th>
+<th>负责什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PluginInstallationManager.ts</code></td>
+<td>统筹整个安装过程，步骤见下图</td>
+</tr>
+<tr>
+<td><code>pluginCliCommands.ts</code></td>
+<td>面向 CLI 的命令实现：安装、卸载、更新、列出</td>
+</tr>
+<tr>
+<td><code>pluginOperations.ts</code></td>
+<td>底层的文件操作：复制、删除、建符号链接</td>
+</tr>
+<tr>
+<td><code>marketplaceManager.ts</code></td>
+<td>和市场 API 通信：列出、搜索、取详情</td>
+</tr>
+<tr>
+<td><code>marketplaceHelpers.ts</code></td>
+<td>解析和校验 URL</td>
+</tr>
+</tbody></table></div>
+<p>下图据原文对 <code>PluginInstallationManager.ts</code> 的描述绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 121 387" width="121" height="387" role="img" aria-label="流程图：从市场下载、校验清单、解压文件、校验信任、注册能力" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am7-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M60.5,49 L60.5,60.5 Q60.5,72 60.5,83.5 L60.5,95" marker-end="url(#am7-arrow)"/></g><g data-step="1"><path class="am-edge" d="M60.5,130 L60.5,141.5 Q60.5,153 60.5,164.5 L60.5,176" marker-end="url(#am7-arrow)"/></g><g data-step="2"><path class="am-edge" d="M60.5,211 L60.5,222.5 Q60.5,234 60.5,245.5 L60.5,257" marker-end="url(#am7-arrow)"/></g><g data-step="3"><path class="am-edge" d="M60.5,292 L60.5,303.5 Q60.5,315 60.5,326.5 L60.5,338" marker-end="url(#am7-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="从市场下载" data-step="0"><rect class="am-node-shape" x="14" y="14" width="93" height="35" rx="3"/><text x="60.5" y="31.5" text-anchor="middle" dominant-baseline="central">从市场下载</text></g><g class="am-node am-node--rect" data-key="校验清单" data-step="0"><rect class="am-node-shape" x="20.5" y="95" width="80" height="35" rx="3"/><text x="60.5" y="112.5" text-anchor="middle" dominant-baseline="central">校验清单</text></g><g class="am-node am-node--rect" data-key="解压文件" data-step="1"><rect class="am-node-shape" x="20.5" y="176" width="80" height="35" rx="3"/><text x="60.5" y="193.5" text-anchor="middle" dominant-baseline="central">解压文件</text></g><g class="am-node am-node--rect" data-key="校验信任" data-step="2"><rect class="am-node-shape" x="20.5" y="257" width="80" height="35" rx="3"/><text x="60.5" y="274.5" text-anchor="middle" dominant-baseline="central">校验信任</text></g><g class="am-node am-node--rect" data-key="注册能力" data-step="3"><rect class="am-node-shape" x="20.5" y="338" width="80" height="35" rx="3"/><text x="60.5" y="355.5" text-anchor="middle" dominant-baseline="central">注册能力</text></g></g></svg></figure>
+<div class="am-md"><h3><code>/reload-plugins</code> 命令</h3>
+<p><code>/reload-plugins</code>（<code>src/commands/reload-plugins/</code>）在运行中刷新插件，不用重启 CLI（原文 4.4）。它做这几件事：</p>
+<ul>
+<li>清掉所有插件缓存：命令、技能、MCP。</li>
+<li>重新扫描插件目录。</li>
+<li>重新拉取市场的清单。</li>
+<li>用新的插件数据更新 AppState。</li>
+<li>把 <code>mcp.pluginReconnectKey</code> 加一，触发 MCP 服务器重新连接。</li>
+</ul>
+</div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>插件更新机制</h2><span class="am-panel-meta">原文 5</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：semver（语义化版本）是 <code>主版本.次版本.修订号</code> 这种版本号写法，例如 2.1.0，可以比大小。</p>
+</blockquote>
+<p>插件更新由 <code>pluginAutoupdate.ts</code> 负责。自动更新系统的六个特点：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>特点</th>
+<th>原文的说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>定期检查</td>
+<td>定期向市场查询有没有新版本</td>
+</tr>
+<tr>
+<td>版本比较</td>
+<td>用 <code>pluginVersioning.ts</code> 里的 semver 比较</td>
+</tr>
+<tr>
+<td>后台下载</td>
+<td>下载新的 <code>.mcpb</code> 文件，不阻塞使用</td>
+</tr>
+<tr>
+<td>原子解压</td>
+<td>先解压到临时目录，再改名，防止文件损坏</td>
+</tr>
+<tr>
+<td>保留配置</td>
+<td>更新前后保留 <code>userConfig</code> 的值</td>
+</tr>
+<tr>
+<td>通知</td>
+<td>通过通知系统显示更新提示</td>
+</tr>
+</tbody></table></div>
+<p>原文给了一段简化的更新代码。下图据这段代码绘制：</p>
+</div>
+<figure class="am-diagram am-flow"><svg viewBox="0 0 382 558" width="382" height="558" role="img" aria-label="流程图：getInstalledPlugins 取得已安装的插件、取下一个插件、getLatestVersion 向市场查最新版本、最新版本比当前版本新？、downloadAndInstallUpdate 下载并安装更新、notifyUser 通知用户" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am8-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M142.9,66 L142.9,77.5 Q142.9,89 142.9,100.5 L142.9,112" marker-end="url(#am8-arrow)"/></g><g data-step="1"><path class="am-edge" d="M195.9,145.1 L238.1,157.6 Q280.4,170 280.4,181.5 L280.4,193" marker-end="url(#am8-arrow)"/></g><g data-step="2"><path class="am-edge" d="M280.4,245 L280.4,256.5 Q280.4,268 262.3,282.5 L244.2,297" marker-end="url(#am8-arrow)"/></g><g data-step="3"><path class="am-edge am-edge--dashed" d="M185.9,297.7 L164.4,282.9 Q142.9,268 142.9,243.5 Q142.9,219 142.9,194.5 Q142.9,170 142.9,158.5 L142.9,147" marker-end="url(#am8-arrow)"/><g class="am-edge-label"><rect x="132.1" y="210" width="21.5" height="18" rx="3"/><text x="142.9" y="219" text-anchor="middle" dominant-baseline="central">否</text></g></g><g data-step="4"><path class="am-edge" d="M216.8,347 L216.8,363 Q216.8,379 216.8,395 L216.8,411" marker-end="url(#am8-arrow)"/><g class="am-edge-label"><rect x="206" y="370" width="21.5" height="18" rx="3"/><text x="216.8" y="379" text-anchor="middle" dominant-baseline="central">是</text></g></g><g data-step="5"><path class="am-edge" d="M216.8,463 L216.8,474.5 Q216.8,486 191.3,497.5 L165.8,509" marker-end="url(#am8-arrow)"/></g><g data-step="6"><path class="am-edge am-edge--dashed" d="M88.2,509 L62.7,497.5 Q37.3,486 37.3,461.5 Q37.3,437 37.3,408 Q37.3,379 37.3,349 Q37.3,319 37.3,293.5 Q37.3,268 37.3,243.5 Q37.3,219 37.3,194.5 Q37.3,170 67.2,158.5 L97.2,147" marker-end="url(#am8-arrow)"/><g class="am-edge-label"><rect x="15" y="310" width="44.5" height="18" rx="3"/><text x="37.3" y="319" text-anchor="middle" dominant-baseline="central">下一个</text></g></g></g><g><g class="am-node am-node--rect" data-key="getInstalledPlugins 取得已安装的插件" data-step="0"><rect class="am-node-shape" x="54.9" y="14" width="175.9" height="52" rx="3"/><text x="142.9" y="31.5" text-anchor="middle" dominant-baseline="central">getInstalledPlugins 取得</text><text x="142.9" y="48.5" text-anchor="middle" dominant-baseline="central">已安装的插件</text></g><g class="am-node am-node--rect" data-key="取下一个插件" data-step="0"><rect class="am-node-shape" x="89.9" y="112" width="106" height="35" rx="3"/><text x="142.9" y="129.5" text-anchor="middle" dominant-baseline="central">取下一个插件</text></g><g class="am-node am-node--rect" data-key="getLatestVersion 向市场查最新版本" data-step="1"><rect class="am-node-shape" x="192.9" y="193" width="174.9" height="52" rx="3"/><text x="280.4" y="210.5" text-anchor="middle" dominant-baseline="central">getLatestVersion 向市场</text><text x="280.4" y="227.5" text-anchor="middle" dominant-baseline="central">查最新版本</text></g><g class="am-node am-node--diamond" data-key="最新版本比当前版本新？" data-step="2"><polygon class="am-node-shape" points="216.8,291 345,319 216.8,347 88.5,319"/><text x="216.8" y="319" text-anchor="middle" dominant-baseline="central">最新版本比当前版本新？</text></g><g class="am-node am-node--rect" data-key="downloadAndInstallUpdate 下载并安装更新" data-step="4"><rect class="am-node-shape" x="121.2" y="411" width="191" height="52" rx="3"/><text x="216.8" y="428.5" text-anchor="middle" dominant-baseline="central">downloadAndInstallUpdate</text><text x="216.8" y="445.5" text-anchor="middle" dominant-baseline="central">下载并安装更新</text></g><g class="am-node am-node--rect" data-key="notifyUser 通知用户" data-step="5"><rect class="am-node-shape" x="54.1" y="509" width="145.8" height="35" rx="3"/><text x="127" y="526.5" text-anchor="middle" dominant-baseline="central">notifyUser 通知用户</text></g></g></svg></figure></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>插件安全模型</h2><span class="am-panel-meta">原文 6.1–6.3</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：</p>
+<ul>
+<li><strong>签名验证</strong>：检查插件确实出自声称的发布方，中途没被改过。</li>
+<li><strong>黑名单（blocklist）</strong>：明确禁止的插件 ID 名单。</li>
+</ul>
+</blockquote>
+<h3>信任级别</h3>
+<p>下图据原文 6.1 的文字图重画：</p>
+</div>
+<div class="am-tree"><div class="am-tree-root"><div class="am-tree-box am-tree-box--root" data-key="插件的信任级别" data-step="0">插件的信任级别</div></div><div class="am-tree-cols" style="--n: 4"><div class="am-tree-col"><div class="am-tree-box" data-key="官方 Anthropic 市场" data-step="1">官方 Anthropic 市场</div><ul class="am-tree-list"><li data-key="签名已验证" data-step="2"><span class="am-tree-label">签名已验证</span></li><li data-key="自动信任，不弹警告" data-step="3"><span class="am-tree-label">自动信任，不弹警告</span></li><li data-key="可以被企业策略屏蔽" data-step="4"><span class="am-tree-label">可以被企业策略屏蔽</span></li></ul></div><div class="am-tree-col"><div class="am-tree-box" data-key="第三方市场（用户添加）" data-step="5">第三方市场（用户添加）</div><ul class="am-tree-list"><li data-key="不验证签名" data-step="6"><span class="am-tree-label">不验证签名</span></li><li data-key="第一次安装时显示警告" data-step="7"><span class="am-tree-label">第一次安装时显示警告</span></li><li data-key="之后从同一市场安装，每个会话警告一次" data-step="8"><span class="am-tree-label">之后从同一市场安装，每个会话警告一次</span></li></ul></div><div class="am-tree-col"><div class="am-tree-box" data-key="本地目录、--plugin-dir" data-step="9">本地目录、--plugin-dir</div><ul class="am-tree-list"><li data-key="路径由用户明确指定" data-step="10"><span class="am-tree-label">路径由用户明确指定</span></li><li data-key="显示警告，需要用户确认" data-step="11"><span class="am-tree-label">显示警告，需要用户确认</span></li><li data-key="确认后视为可信" data-step="12"><span class="am-tree-label">确认后视为可信</span></li></ul></div><div class="am-tree-col"><div class="am-tree-box" data-key="黑名单（pluginBlocklist.ts）" data-step="13">黑名单（pluginBlocklist.ts）</div><ul class="am-tree-list"><li data-key="不能安装，也不能加载" data-step="14"><span class="am-tree-label">不能安装，也不能加载</span></li><li data-key="显示错误消息，说明原因" data-step="15"><span class="am-tree-label">显示错误消息，说明原因</span></li></ul></div></div></div>
+<div class="am-callout am-callout--info" role="note"><div class="am-callout-title">原文前后写法不同</div><div class="am-callout-body am-md"><p>3.3 节说，第三方市场只在“第一次从这个市场安装时”警告。6.1 节又说，之后从同一市场安装，每个会话还会警告一次。</p>
+</div></div>
+<div class="am-md"><h3>策略集成</h3>
+<p>插件的行为受企业策略约束（原文 6.2）：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>文件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pluginOnlyPolicy.ts</code></td>
+<td>打开时，技能和 MCP 只能来自插件；用户自己写的本地技能和 MCP 服务器被拦下</td>
+</tr>
+<tr>
+<td><code>pluginBlocklist.ts</code></td>
+<td>维护黑名单，记录已知恶意或不允许的插件 ID；可以通过策略设置更新</td>
+</tr>
+<tr>
+<td><code>pluginFlagging.ts</code></td>
+<td>标记行为可疑的插件，例如有意料之外的网络请求，或访问文件系统过多</td>
+</tr>
+</tbody></table></div>
+<h3>内容安全</h3>
+<p>插件的命令和技能，和用户自己写的技能遵循同一套安全模型（原文 6.3）：</p>
+<ul>
+<li>执行 shell 命令（<code>!`command`</code>）要经过同一套权限系统。</li>
+<li><code>${CLAUDE_PLUGIN_ROOT}</code> 的替换受控制，插件不能读自己目录以外的内容。</li>
+<li>发给模型的技能内容里，敏感的用户配置值会被遮住。</li>
+<li>插件带来的 MCP 服务器，和手动配置的服务器一样，受允许、拒绝策略约束。</li>
+</ul>
+</div></div>
+</section>
+<section class="am-panel" id="panel-I">
+<header class="am-panel-head"><span class="am-panel-id">I</span><h2>插件、MCP 与内置工具对比</h2><span class="am-panel-meta">原文 7</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文从九个方面对比三种扩展方式：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>方面</th>
+<th>插件</th>
+<th>MCP 服务器</th>
+<th>内置工具</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分发</td>
+<td>市场、<code>.mcpb</code>、目录</td>
+<td>任意 URL 或本地可执行文件</td>
+<td>编译进 CLI</td>
+</tr>
+<tr>
+<td>能力</td>
+<td>命令 + 技能 + 钩子 + MCP</td>
+<td>工具 + 资源 + 提示词</td>
+<td>单个有类型的函数</td>
+</tr>
+<tr>
+<td>信任模型</td>
+<td>清单校验 + 市场信誉</td>
+<td>服务器 URL 或可执行文件路径</td>
+<td>完全信任</td>
+</tr>
+<tr>
+<td>版本</td>
+<td>清单里的 semver，可自动更新</td>
+<td>服务器版本</td>
+<td>CLI 版本</td>
+</tr>
+<tr>
+<td>用户控制</td>
+<td>插件界面 <code>/plugin</code>，可启用、禁用</td>
+<td>MCP 界面 <code>/mcp</code></td>
+<td>用户不能控制</td>
+</tr>
+<tr>
+<td>隔离</td>
+<td>同一进程（Node.js）</td>
+<td>stdio 子进程，或远程</td>
+<td>同一进程（TypeScript）</td>
+</tr>
+<tr>
+<td>登记到</td>
+<td>命令、技能、MCP、钩子注册表</td>
+<td>工具、提示词注册表</td>
+<td>直接进工具列表</td>
+</tr>
+<tr>
+<td>配置</td>
+<td><code>userConfig</code> 字段、选项对话框</td>
+<td><code>.mcp.json</code>、环境变量</td>
+<td>CLI 参数</td>
+</tr>
+<tr>
+<td>性能影响</td>
+<td>启动时加载，有缓存</td>
+<td>启动时连接，流式传输</td>
+<td>惰性加载</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-J">
+<header class="am-panel-head"><span class="am-panel-id">J</span><h2>实现细节（一）：内置插件、MCP 集成与依赖</h2><span class="am-panel-meta">原文 8.1–8.3</span></header>
+<div class="am-panel-body"><div class="am-md"><h3>内置插件注册表</h3>
+<p>内置插件通过 <code>builtinPlugins.ts</code> 里的 <code>registerBuiltinPlugin()</code> 注册。它按插件名，把定义存进 <code>BUILTIN_PLUGINS</code> 表（原文 8.1）。</p>
+<p>原文说，目前没有注册任何内置插件。<code>src/plugins/bundled/index.ts</code> 里的初始化函数 <code>initBuiltinPlugins()</code> 只是脚手架。但这套机制已经支持：</p>
+<ul>
+<li>用 <code>pluginId = &quot;name@builtin&quot;</code> 的格式，和市场插件区分开。</li>
+<li>每个插件有自己的 <code>isAvailable()</code>，按平台或生命周期决定能不能用。</li>
+<li><code>defaultEnabled</code> 设置，默认为 true。</li>
+<li>用户启用、禁用的状态，通过 <code>enabledPlugins</code> 存进设置。</li>
+</ul>
+<h3>插件的 MCP 服务器</h3>
+<p>插件可以在清单里声明 MCP 服务器，由 <code>mcpPluginIntegration.ts</code> 处理（原文 8.2）。入口 <code>getPluginMcpServers()</code> 接收一个 <code>LoadedPlugin</code> 和一个错误列表，返回这个插件的 MCP 服务器配置；没有时返回 null。</p>
+<p>插件的 MCP 服务器按下面的规则处理：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>规则</th>
+<th>做法</th>
+<th>冲突时谁胜出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>加命名空间</td>
+<td>命名为 <code>plugin:pluginName:serverName</code>，避免和手动配置的服务器重名</td>
+<td>—</td>
+</tr>
+<tr>
+<td>和手动配置的去重</td>
+<td>按内容签名比较</td>
+<td>手动配置的胜出</td>
+</tr>
+<tr>
+<td>插件之间去重</td>
+<td>和更早加载的插件的服务器重复时，压下这一个</td>
+<td>先加载的胜出</td>
+</tr>
+<tr>
+<td>策略过滤</td>
+<td>和手动配置的服务器用同一套允许、拒绝规则</td>
+<td>—</td>
+</tr>
+</tbody></table></div>
+<h3>依赖解析</h3>
+<p>插件的依赖由 <code>dependencyResolver.ts</code> 解析（原文 8.3）：</p>
+<ul>
+<li>按依赖关系图解析。</li>
+<li>检测循环依赖。</li>
+<li>用 semver 范围检查版本是否兼容。</li>
+<li>缺少依赖时报错，错误消息告诉用户怎么处理。</li>
+</ul>
+</div></div>
+</section>
+<section class="am-panel" id="panel-K">
+<header class="am-panel-head"><span class="am-panel-id">K</span><h2>实现细节（二）：加载错误与冷启动</h2><span class="am-panel-meta">原文 8.4–8.5</span></header>
+<div class="am-panel-body"><div class="am-md"><blockquote>
+<p><strong>白话</strong>：冷启动是程序从零开始启动。关键路径是启动时必须走完、直接决定启动快慢的那串步骤。</p>
+</blockquote>
+<h3>加载错误</h3>
+<p>加载插件时出的错，会被收集起来，在系统里往下传（原文 8.4）。错误的类型是 <code>PluginError</code>：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>type</code></td>
+<td>错误类型，原文列了 6 种，其余省略：<code>mcp-config-invalid</code>、<code>mcpb-download-failed</code>、<code>mcpb-extract-failed</code>、<code>mcpb-invalid-manifest</code>、<code>plugin-not-found</code>、<code>mcp-server-suppressed-duplicate</code></td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>出错的来源</td>
+</tr>
+<tr>
+<td><code>plugin</code>、<code>serverName</code></td>
+<td>可选：哪个插件、哪个服务器</td>
+</tr>
+<tr>
+<td><code>duplicateOf</code></td>
+<td>可选：和谁重复</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td>可选：错误消息</td>
+</tr>
+</tbody></table></div>
+<p><code>useManageMCPConnections.ts</code> 按组合键 <code>type:source:plugin</code> 给错误去重，同一个错误不会显示好几遍。</p>
+<h3>冷启动性能</h3>
+<p>插件加载针对启动速度做了优化（原文 8.5）：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>优化</th>
+<th>做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>启动不联网</td>
+<td><code>loadAllPluginsCacheOnly()</code> 只用本地缓存，启动的关键路径上没有网络请求</td>
+</tr>
+<tr>
+<td>并行加载</td>
+<td>插件的 MCP 服务器用 <code>Promise.all</code> 同时加载</td>
+</tr>
+<tr>
+<td>轻量解析</td>
+<td>清单用轻量方式解析，不是每次加载都做完整的 Schema 校验</td>
+</tr>
+<tr>
+<td>延后检查</td>
+<td>启动检查任务（<code>performStartupChecks.tsx</code>）等主界面渲染完再运行</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-L">
+<header class="am-panel-head"><span class="am-panel-id">L</span><h2>关键源码文件</h2><span class="am-panel-meta">原文 Key Source Files</span></header>
+<div class="am-panel-body"><div class="am-md"><p>原文最后列了 21 个关键源码文件。下表的分组是本页归纳，条目照原文：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>分组</th>
+<th>文件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内置插件</td>
+<td><code>src/plugins/builtinPlugins.ts</code></td>
+<td>内置插件注册表</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/plugins/bundled/index.ts</code></td>
+<td>内置插件初始化</td>
+</tr>
+<tr>
+<td>命令和界面</td>
+<td><code>src/commands/plugin/plugin.tsx</code></td>
+<td>插件 CLI 命令入口</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/commands/plugin/PluginSettings.tsx</code></td>
+<td>插件管理主界面</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/commands/plugin/BrowseMarketplace.tsx</code></td>
+<td>市场浏览器</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/commands/plugin/PluginTrustWarning.tsx</code></td>
+<td>信任校验对话框</td>
+</tr>
+<tr>
+<td>服务层</td>
+<td><code>src/services/plugins/PluginInstallationManager.ts</code></td>
+<td>统筹安装</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/services/plugins/pluginCliCommands.ts</code></td>
+<td>CLI 命令实现</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/services/plugins/pluginOperations.ts</code></td>
+<td>底层文件操作</td>
+</tr>
+<tr>
+<td>加载和集成</td>
+<td><code>src/utils/plugins/pluginLoader.ts</code></td>
+<td>插件加载管线</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/utils/plugins/loadPluginCommands.ts</code></td>
+<td>命令和技能加载</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/utils/plugins/mcpPluginIntegration.ts</code></td>
+<td>MCP 服务器集成</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/utils/plugins/schemas.ts</code></td>
+<td>插件清单的 Schema</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/utils/plugins/reconciler.ts</code></td>
+<td>状态协调</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/types/plugin.ts</code></td>
+<td>插件类型定义</td>
+</tr>
+<tr>
+<td>市场、版本和依赖</td>
+<td><code>src/utils/plugins/marketplaceManager.ts</code></td>
+<td>市场 API 客户端</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/utils/plugins/pluginAutoupdate.ts</code></td>
+<td>自动更新机制</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/utils/plugins/pluginVersioning.ts</code></td>
+<td>semver 版本管理</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/utils/plugins/dependencyResolver.ts</code></td>
+<td>依赖解析</td>
+</tr>
+<tr>
+<td>安全和策略</td>
+<td><code>src/utils/plugins/pluginBlocklist.ts</code></td>
+<td>安全黑名单</td>
+</tr>
+<tr>
+<td></td>
+<td><code>src/utils/plugins/pluginPolicy.ts</code></td>
+<td>策略集成</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-M">
+<header class="am-panel-head"><span class="am-panel-id">M</span><h2>原文前后不一致的地方</h2><span class="am-panel-meta">本页归纳</span></header>
+<div class="am-panel-body"><div class="am-md"><p>本页没有替原文统一，各处都照原文写。原文没有总结一章，这里把不一致的地方汇总在一起：</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>不一致的地方</th>
+<th>一处的说法</th>
+<th>另一处的说法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>加载步骤的先后</td>
+<td>1 节的图：信任校验 → 依赖解析 → 清单校验</td>
+<td>3.2 节的图：校验清单 → 检查信任和黑名单 → 解析依赖</td>
+</tr>
+<tr>
+<td>插件来源有几种</td>
+<td>1 节和 3.2 节的图：4 种</td>
+<td>3.1 节：5 种，多了企业管理的插件（Managed Plugins）</td>
+</tr>
+<tr>
+<td>插件能不能带代理</td>
+<td>1 节和 3.5 节的图：有插件代理、代理注册表 <code>loadPluginAgents</code></td>
+<td>2 节的清单没有代理字段；开头和 7 节列能力时也没有代理</td>
+</tr>
+<tr>
+<td>内置插件放在哪</td>
+<td>1 节的图和 3.1 节：<code>src/plugins/builtin/</code>，始终可用</td>
+<td>8.1 节和文件表：<code>builtinPlugins.ts</code> 和 <code>src/plugins/bundled/index.ts</code>；目前没有注册任何内置插件</td>
+</tr>
+<tr>
+<td>第三方市场的警告</td>
+<td>3.3 节：第一次从这个市场安装时警告</td>
+<td>6.1 节：之后从同一市场安装，每个会话警告一次</td>
+</tr>
+<tr>
+<td>清单校验</td>
+<td>3.2 节的图：有“校验清单 Schema”这一步</td>
+<td>8.5 节：清单用轻量解析，不是每次加载都完整校验</td>
+</tr>
+<tr>
+<td>策略文件名</td>
+<td>6.2 节：<code>pluginOnlyPolicy.ts</code></td>
+<td>文件表的策略集成文件：<code>pluginPolicy.ts</code></td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-N">
+<header class="am-panel-head"><span class="am-panel-id">N</span><h2>附录：名词表（白话）</h2><span class="am-panel-meta">本页补充</span></header>
+<div class="am-panel-body"><div class="am-md"><p>开头“先看懂”讲过的词，这里不再收。</p>
+<h3>程序与设计</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>白话</th>
+<th>出现在</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>memoize（记忆化）</td>
+<td>第一次算出结果后记住它，之后直接返回</td>
+<td>E 节</td>
+</tr>
+<tr>
+<td>命名空间</td>
+<td>在名字前加前缀，让同名的东西不冲突</td>
+<td>E、J 节</td>
+</tr>
+<tr>
+<td>Schema</td>
+<td>数据格式的说明，用来检查数据写得对不对</td>
+<td>C、D、K 节</td>
+</tr>
+<tr>
+<td>semver（语义化版本）</td>
+<td><code>主版本.次版本.修订号</code> 的版本号写法，可以比大小</td>
+<td>G、I、J 节</td>
+</tr>
+<tr>
+<td>React 组件</td>
+<td>用 React 写的一块界面</td>
+<td>F 节</td>
+</tr>
+<tr>
+<td>脚手架</td>
+<td>先搭好的空架子，还没有放实际内容</td>
+<td>J 节</td>
+</tr>
+<tr>
+<td>原子操作</td>
+<td>要么全部完成，要么完全没发生，不会停在一半</td>
+<td>G 节</td>
+</tr>
+<tr>
+<td>内容签名</td>
+<td>按内容算出的标识，内容相同，签名就相同</td>
+<td>J 节</td>
+</tr>
+<tr>
+<td>组合键</td>
+<td>把几个字段拼在一起当作一个键，例如 <code>type:source:plugin</code></td>
+<td>K 节</td>
+</tr>
+<tr>
+<td>循环依赖</td>
+<td>A 依赖 B，B 又依赖 A，绕成一个圈</td>
+<td>J 节</td>
+</tr>
+<tr>
+<td>Promise.all</td>
+<td>同时启动几件事，等它们全部完成</td>
+<td>K 节</td>
+</tr>
+<tr>
+<td>惰性加载</td>
+<td>用到时才加载，不提前准备</td>
+<td>I 节</td>
+</tr>
+</tbody></table></div>
+<h3>文件与分发</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>白话</th>
+<th>出现在</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>.mcpb</code>（MCP Bundle）</td>
+<td>原文说的插件分发格式，本质是一个 zip 包</td>
+<td>C、G、I 节</td>
+</tr>
+<tr>
+<td>frontmatter</td>
+<td>Markdown 文件开头两行 <code>---</code> 之间的配置</td>
+<td>E 节</td>
+</tr>
+<tr>
+<td>符号链接（symlink）</td>
+<td>指向另一个文件或目录的“快捷方式”</td>
+<td>F 节</td>
+</tr>
+<tr>
+<td>临时目录</td>
+<td>用完就删的中间目录</td>
+<td>G 节</td>
+</tr>
+<tr>
+<td>stdio 子进程</td>
+<td>另起一个程序，通过标准输入输出和它通信</td>
+<td>I 节</td>
+</tr>
+</tbody></table></div>
+<h3>安全</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>白话</th>
+<th>出现在</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>签名验证</td>
+<td>检查插件出自声称的发布方，中途没被改过</td>
+<td>H 节</td>
+</tr>
+<tr>
+<td>黑名单（blocklist）</td>
+<td>明确禁止的插件 ID 名单</td>
+<td>D、H 节</td>
+</tr>
+<tr>
+<td>企业策略</td>
+<td>公司管理员统一下发的设置，用户不能自己改</td>
+<td>D、H 节</td>
+</tr>
+<tr>
+<td>遮住敏感值（masked）</td>
+<td>把密码这类值替换掉，不让模型看到原文</td>
+<td>E、H 节</td>
+</tr>
+</tbody></table></div>
+<h3>Claude Code 自己的名词</h3>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>白话</th>
+<th>出现在</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>bundled skills、disk-based skills</td>
+<td>编译进程序的技能；用户写在磁盘上的技能</td>
+<td>B 节</td>
+</tr>
+<tr>
+<td><code>PluginManifest</code></td>
+<td>插件清单的类型</td>
+<td>C 节</td>
+</tr>
+<tr>
+<td><code>BuiltinPluginDefinition</code></td>
+<td>内置插件的定义类型</td>
+<td>C 节</td>
+</tr>
+<tr>
+<td><code>LoadedPlugin</code></td>
+<td>加载管线产出的插件对象，带路径和配置</td>
+<td>D、J 节</td>
+</tr>
+<tr>
+<td><code>userConfig</code></td>
+<td>插件让用户填的配置项，以及保存下来的值</td>
+<td>C、F、G 节</td>
+</tr>
+<tr>
+<td><code>commandsMetadata</code></td>
+<td>清单里覆盖命令元数据的字段</td>
+<td>C、E 节</td>
+</tr>
+<tr>
+<td><code>enabledPlugins</code></td>
+<td>设置里记录哪些插件启用的项</td>
+<td>J 节</td>
+</tr>
+<tr>
+<td><code>name@builtin</code></td>
+<td>内置插件的 ID 格式</td>
+<td>J 节</td>
+</tr>
+<tr>
+<td>AppState</td>
+<td>Claude Code 的全局状态</td>
+<td>F 节</td>
+</tr>
+<tr>
+<td><code>mcp.pluginReconnectKey</code></td>
+<td>一个计数值，加一就触发插件的 MCP 服务器重连</td>
+<td>F 节</td>
+</tr>
+<tr>
+<td><code>PluginError</code></td>
+<td>插件加载错误的类型</td>
+<td>K 节</td>
+</tr>
+<tr>
+<td>企业管理的插件（Managed Plugins）</td>
+<td>由企业策略强制安装或管理的插件</td>
+<td>D 节</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="图表查看" data-expand="展开查看图表">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="关闭" aria-label="关闭">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.4.14 · 2026-11-03 16:27</footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+title: Plugins System Deep Dive：插件系统深度剖析（解读）
+subtitle: How Claude Code Works · 源码分析篇解读，按原文讲清逻辑，代码改用图和表讲，附白话讲解
+source: https://jwangkun.github.io/how-claude-code-works/source/plugins-system-deep
+---
+原文：[Plugins System Deep Dive](https://jwangkun.github.io/how-claude-code-works/source/plugins-system-deep)
+
+一句话结论：原文认为，插件是从市场分发的自包含扩展，一个包就能给 Claude Code 加上命令、技能、钩子和 MCP 服务器。和内置技能、磁盘上的技能不同，插件有正式的清单、信任模型、版本管理和管理界面。
+
+- **做什么**：发现、加载、管理插件，并控制插件的安全。
+- **怎么做**：启动时只读本地缓存，从几种来源找到插件。插件经过清单校验、信任检查和依赖解析，再把命令、技能、钩子、MCP 服务器登记到各自的注册表。`/plugin` 界面管理安装和配置，后台负责自动更新。
+
+白话地说（本页归纳）：插件是一个打包好的目录，里面装着几样扩展功能。装一次，这几样功能就一起能用。
+
+正文按原文解读，没有核对源码，也不用官方文档核对原文。原文是英文，本页译成中文，函数名、文件名和关键英文名词照原文保留。原文查阅日期为 2026-11-03，站点标注的最后更新日期为 2026-05-26。A 节的用户视角取自官方文档（code.claude.com/docs，2026-11-03 查阅），标“官方文档”。
+
+## A 先看懂：插件在用户眼里是什么 {meta=&quot;本页补充：用户视角据官方文档；结构为本页归纳&quot;}
+
+这篇文章讲源码。读源码之前，先看插件用起来是什么样子。
+
+### 用户能看到的插件
+
+官方文档说，插件是一个目录，里面放技能、子代理、钩子、MCP 服务器等组件，Claude Code 把它当一个整体安装和加载。插件大多来自插件市场。下图是示意，据官方文档：
+
+```flow
+[插件市场（一份插件目录清单）] -&gt; [插件（一个目录）]: 列出
+[插件（一个目录）] -&gt; [你的 Claude Code 会话]: 你安装并启用后加载
+[你的 Claude Code 会话] -&gt; [MCP 服务器（给 Claude 加工具）]
+[你的 Claude Code 会话] -&gt; [钩子（在生命周期事件时运行）]
+[你的 Claude Code 会话] -&gt; [子代理]
+[你的 Claude Code 会话] -&gt; [技能（例如 /my-plugin:review）]
+```
+
+| 你怎么做 | 效果（官方文档） | 原文对应的部分 |
+|---|---|---|
+| 输入 `/plugin` | 打开插件面板，有 Discover、Installed、Marketplaces、Errors 等标签页 | F 节 |
+| 在 Discover 里选一个插件，或输入 `/plugin install &lt;插件&gt;@&lt;市场&gt;` | 安装插件。安装时选范围：user 是本机所有项目，project 写进 `.claude/settings.json` 给整个仓库用，local 只给你在这个仓库用 | D、F 节 |
+| 什么都不做 | 第一次启动交互式会话时，Claude Code 自动添加官方市场 `claude-plugins-official` | D 节 3.1 |
+| 输入 `/plugin marketplace add &lt;来源&gt;` | 添加一个插件市场。市场是带 `.claude-plugin/marketplace.json` 的仓库或目录，是一份目录清单，不是托管的商店 | D 节 3.1 |
+| 启动时加 `--plugin-dir &lt;目录&gt;` | 只在这次会话加载一个本地插件，不用安装 | D 节 3.1 |
+| 运行插件里的技能 | 命令名是 `/&lt;插件名&gt;:&lt;目录名&gt;`，例如 `/my-plugin:review` | E 节 3.4 |
+| 输入 `/reload-plugins` | 不重启，就把插件的改动加载进当前会话 | F 节 4.4 |
+| 插件所在的市场开了自动更新 | 后台更新磁盘上的插件。正在运行的会话继续用旧版本，并提示运行 `/reload-plugins` | G 节 |
+| 安装一个声明了依赖的插件 | 依赖的插件也一起安装并启用 | J 节 8.3 |
+| 在 `/plugin` 里禁用，或在终端运行 `claude plugin disable` | 不卸载，只停用插件 | F 节 |
+
+```callout warn 自己动手时按文档：原文和文档写法不同的几处
+下面只把两种说法并列，不判断谁对。正文照原文写。
+
+- **清单文件**：原文的图里叫 `manifest.json`，类型定义在 `schemas.ts`。文档写的是插件目录里的 `.claude-plugin/plugin.json`。
+- **打包格式**：原文说插件以 `.mcpb` 文件（zip 包）或目录分发。文档说插件是一个目录；`.mcpb` 是插件里打包 MCP 服务器的格式。
+- **官方市场在哪**：原文说官方插件托管在 `api.anthropic.com/mcp-registry/`。文档说市场是一个仓库或目录，官方市场叫 `claude-plugins-official`；官方和社区市场的名字只认 `github.com/anthropics/` 下的仓库。
+- **依赖字段**：原文的清单里叫 `requires`。文档里叫 `dependencies`。
+- **官方市场的信任**：原文说官方市场的插件完全信任，不弹警告。文档说不管来自哪一级市场，装上的插件都能用你的用户权限运行代码，安装前要先审查。
+```
+
+### 原文的整体结构
+
+原文分八章，最后附一张关键源码文件表。下面的分组是本页归纳：
+
+```tree list
+原文的结构
+  它是什么 | 1 架构总览（B 节）
+  插件长什么样 | 2 插件清单格式（C 节）
+  插件怎样进到 Claude Code | 3 插件生命周期：发现到集成（D、E 节）
+  用户怎样管理插件 | 4 插件 CLI 命令 · 5 插件更新机制（F、G 节）
+  怎样保证安全 | 6 插件安全模型（H 节）
+  和其他扩展方式比 | 7 插件、MCP 与内置工具对比（I 节）
+  实现细节 | 8 值得注意的实现细节 · 关键源码文件（J、K、L 节）
+```
+
+想先看全局，读 B 节的架构图和 D 节的加载管线图。原文没有总结一章；本页在 M 节汇总了原文前后不一致的地方。
+
+### 先认识几个词
+
+下面这些词全篇反复出现，先用白话说清。其他名词见文末“附录：名词表（白话）”。
+
+| 词 | 白话 |
+|---|---|
+| 插件（Plugin） | 一个打包好的扩展，能同时给 Claude Code 加上命令、技能、钩子和 MCP 服务器 |
+| 插件市场（Marketplace） | 列出可安装插件的地方。用户从市场里找插件、安装插件 |
+| 清单（Manifest） | 插件的说明文件，写插件叫什么、什么版本、带了哪些能力 |
+| 命令和技能（Command、Skill） | 用 Markdown 写的指令。命令由用户按名字运行；技能是放在带 `SKILL.md` 目录里的指令 |
+| 钩子（Hook） | 在特定时刻自动执行的动作，例如每次查询前后 |
+| MCP 服务器 | 给 Claude Code 接入外部工具的服务 |
+| 注册表（Registry） | Claude Code 记录“现在有哪些命令、技能、钩子”的清单。插件的能力登记进去后才能用 |
+| 缓存 | 存在本机的一份副本。下次直接读它，不用再联网下载 |
+
+## B 架构总览 {meta=&quot;原文 1&quot;}
+
+&gt; **白话**：
+&gt; - **bundled skills（内置技能）**：编译进 Claude Code 程序本身的技能。
+&gt; - **disk-based skills（磁盘技能）**：用户自己写、放在磁盘上的 `.md` 文件。
+
+原文说，插件系统让第三方扩展用一个包提供几种能力。插件和另外两种技能的区别是：
+
+| | 内置技能 | 磁盘技能 | 插件 |
+|---|---|---|---|
+| 从哪来 | 编译进程序 | 用户自己写的 `.md` 文件 | 从市场分发 |
+| 有没有正式清单、信任模型、版本管理和管理界面 | — | — | 都有 |
+
+下图据原文的架构图重画。原图有四个分组，其中“CLI 集成”和另外三组之间没有连线。本页把它拆出来，单独画在第二张图里：
+
+```flow
+[Marketplace api.anthropic.com] -&gt; [pluginLoader.ts]
+[Built-in src/plugins/builtin] -&gt; [pluginLoader.ts]
+[Inline --plugin-dir 参数] -&gt; [pluginLoader.ts]
+[Local ~/.claude/plugins/] -&gt; [pluginLoader.ts]
+[pluginLoader.ts] -&gt; [loadAllPluginsCacheOnly]
+[loadAllPluginsCacheOnly] -&gt; [信任校验]
+[信任校验] -&gt; [依赖解析]
+[依赖解析] -&gt; [插件清单校验]
+[插件清单校验] -&gt; [代理]
+[插件清单校验] -&gt; [MCP 服务器]
+[插件清单校验] -&gt; [钩子 beforeQuery/afterQuery]
+[插件清单校验] -&gt; [技能 SKILL.md 目录]
+[插件清单校验] -&gt; [命令 .md 文件]
+group 插件来源 Plugin Sources: Marketplace api.anthropic.com, Built-in src/plugins/builtin, Inline --plugin-dir 参数, Local ~/.claude/plugins/
+group 加载管线 Loading Pipeline: pluginLoader.ts, loadAllPluginsCacheOnly, 信任校验, 依赖解析, 插件清单校验
+group 插件提供的能力 Contributed Capabilities: 命令 .md 文件, 技能 SKILL.md 目录, 钩子 beforeQuery/afterQuery, MCP 服务器, 代理
+```
+
+```flow
+[/plugin 命令] -&gt; [PluginSettings 组件]
+[PluginSettings 组件] -&gt; [PluginTrustWarning]
+[PluginSettings 组件] -&gt; [PluginOptionsDialog]
+group CLI 集成 CLI Integration: /plugin 命令, PluginSettings 组件, PluginOptionsDialog, PluginTrustWarning
+```
+
+这张图里，加载管线的顺序是信任校验、依赖解析、清单校验。D 节 3.2 的图顺序不同，见 M 节。
+
+## C 插件清单格式 {meta=&quot;原文 2&quot;}
+
+&gt; **白话**：zip 包是把一堆文件压成一个文件。清单就是插件的“自我介绍”。
+
+插件有两种分发形式：`.mcpb` 文件（MCP Bundle，一个 zip 包），或一个目录。清单的类型 `PluginManifest` 定义在 `src/utils/plugins/schemas.ts`。下表按用途分组（本页归纳），括号里是原文注释：
+
+| 用途 | 字段 |
+|---|---|
+| 必填 | `name`、`description`、`version` |
+| 可选的元数据 | `icon`、`author`、`license`、`homepage`、`repository` |
+| 命令 | `commands`（命令 .md 文件路径）、`commandsPaths`（额外命令目录）、`commandsMetadata`（命令元数据，见 E 节） |
+| 技能 | `skills`（技能的名字或选择器）、`skillsPaths`（额外的技能目录） |
+| 钩子和 MCP | `hooks`、`mcpServers` |
+| 配置和限制 | `userConfig`（让用户填的配置项）、`requires`（依赖的插件 ID）、`platform`（平台限制：darwin、win32、linux） |
+
+### 内置插件的定义
+
+内置插件不用清单文件，而是用 TypeScript 定义，类型是 `BuiltinPluginDefinition`。它和清单的不同之处：
+
+| 字段 | 原文的说明 |
+|---|---|
+| `name`、`description`、`version` | 和清单一样 |
+| `defaultEnabled` | 是否默认启用，默认为 true |
+| `isAvailable()` | 按平台或生命周期决定这个插件能不能用 |
+| `skills` | 内置技能的定义（`BundledSkillDefinition`），不是路径 |
+| `hooks`、`mcpServers` | 钩子设置和 MCP 服务器配置 |
+
+## D 插件生命周期（一）：发现、加载与信任 {meta=&quot;原文 3.1–3.3&quot;}
+
+原文第 3 章讲插件从发现到集成的全过程，本页分 D、E 两节讲。
+
+### 发现：插件从哪来
+
+启动时，Claude Code 从下面几种来源发现插件（原文 3.1）：
+
+| 来源 | 从哪来 | 说明 |
+|---|---|---|
+| 官方市场（Official Marketplace） | 托管在 `api.anthropic.com/mcp-registry/` | 拉取后缓存在本地；由 `marketplaceManager.ts` 负责搜索 |
+| 内置（Built-in Commands） | 编译进 CLI 程序，位于 `src/plugins/builtin/` | 除非明确禁用，否则始终可用 |
+| 内联插件（Inline Plugins） | 启动参数 `--plugin-dir /path/to/plugin` | 直接从文件系统加载 |
+| 已安装插件（Installed Plugins） | 之前从市场安装，存在 `~/.claude/plugins/` | 有缓存，离线也能用 |
+| 企业管理的插件（Managed Plugins） | 由企业策略管理 | 由 `managedPlugins.ts` 强制执行 |
+
+### 加载管线
+
+加载的主入口是 `pluginLoader.ts` 里的 `loadAllPluginsCacheOnly()`（原文 3.2）。下图据原文的流程图重画：
+
+```flow
+(loadAllPluginsCacheOnly) -&gt; [发现插件来源]
+[发现插件来源] -&gt; {来源类型？}
+{来源类型？} -&gt; [从缓存加载]: local
+{来源类型？} -&gt; [从文件系统加载]: inline
+{来源类型？} -&gt; [使用编译进来的定义]: builtin
+{来源类型？} -&gt; [获取清单]: marketplace
+[获取清单] -&gt; [校验清单 Schema]
+[使用编译进来的定义] -&gt; [校验清单 Schema]
+[从文件系统加载] -&gt; [校验清单 Schema]
+[从缓存加载] -&gt; [校验清单 Schema]
+[校验清单 Schema] -&gt; [检查信任和黑名单]
+[检查信任和黑名单] -&gt; [解析依赖]
+[解析依赖] -&gt; [加载插件组件]
+[加载插件组件] -&gt; [区分启用和禁用]
+[区分启用和禁用] -&gt; [返回 LoadedPlugin 对象]
+```
+
+管线的产物是 `LoadedPlugin` 对象，它带着解析好的路径和配置。下表按用途分组（本页归纳），括号里是原文注释：
+
+| 用途 | 字段 |
+|---|---|
+| 身份 | `name`、`manifest`、`source`（市场标识，例如 `slack@anthropic`）、`repository`（完整的仓库标识） |
+| 位置 | `path`（插件在磁盘上的根目录） |
+| 状态 | `enabled`（当前是否启用）、`isBuiltin`（是否为编译进来的插件） |
+| 能力 | `hooksConfig`、`mcpServers`、`commandsPath`（默认命令目录）、`commandsPaths`（额外的命令路径）、`skillsPath`（默认技能目录）、`skillsPaths`（额外的技能目录）、`commandsMetadata` |
+| 用户配置 | `userConfig`（已保存的用户偏好） |
+
+### 信任校验
+
+来自市场的插件要经过信任校验。安装前，`PluginTrustWarning` 组件（`src/commands/plugin/PluginTrustWarning.tsx`）显示信任信息（原文 3.3）。信任分四级：
+
+| 来源 | 信任级别 | 用户看到什么 |
+|---|---|---|
+| 官方 Anthropic 市场 | 完全信任 | 自动安装，不警告 |
+| 用户添加的市场 | 中等信任 | 第一次从这个市场安装时警告 |
+| 本地目录、`--plugin-dir` | 中等信任 | 警告；路径是用户自己选的 |
+| 黑名单里的插件 | 不信任 | 拒绝加载，显示错误 |
+
+黑名单由 `pluginBlocklist.ts` 管理，可以通过企业策略远程更新。H 节 6.1 对这四级有更细的说明。
+
+## E 插件生命周期（二）：命令、技能加载与能力注册 {meta=&quot;原文 3.4–3.5&quot;}
+
+&gt; **白话**：
+&gt; - **memoize（记忆化）**：函数第一次算出结果后记住它，之后再调用直接返回，不重算。
+&gt; - **命名空间**：在名字前加前缀，例如 `pluginName:`，让不同插件的同名命令不冲突。
+
+### 命令和技能的加载
+
+`loadPluginCommands.ts` 里，`getPluginCommands()` 加载插件命令，`getPluginSkills()` 加载插件技能。两个函数都做了 memoize（原文 3.4）。
+
+实际遍历目录的是 `loadCommandsFromDirectory()`。它接收命令目录、插件名、来源名、清单和插件路径，返回一组命令。下图据原文代码绘制：
+
+```flow
+[collectMarkdownFiles 递归收集所有 .md 文件] -&gt; [transformPluginSkillFiles 把含 SKILL.md 的目录变成一个命令]
+[transformPluginSkillFiles 把含 SKILL.md 的目录变成一个命令] -&gt; [createPluginCommand 把每个文件转成一个命令]
+[createPluginCommand 把每个文件转成一个命令] -&gt; [返回命令列表]
+```
+
+### 支持的文件组织方式
+
+插件命令支持三种文件组织方式：
+
+| 方式 | 文件 | 得到的命令名 |
+|---|---|---|
+| 平铺文件 | `commands/review-pr.md` | `pluginName:review-pr` |
+| SKILL.md 目录 | `commands/code-review/SKILL.md` | `pluginName:code-review` |
+| 嵌套的命名空间 | `commands/github/pr/review.md` | `pluginName:github:pr:review` |
+
+### 变量替换
+
+插件命令的内容里可以写下面这些变量，加载时替换成实际的值：
+
+| 变量 | 替换成什么 |
+|---|---|
+| `${CLAUDE_PLUGIN_ROOT}` | 插件的安装目录 |
+| `${CLAUDE_PLUGIN_DATA}` | 插件的数据目录 |
+| `${CLAUDE_SKILL_DIR}` | 技能专用：这个技能在插件里的子目录 |
+| `${CLAUDE_SESSION_ID}` | 当前会话的 ID |
+| `${user_config.X}` | 用户保存的配置值；敏感的值会被遮住 |
+| `` !`command` `` | 内联的 shell 命令，由 `executeShellCommandsInPrompt` 执行 |
+
+### 元数据覆盖
+
+清单可以用 `commandsMetadata` 覆盖命令文件 frontmatter 里的字段。原文的例子给 `review-pr` 命令设了这几项：
+
+| 字段 | 示例值 |
+|---|---|
+| `source` | `commands/custom-review.md` |
+| `description` | 借助 AI 审查一个 pull request |
+| `argumentHint` | `&lt;pr-number&gt;` |
+| `model` | `sonnet` |
+| `allowedTools` | Read、Write、Bash |
+
+为什么：原文说，这样插件作者不用改 `.md` 文件本身，就能提供元数据。
+
+### 能力注册
+
+插件加载后，它的各项能力登记到对应的注册表（原文 3.5）。下图据原文的流程图重画：
+
+```flow LR
+[manifest.json] -&gt; [MCP 连接池 getPluginMcpServers]
+[manifest.json] -&gt; [钩子注册表 loadPluginHooks]
+[manifest.json] -&gt; [代理注册表 loadPluginAgents]
+[commands/] -&gt; [命令注册表 getPluginCommands]
+[skills/] -&gt; [技能注册表 getPluginSkills]
+[mcp_servers/] -&gt; [MCP 连接池 getPluginMcpServers]
+group 插件 Plugin: manifest.json, commands/, skills/, mcp_servers/
+group Claude Code 的注册表: 命令注册表 getPluginCommands, 技能注册表 getPluginSkills, MCP 连接池 getPluginMcpServers, 钩子注册表 loadPluginHooks, 代理注册表 loadPluginAgents
+```
+
+## F 插件 CLI 命令 {meta=&quot;原文 4.1–4.4&quot;}
+
+&gt; **白话**：React 组件是用 React 写的一块界面。Claude Code 在终端里也用它画界面。
+
+### `/plugin` 命令
+
+插件管理的主界面由 `/plugin` 命令打开（`src/commands/plugin/plugin.tsx`）。这个命令只做一件事：渲染 `PluginSettings` 组件，并把参数和完成回调传给它（原文 4.1）。`PluginSettings` 提供：
+
+- 已安装插件的列表，每个插件可以启用或禁用。
+- 市场浏览器，用来发现新插件。
+- 从新来源安装前的信任警告。
+- 配置对话框，给声明了 `userConfig` 字段的插件用。
+- 市场管理，用来添加或删除市场来源。
+
+### 插件界面组件
+
+原文列了 13 个界面组件。下表的分组是本页归纳，条目照原文（原文 4.2）：
+
+| 分组 | 组件 | 作用 |
+|---|---|---|
+| 总入口 | `PluginSettings` | 插件管理主界面，统筹所有子界面 |
+| 已安装的插件 | `ManagePlugins` | 已安装插件列表，可启用、禁用 |
+| | `UnifiedInstalledCell` | 显示一个已安装插件的统一单元格 |
+| | `PluginDetailsHelpers` | 详情界面用的辅助函数（文件名 `pluginDetailsHelpers.tsx`） |
+| 市场 | `BrowseMarketplace` | 搜索和浏览市场 |
+| | `DiscoverPlugins` | 发现插件的界面 |
+| | `AddMarketplace` | 添加自定义市场的 URL |
+| | `ManageMarketplaces` | 查看和管理市场来源 |
+| 安装和配置 | `PluginTrustWarning` | 安装前的信任校验对话框 |
+| | `PluginOptionsDialog` | 单个插件的配置对话框 |
+| | `PluginOptionsFlow` | 分几步引导用户完成配置 |
+| 校验和报错 | `ValidatePlugin` | 插件校验检查 |
+| | `PluginErrors` | 显示错误 |
+
+### 服务层
+
+服务层负责实际的安装和管理操作（原文 4.3）：
+
+| 文件 | 负责什么 |
+|---|---|
+| `PluginInstallationManager.ts` | 统筹整个安装过程，步骤见下图 |
+| `pluginCliCommands.ts` | 面向 CLI 的命令实现：安装、卸载、更新、列出 |
+| `pluginOperations.ts` | 底层的文件操作：复制、删除、建符号链接 |
+| `marketplaceManager.ts` | 和市场 API 通信：列出、搜索、取详情 |
+| `marketplaceHelpers.ts` | 解析和校验 URL |
+
+下图据原文对 `PluginInstallationManager.ts` 的描述绘制：
+
+```flow
+[从市场下载] -&gt; [校验清单]
+[校验清单] -&gt; [解压文件]
+[解压文件] -&gt; [校验信任]
+[校验信任] -&gt; [注册能力]
+```
+
+### `/reload-plugins` 命令
+
+`/reload-plugins`（`src/commands/reload-plugins/`）在运行中刷新插件，不用重启 CLI（原文 4.4）。它做这几件事：
+
+- 清掉所有插件缓存：命令、技能、MCP。
+- 重新扫描插件目录。
+- 重新拉取市场的清单。
+- 用新的插件数据更新 AppState。
+- 把 `mcp.pluginReconnectKey` 加一，触发 MCP 服务器重新连接。
+
+## G 插件更新机制 {meta=&quot;原文 5&quot;}
+
+&gt; **白话**：semver（语义化版本）是 `主版本.次版本.修订号` 这种版本号写法，例如 2.1.0，可以比大小。
+
+插件更新由 `pluginAutoupdate.ts` 负责。自动更新系统的六个特点：
+
+| 特点 | 原文的说明 |
+|---|---|
+| 定期检查 | 定期向市场查询有没有新版本 |
+| 版本比较 | 用 `pluginVersioning.ts` 里的 semver 比较 |
+| 后台下载 | 下载新的 `.mcpb` 文件，不阻塞使用 |
+| 原子解压 | 先解压到临时目录，再改名，防止文件损坏 |
+| 保留配置 | 更新前后保留 `userConfig` 的值 |
+| 通知 | 通过通知系统显示更新提示 |
+
+原文给了一段简化的更新代码。下图据这段代码绘制：
+
+```flow
+[getInstalledPlugins 取得已安装的插件] -&gt; [取下一个插件]
+[取下一个插件] -&gt; [getLatestVersion 向市场查最新版本]
+[getLatestVersion 向市场查最新版本] -&gt; {最新版本比当前版本新？}
+{最新版本比当前版本新？} --&gt; [取下一个插件]: 否
+{最新版本比当前版本新？} -&gt; [downloadAndInstallUpdate 下载并安装更新]: 是
+[downloadAndInstallUpdate 下载并安装更新] -&gt; [notifyUser 通知用户]
+[notifyUser 通知用户] --&gt; [取下一个插件]: 下一个
+```
+
+## H 插件安全模型 {meta=&quot;原文 6.1–6.3&quot;}
+
+&gt; **白话**：
+&gt; - **签名验证**：检查插件确实出自声称的发布方，中途没被改过。
+&gt; - **黑名单（blocklist）**：明确禁止的插件 ID 名单。
+
+### 信任级别
+
+下图据原文 6.1 的文字图重画：
+
+```tree
+插件的信任级别
+  官方 Anthropic 市场
+    签名已验证
+    自动信任，不弹警告
+    可以被企业策略屏蔽
+  第三方市场（用户添加）
+    不验证签名
+    第一次安装时显示警告
+    之后从同一市场安装，每个会话警告一次
+  本地目录、--plugin-dir
+    路径由用户明确指定
+    显示警告，需要用户确认
+    确认后视为可信
+  黑名单（pluginBlocklist.ts）
+    不能安装，也不能加载
+    显示错误消息，说明原因
+```
+
+```callout info 原文前后写法不同
+3.3 节说，第三方市场只在“第一次从这个市场安装时”警告。6.1 节又说，之后从同一市场安装，每个会话还会警告一次。
+```
+
+### 策略集成
+
+插件的行为受企业策略约束（原文 6.2）：
+
+| 文件 | 作用 |
+|---|---|
+| `pluginOnlyPolicy.ts` | 打开时，技能和 MCP 只能来自插件；用户自己写的本地技能和 MCP 服务器被拦下 |
+| `pluginBlocklist.ts` | 维护黑名单，记录已知恶意或不允许的插件 ID；可以通过策略设置更新 |
+| `pluginFlagging.ts` | 标记行为可疑的插件，例如有意料之外的网络请求，或访问文件系统过多 |
+
+### 内容安全
+
+插件的命令和技能，和用户自己写的技能遵循同一套安全模型（原文 6.3）：
+
+- 执行 shell 命令（`` !`command` ``）要经过同一套权限系统。
+- `${CLAUDE_PLUGIN_ROOT}` 的替换受控制，插件不能读自己目录以外的内容。
+- 发给模型的技能内容里，敏感的用户配置值会被遮住。
+- 插件带来的 MCP 服务器，和手动配置的服务器一样，受允许、拒绝策略约束。
+
+## I 插件、MCP 与内置工具对比 {meta=&quot;原文 7&quot;}
+
+原文从九个方面对比三种扩展方式：
+
+| 方面 | 插件 | MCP 服务器 | 内置工具 |
+|---|---|---|---|
+| 分发 | 市场、`.mcpb`、目录 | 任意 URL 或本地可执行文件 | 编译进 CLI |
+| 能力 | 命令 + 技能 + 钩子 + MCP | 工具 + 资源 + 提示词 | 单个有类型的函数 |
+| 信任模型 | 清单校验 + 市场信誉 | 服务器 URL 或可执行文件路径 | 完全信任 |
+| 版本 | 清单里的 semver，可自动更新 | 服务器版本 | CLI 版本 |
+| 用户控制 | 插件界面 `/plugin`，可启用、禁用 | MCP 界面 `/mcp` | 用户不能控制 |
+| 隔离 | 同一进程（Node.js） | stdio 子进程，或远程 | 同一进程（TypeScript） |
+| 登记到 | 命令、技能、MCP、钩子注册表 | 工具、提示词注册表 | 直接进工具列表 |
+| 配置 | `userConfig` 字段、选项对话框 | `.mcp.json`、环境变量 | CLI 参数 |
+| 性能影响 | 启动时加载，有缓存 | 启动时连接，流式传输 | 惰性加载 |
+
+## J 实现细节（一）：内置插件、MCP 集成与依赖 {meta=&quot;原文 8.1–8.3&quot;}
+
+### 内置插件注册表
+
+内置插件通过 `builtinPlugins.ts` 里的 `registerBuiltinPlugin()` 注册。它按插件名，把定义存进 `BUILTIN_PLUGINS` 表（原文 8.1）。
+
+原文说，目前没有注册任何内置插件。`src/plugins/bundled/index.ts` 里的初始化函数 `initBuiltinPlugins()` 只是脚手架。但这套机制已经支持：
+
+- 用 `pluginId = &quot;name@builtin&quot;` 的格式，和市场插件区分开。
+- 每个插件有自己的 `isAvailable()`，按平台或生命周期决定能不能用。
+- `defaultEnabled` 设置，默认为 true。
+- 用户启用、禁用的状态，通过 `enabledPlugins` 存进设置。
+
+### 插件的 MCP 服务器
+
+插件可以在清单里声明 MCP 服务器，由 `mcpPluginIntegration.ts` 处理（原文 8.2）。入口 `getPluginMcpServers()` 接收一个 `LoadedPlugin` 和一个错误列表，返回这个插件的 MCP 服务器配置；没有时返回 null。
+
+插件的 MCP 服务器按下面的规则处理：
+
+| 规则 | 做法 | 冲突时谁胜出 |
+|---|---|---|
+| 加命名空间 | 命名为 `plugin:pluginName:serverName`，避免和手动配置的服务器重名 | — |
+| 和手动配置的去重 | 按内容签名比较 | 手动配置的胜出 |
+| 插件之间去重 | 和更早加载的插件的服务器重复时，压下这一个 | 先加载的胜出 |
+| 策略过滤 | 和手动配置的服务器用同一套允许、拒绝规则 | — |
+
+### 依赖解析
+
+插件的依赖由 `dependencyResolver.ts` 解析（原文 8.3）：
+
+- 按依赖关系图解析。
+- 检测循环依赖。
+- 用 semver 范围检查版本是否兼容。
+- 缺少依赖时报错，错误消息告诉用户怎么处理。
+
+## K 实现细节（二）：加载错误与冷启动 {meta=&quot;原文 8.4–8.5&quot;}
+
+&gt; **白话**：冷启动是程序从零开始启动。关键路径是启动时必须走完、直接决定启动快慢的那串步骤。
+
+### 加载错误
+
+加载插件时出的错，会被收集起来，在系统里往下传（原文 8.4）。错误的类型是 `PluginError`：
+
+| 字段 | 内容 |
+|---|---|
+| `type` | 错误类型，原文列了 6 种，其余省略：`mcp-config-invalid`、`mcpb-download-failed`、`mcpb-extract-failed`、`mcpb-invalid-manifest`、`plugin-not-found`、`mcp-server-suppressed-duplicate` |
+| `source` | 出错的来源 |
+| `plugin`、`serverName` | 可选：哪个插件、哪个服务器 |
+| `duplicateOf` | 可选：和谁重复 |
+| `message` | 可选：错误消息 |
+
+`useManageMCPConnections.ts` 按组合键 `type:source:plugin` 给错误去重，同一个错误不会显示好几遍。
+
+### 冷启动性能
+
+插件加载针对启动速度做了优化（原文 8.5）：
+
+| 优化 | 做法 |
+|---|---|
+| 启动不联网 | `loadAllPluginsCacheOnly()` 只用本地缓存，启动的关键路径上没有网络请求 |
+| 并行加载 | 插件的 MCP 服务器用 `Promise.all` 同时加载 |
+| 轻量解析 | 清单用轻量方式解析，不是每次加载都做完整的 Schema 校验 |
+| 延后检查 | 启动检查任务（`performStartupChecks.tsx`）等主界面渲染完再运行 |
+
+## L 关键源码文件 {meta=&quot;原文 Key Source Files&quot;}
+
+原文最后列了 21 个关键源码文件。下表的分组是本页归纳，条目照原文：
+
+| 分组 | 文件 | 作用 |
+|---|---|---|
+| 内置插件 | `src/plugins/builtinPlugins.ts` | 内置插件注册表 |
+| | `src/plugins/bundled/index.ts` | 内置插件初始化 |
+| 命令和界面 | `src/commands/plugin/plugin.tsx` | 插件 CLI 命令入口 |
+| | `src/commands/plugin/PluginSettings.tsx` | 插件管理主界面 |
+| | `src/commands/plugin/BrowseMarketplace.tsx` | 市场浏览器 |
+| | `src/commands/plugin/PluginTrustWarning.tsx` | 信任校验对话框 |
+| 服务层 | `src/services/plugins/PluginInstallationManager.ts` | 统筹安装 |
+| | `src/services/plugins/pluginCliCommands.ts` | CLI 命令实现 |
+| | `src/services/plugins/pluginOperations.ts` | 底层文件操作 |
+| 加载和集成 | `src/utils/plugins/pluginLoader.ts` | 插件加载管线 |
+| | `src/utils/plugins/loadPluginCommands.ts` | 命令和技能加载 |
+| | `src/utils/plugins/mcpPluginIntegration.ts` | MCP 服务器集成 |
+| | `src/utils/plugins/schemas.ts` | 插件清单的 Schema |
+| | `src/utils/plugins/reconciler.ts` | 状态协调 |
+| | `src/types/plugin.ts` | 插件类型定义 |
+| 市场、版本和依赖 | `src/utils/plugins/marketplaceManager.ts` | 市场 API 客户端 |
+| | `src/utils/plugins/pluginAutoupdate.ts` | 自动更新机制 |
+| | `src/utils/plugins/pluginVersioning.ts` | semver 版本管理 |
+| | `src/utils/plugins/dependencyResolver.ts` | 依赖解析 |
+| 安全和策略 | `src/utils/plugins/pluginBlocklist.ts` | 安全黑名单 |
+| | `src/utils/plugins/pluginPolicy.ts` | 策略集成 |
+
+## M 原文前后不一致的地方 {meta=&quot;本页归纳&quot;}
+
+本页没有替原文统一，各处都照原文写。原文没有总结一章，这里把不一致的地方汇总在一起：
+
+| 不一致的地方 | 一处的说法 | 另一处的说法 |
+|---|---|---|
+| 加载步骤的先后 | 1 节的图：信任校验 → 依赖解析 → 清单校验 | 3.2 节的图：校验清单 → 检查信任和黑名单 → 解析依赖 |
+| 插件来源有几种 | 1 节和 3.2 节的图：4 种 | 3.1 节：5 种，多了企业管理的插件（Managed Plugins） |
+| 插件能不能带代理 | 1 节和 3.5 节的图：有插件代理、代理注册表 `loadPluginAgents` | 2 节的清单没有代理字段；开头和 7 节列能力时也没有代理 |
+| 内置插件放在哪 | 1 节的图和 3.1 节：`src/plugins/builtin/`，始终可用 | 8.1 节和文件表：`builtinPlugins.ts` 和 `src/plugins/bundled/index.ts`；目前没有注册任何内置插件 |
+| 第三方市场的警告 | 3.3 节：第一次从这个市场安装时警告 | 6.1 节：之后从同一市场安装，每个会话警告一次 |
+| 清单校验 | 3.2 节的图：有“校验清单 Schema”这一步 | 8.5 节：清单用轻量解析，不是每次加载都完整校验 |
+| 策略文件名 | 6.2 节：`pluginOnlyPolicy.ts` | 文件表的策略集成文件：`pluginPolicy.ts` |
+
+## N 附录：名词表（白话） {meta=&quot;本页补充&quot;}
+
+开头“先看懂”讲过的词，这里不再收。
+
+### 程序与设计
+
+| 名词 | 白话 | 出现在 |
+|---|---|---|
+| memoize（记忆化） | 第一次算出结果后记住它，之后直接返回 | E 节 |
+| 命名空间 | 在名字前加前缀，让同名的东西不冲突 | E、J 节 |
+| Schema | 数据格式的说明，用来检查数据写得对不对 | C、D、K 节 |
+| semver（语义化版本） | `主版本.次版本.修订号` 的版本号写法，可以比大小 | G、I、J 节 |
+| React 组件 | 用 React 写的一块界面 | F 节 |
+| 脚手架 | 先搭好的空架子，还没有放实际内容 | J 节 |
+| 原子操作 | 要么全部完成，要么完全没发生，不会停在一半 | G 节 |
+| 内容签名 | 按内容算出的标识，内容相同，签名就相同 | J 节 |
+| 组合键 | 把几个字段拼在一起当作一个键，例如 `type:source:plugin` | K 节 |
+| 循环依赖 | A 依赖 B，B 又依赖 A，绕成一个圈 | J 节 |
+| Promise.all | 同时启动几件事，等它们全部完成 | K 节 |
+| 惰性加载 | 用到时才加载，不提前准备 | I 节 |
+
+### 文件与分发
+
+| 名词 | 白话 | 出现在 |
+|---|---|---|
+| `.mcpb`（MCP Bundle） | 原文说的插件分发格式，本质是一个 zip 包 | C、G、I 节 |
+| frontmatter | Markdown 文件开头两行 `---` 之间的配置 | E 节 |
+| 符号链接（symlink） | 指向另一个文件或目录的“快捷方式” | F 节 |
+| 临时目录 | 用完就删的中间目录 | G 节 |
+| stdio 子进程 | 另起一个程序，通过标准输入输出和它通信 | I 节 |
+
+### 安全
+
+| 名词 | 白话 | 出现在 |
+|---|---|---|
+| 签名验证 | 检查插件出自声称的发布方，中途没被改过 | H 节 |
+| 黑名单（blocklist） | 明确禁止的插件 ID 名单 | D、H 节 |
+| 企业策略 | 公司管理员统一下发的设置，用户不能自己改 | D、H 节 |
+| 遮住敏感值（masked） | 把密码这类值替换掉，不让模型看到原文 | E、H 节 |
+
+### Claude Code 自己的名词
+
+| 名词 | 白话 | 出现在 |
+|---|---|---|
+| bundled skills、disk-based skills | 编译进程序的技能；用户写在磁盘上的技能 | B 节 |
+| `PluginManifest` | 插件清单的类型 | C 节 |
+| `BuiltinPluginDefinition` | 内置插件的定义类型 | C 节 |
+| `LoadedPlugin` | 加载管线产出的插件对象，带路径和配置 | D、J 节 |
+| `userConfig` | 插件让用户填的配置项，以及保存下来的值 | C、F、G 节 |
+| `commandsMetadata` | 清单里覆盖命令元数据的字段 | C、E 节 |
+| `enabledPlugins` | 设置里记录哪些插件启用的项 | J 节 |
+| `name@builtin` | 内置插件的 ID 格式 | J 节 |
+| AppState | Claude Code 的全局状态 | F 节 |
+| `mcp.pluginReconnectKey` | 一个计数值，加一就触发插件的 MCP 服务器重连 | F 节 |
+| `PluginError` | 插件加载错误的类型 | K 节 |
+| 企业管理的插件（Managed Plugins） | 由企业策略强制安装或管理的插件 | D 节 |
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions and the panel comments.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }].
+// Comment text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+function replyText({ title, decisions, comments, ui }) {
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   → ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) {
+      out.push(`- **${c.panel} · ${c.title}**`, ...c.text.trim().split('\n').map((l) => `  > ${l}`));
+    }
+    out.push('', `_${ui.typed}_`);
+  }
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers and the comments
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  const keyOf = (ask) => ask.querySelector('legend')?.textContent.trim() ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: panel?.querySelector('.am-panel-head h2')?.textContent.trim() ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: ask.querySelector('legend')?.textContent.trim() ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const empty = !decisions.length && !comments.some((c) => c.text.trim());
+    const title = document.querySelector('.am-head h1')?.textContent.trim() ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, ui });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg')].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+</script>
+</body>
+</html>
